@@ -249,7 +249,7 @@ function paint(now){
 
 async function init(){
   try{
-    const [plate,logo]=await Promise.all([loadImage('light-plane-v3.png'),loadImage('../assets/lotus-original-red-gold.png')]);
+    const [plate,logo]=await Promise.all([loadImage('light-plane-v3.png'),loadImage('../assets/lotus-original-red-gold-web.webp')]);
     makeMark(logo);drawMark(1.18);
     renderer=new THREE.WebGLRenderer({canvas,alpha:false,antialias:true,powerPreference:'high-performance'});
     renderer.setClearColor(0x000000,1);scene=new THREE.Scene();

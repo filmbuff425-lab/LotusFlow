@@ -4,7 +4,7 @@ const host=document.querySelector('#scene'),begin=document.querySelector('#begin
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.setClearColor(0x030304);host.append(renderer.domElement);
 const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(37,1,.1,180);camera.position.set(0,.4,16);
-const loader=new THREE.TextureLoader(),logo=loader.load('../assets/lotus-original-red-gold.png');logo.colorSpace=THREE.SRGBColorSpace;logo.minFilter=logo.magFilter=THREE.NearestFilter;
+const loader=new THREE.TextureLoader(),logo=loader.load('../assets/lotus-original-red-gold-web.webp');logo.colorSpace=THREE.SRGBColorSpace;logo.minFilter=logo.magFilter=THREE.NearestFilter;
 const audio=new Audio('../assets/music/news.mp3');audio.preload='metadata';audio.id='demo-audio';audio.hidden=true;document.body.append(audio);audio.volume=.42;const signal=createMusicSignal(audio);audio.addEventListener('loadedmetadata',()=>audio.currentTime=69,{once:true});audio.addEventListener('timeupdate',()=>{if(audio.currentTime>=91)audio.currentTime=69});
 let sound=false,version='a',phase='intro',held=false,autoType=false,charge=0,time=0,openElapsed=0,last=performance.now(),paused=reduced,drag=null,yaw=0,pitch=0,hasDragged=false,transitionTimer=null;
 const pointer=new THREE.Vector2(),smoothPointer=new THREE.Vector2();

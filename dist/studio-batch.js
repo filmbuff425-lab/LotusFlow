@@ -1,12 +1,19 @@
 import * as THREE from 'three';
 // Consolidate static opaque parts; keep controls, moving parents and optical surfaces independent.
 export function batchStudio(root,interactive){
- const excluded=new Set(interactive),groups=new Map(),inverse=new THREE.Matrix4();root.updateMatrixWorld(true);inverse.copy(root.matrixWorld).invert();let before=0,removed=0;
+ const excluded=new Set(interactive),groups=new Map(),materialKeys=new WeakMap(),inverse=new THREE.Matrix4();root.updateMatrixWorld(true);inverse.copy(root.matrixWorld).invert();let before=0,removed=0;
+ function materialKey(material){
+  if(materialKeys.has(material))return materialKeys.get(material);
+  // UUIDs separate otherwise identical static hardware into thousands of draw calls.
+  // All optical parameters and texture identities remain part of the key.
+  const data=material.toJSON();for(const key of ['metadata','uuid','name','textures','images'])delete data[key];
+  const key=JSON.stringify(data);materialKeys.set(material,key);return key;
+ }
  function visit(object,blocked=false){
-  const skip=blocked||excluded.has(object)||object.userData.dynamic||!!object.userData.update;
+  const skip=blocked||!object.visible||excluded.has(object)||object.userData.dynamic||!!object.userData.update;
   if(object.isMesh)before++;
-  if(object.isMesh&&!skip&&!object.isInstancedMesh&&object.visible&&!Array.isArray(object.material)&&!object.material.transparent&&!object.material.transmission&&!object.material.isShaderMaterial&&object.geometry.attributes.normal&&object.geometry.attributes.uv){
-   const key=object.material.uuid+'/'+object.castShadow+'/'+object.receiveShadow+'/'+object.renderOrder;
+  if(object.isMesh&&!skip&&!object.isInstancedMesh&&!Array.isArray(object.material)&&!object.material.transparent&&!object.material.transmission&&!object.material.isShaderMaterial&&!object.material.vertexColors&&object.material.onBeforeCompile===THREE.Material.prototype.onBeforeCompile&&object.onBeforeRender===THREE.Object3D.prototype.onBeforeRender&&!object.isSkinnedMesh&&!object.morphTargetInfluences&&Object.keys(object.geometry.attributes).every(name=>['position','normal','uv'].includes(name))&&object.geometry.attributes.normal&&object.geometry.attributes.uv){
+   const key=materialKey(object.material)+'/'+object.castShadow+'/'+object.receiveShadow+'/'+object.renderOrder;
    if(!groups.has(key))groups.set(key,[]);groups.get(key).push(object);
   }
   for(const child of object.children)visit(child,skip);

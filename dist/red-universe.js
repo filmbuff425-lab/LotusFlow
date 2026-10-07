@@ -21,7 +21,7 @@ function setup(){
  for(let i=0;i<count;i++){const a=i*2.399963,r=1.0+Math.random()*42;pos.set([Math.cos(a)*r,Math.sin(a)*r,(Math.random()-.7)*140],i*3);new THREE.Color(i%9===0?0xba4426:i%3===0?0xadb4cf:0xc7bdba).multiplyScalar(.28+Math.random()*.5).toArray(colors,i*3)}
  const starsG=new THREE.BufferGeometry();starsG.setAttribute('position',new THREE.BufferAttribute(pos,3));starsG.setAttribute('color',new THREE.BufferAttribute(colors,3));scene.add(new THREE.Points(starsG,new THREE.PointsMaterial({vertexColors:true,size:.072,transparent:true,opacity:.9,depthWrite:false,blending:THREE.AdditiveBlending})));
  // The mark is ink on the globe itself: one curved surface, one depth and one light model.
- const logoTexture=new THREE.TextureLoader().load('assets/lotus-original-red-gold.png');
+ const logoTexture=new THREE.TextureLoader().load('assets/lotus-original-red-gold-web.webp');
  logoTexture.minFilter=logoTexture.magFilter=THREE.NearestFilter;
  const core=new THREE.Group(),planet=new THREE.Group();core.add(planet);scene.add(core);
  const orbUniform={time:{value:0},hover:{value:0},alpha:{value:1},logoMap:{value:logoTexture}};

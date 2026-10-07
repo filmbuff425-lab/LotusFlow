@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import {updateHeartbeat} from './cube-heartbeat.js?v=20261006-lake-surface1';
+import {updateHeartbeat} from './cube-heartbeat.js?v=20261007-performance1';
 import {studioLayout} from './studio-layout.js?v=20261006-lake-surface1';
-import {createCosmos} from './studio-cosmos.js?v=20261006-lake-surface1';
+import {createCosmos} from './studio-cosmos.js?v=20261007-performance1';
 
 export function createSoundcube({scene,root,texture,camera,renderer}){
  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -62,8 +62,8 @@ export function createSoundcube({scene,root,texture,camera,renderer}){
   pulseGlow.position.copy(glassGroup.position).addScaledVector(camera.getWorldDirection(away),10*scale);pulseGlow.quaternion.copy(camera.quaternion);pulseGlow.scale.set(135*scale,112*scale,1);pulseUniforms.beat.value=beat;pulseUniforms.alpha.value=(1-reveal)*(1-hoverSmooth*.65);pulseGlow.visible=p<.98;
   updateDrops(dt,reveal);
   updateHeartbeat(elapsed,closed);
-  grainUniforms.time.value=t;cosmos?.update(reduced?0:elapsed*1000);
-  roomScene?.update(now,p);
+  grainUniforms.time.value=t;if(p>.001)cosmos?.update(reduced?0:elapsed*1000);
+  if(root.visible)roomScene?.update(now,p);
  }
  return{get room(){return roomScene?.room},get recordTargets(){return roomScene?.recordTargets||[]},get glassRecords(){return roomScene?.glassRecords},get mvWall(){return roomScene?.mvWall},attachRoom,setInteriorReady(){interiorReady=true},update,setProgress,setHover,setPointer,clearPointer,hitTargets:surfaces};
 }

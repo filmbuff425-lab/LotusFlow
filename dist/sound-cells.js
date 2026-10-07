@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {createHomeParticles} from './home-particles.js?v=20261006-lake-surface1';
+import {createHomeParticles} from './home-particles.js?v=20261007-performance1';
 
 // A living sound field: cellular membranes, nuclei and thousands of spatial samples.
 export async function createSoundCells(scene, reduced) {

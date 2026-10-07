@@ -11,7 +11,7 @@ export const awardVisuals = {
     "height": 3646
   },
   "love-me-later-east-award": {
-    "asset": "./assets/recognition/awards/east-32-artist-2.jpg",
+    "asset": "./assets/recognition/awards/east-32-artist-2-web.webp",
     "alt": "Award acceptance photograph showing Wang Yitai in the award sash holding ceremony mascot.",
     "caption": "2025 / AWARD ACCEPTANCE PHOTO",
     "context": "Wang Yitai accepting the Most Popular Rap Album recognition for Love Me Later — 32nd 东方风云榜 (2025).",

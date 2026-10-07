@@ -4,7 +4,7 @@ const BEGIN=1.18,END=3.247,W=1920,H=1086;
 let ready=false,logo=null,playing=false,framePending=false;
 const repair=document.createElement('canvas');repair.width=235;repair.height=32;const repairCtx=repair.getContext('2d',{willReadFrequently:true});
 function cleanCaption(x,y,w,h){repairCtx.clearRect(0,0,235,32);repairCtx.drawImage(video,x/W*video.videoWidth,y/H*video.videoHeight,w/W*video.videoWidth,h/H*video.videoHeight,0,0,w,h);const patch=repairCtx.getImageData(0,0,w,h);for(let row=0;row<h;row++){for(let col=0;col<w;col++){for(let c=0;c<3;c++){const l=patch.data[(row*w)*4+c],r=patch.data[(row*w+w-1)*4+c];patch.data[(row*w+col)*4+c]=l+(r-l)*col/(w-1)}}}repairCtx.putImageData(patch,0,0);ctx.drawImage(repair,0,0,w,h,x,y,w,h)}
-const original=new Image();original.src='../assets/lotus-original-red-gold.png';
+const original=new Image();original.src='../assets/lotus-original-red-gold-web.webp';
 original.onload=()=>{const stamp=document.createElement('canvas');stamp.width=150;stamp.height=104;const s=stamp.getContext('2d');s.drawImage(original,0,0,150,104);const p=s.getImageData(0,0,150,104);for(let i=0;i<p.data.length;i+=4){if(p.data[i+3]<89){p.data[i+3]=0;continue}const l=(p.data[i]*.3+p.data[i+1]*.5+p.data[i+2]*.2)/255,d=((i/4%150+Math.floor(i/4/150))%2)*.055;const ink=l+d>.6?[255,255,255]:l+d>.23?[255,92,43]:l+d>.08?[240,26,11]:[115,5,4];p.data.set([...ink,255],i)}s.putImageData(p,0,0);logo=stamp;draw()};
 function smooth(a,b,t){const x=Math.max(0,Math.min(1,(t-a)/(b-a)));return x*x*(3-2*x)}
 function resize(){const r=canvas.getBoundingClientRect(),d=Math.min(devicePixelRatio,2);canvas.width=Math.round(r.width*d);canvas.height=Math.round(r.height*d);draw()}

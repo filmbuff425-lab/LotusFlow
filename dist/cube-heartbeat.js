@@ -7,7 +7,7 @@ toggle.setAttribute('aria-label','Enable heartbeat sound');stage.append(toggle);
 // depend on the interaction-sound AudioContext or on the background music.
 const heart=document.createElement('audio');heart.src=new URL('./assets/audio/cube-heart.wav',import.meta.url).href;
 heart.preload='auto';heart.dataset.heartbeat='true';heart.setAttribute('aria-hidden','true');document.body.append(heart);
-let armed=false,arming,muted=false,visible=false,inside=false,cycle=-1,fade=0,plays=0;
+let armed=false,arming,muted=false,visible=false,inside=false,cycle=-1,fade=0,plays=0,lastDiagnostic=-1;
 function label(){const on=armed&&!muted;toggle.textContent=muted?'HEARTBEAT / OFF':on?'HEARTBEAT / ON':'HEARTBEAT / ENABLE';toggle.setAttribute('aria-pressed',String(on));toggle.setAttribute('aria-label',on?'Mute heartbeat sound':'Enable heartbeat sound');toggle.dataset.audioState=armed?'ready':'needs-gesture'}
 export async function armHeartbeat(){
  if(arming)return arming;if(armed)return;
@@ -22,7 +22,7 @@ async function play(){
 }
 // The original paired impacts at .04/.32 s align with the shell's .20/.49 s pulse.
 export function updateHeartbeat(t,closed){
- toggle.dataset.heartbeatProgress=heart.currentTime.toFixed(3);toggle.dataset.heartbeatPaused=String(heart.paused);
+ if(t-lastDiagnostic>.2){lastDiagnostic=t;toggle.dataset.heartbeatProgress=heart.currentTime.toFixed(3);toggle.dataset.heartbeatPaused=String(heart.paused)}
  if(closed<.99){if(!fade)stop();return}
  const c=Math.floor((t-.16)/1.85);if(c!==cycle){cycle=c;if(c>=0)play()}
 }

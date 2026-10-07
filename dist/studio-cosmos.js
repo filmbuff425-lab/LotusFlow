@@ -3,7 +3,7 @@ import * as THREE from 'three';
 export function createCosmos({scene,camera}){
  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,group=new THREE.Group();group.visible=false;scene.add(group);
  const rnd=n=>{const v=Math.sin(n*127.1+47.7)*43758.5453;return v-Math.floor(v)};
- const orbitPhoto=new THREE.TextureLoader().load('assets/studio-earth-rim.png');orbitPhoto.colorSpace=THREE.SRGBColorSpace;orbitPhoto.anisotropy=4;
+ const orbitPhoto=new THREE.TextureLoader().load('assets/studio-earth-rim-web.webp');orbitPhoto.colorSpace=THREE.SRGBColorSpace;orbitPhoto.anisotropy=4;
  const uniforms={time:{value:0},reveal:{value:0},orbitPhoto:{value:orbitPhoto}};
  // Camera-centred opaque sky renders before the room. It cannot intersect the room
  // or expose a low-poly silhouette when the camera crosses its old world-space edge.
@@ -43,7 +43,7 @@ export function createCosmos({scene,camera}){
   points.forEach(([x,y],i)=>{pos.set([(x/160-.5)*74,(.5-y/106)*49,0],i*3);const a=rnd(i+4)*6.283,r=19+rnd(i+9)*55;origin.set([Math.cos(a)*r,Math.sin(a)*r*.7,(rnd(i+17)-.5)*24],i*3);size[i]=i%49===0?5:1+rnd(i+29)*1.7;seed[i]=rnd(i+36);new THREE.Color(i%12===0?0xe1cbc0:0xb3c1ec).toArray(color,i*3)});
   const geo=attributes(pos,size,color,seed);geo.setAttribute('origin',new THREE.BufferAttribute(origin,3));
   logoPoints=new THREE.Points(geo,new THREE.ShaderMaterial({uniforms:logoUniforms,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false,vertexShader:`attribute vec3 origin,color;attribute float size,seed;uniform float time,gather;varying vec3 vColor;varying float vAlpha,vFlare;void main(){vec3 dest=position+vec3(sin(time*.13+seed*12.),cos(time*.15+seed*9.),0.)*.23;vec3 p=mix(origin,dest,gather);p.z+=sin(seed*19.+time*.24)*(1.-gather)*3.;vec4 mv=modelViewMatrix*vec4(p,1.);gl_Position=projectionMatrix*mv;gl_PointSize=clamp(size*250./max(60.,-mv.z),.8,7.);vColor=color;vAlpha=(.08+.15*gather)*(.50+.50*pow(sin(time*.56+seed*67.)*.5+.5,3.));vFlare=step(3.,size);}`,fragmentShader:fragment}));logoPoints.position.set(-8,36,-102);logoPoints.rotation.z=-.12;logoPoints.frustumCulled=false;group.add(logoPoints);
- };logo.src='assets/lotus-flow-wordmark.png';
+ };logo.src='assets/lotus-flow-wordmark-web.webp';
  function setReveal(v){uniforms.reveal.value=v;group.visible=v>.001}
  function update(now){const t=reduced?0:now*.001;uniforms.time.value=t;sky.position.copy(camera.position);const orbitAngle=-t*.014;sky.rotation.z=orbitAngle;stars.rotation.y=Math.sin(t*.046)*.045;stars.rotation.z=orbitAngle+Math.sin(t*.021)*.006;const phase=t%27;logoUniforms.gather.value=reduced?.72:THREE.MathUtils.smoothstep(phase,3,10)*(1-THREE.MathUtils.smoothstep(phase,15,23));}
  return{group,update,setReveal};

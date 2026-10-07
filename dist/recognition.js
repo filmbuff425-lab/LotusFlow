@@ -1,6 +1,6 @@
 import {recognitionData} from './recognition-data.js?v=20261006-lake-surface1';
 import {recognitionBrand} from './recognition-brands.js?v=20261006-lake-surface1';
-import {awardVisuals} from './recognition-visuals.js?v=20261006-lake-surface1';
+import {awardVisuals} from './recognition-visuals.js?v=20261007-performance1';
 const checkedOn='4 OCT 2026';
 const names={award:'AWARD',nomination:'NOMINATION',chart:'CHART',reach:'AUDIENCE',editorial:'EDITORIAL',press:'PRESS',certification:'CERTIFICATION'};
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

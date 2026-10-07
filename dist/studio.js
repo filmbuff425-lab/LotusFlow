@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import {OrbitControls} from './vendor/OrbitControls.js';
 import {studioLayout} from './studio-layout.js?v=20261006-lake-surface1';
-import {createSoundcube} from './soundcube.js?v=20261006-lake-surface1';
+import {createSoundcube} from './soundcube.js?v=20261007-performance1';
 if (!window.lotusSession) await new Promise(resolve => window.addEventListener('lotus-session-ready', resolve, { once: true }));
 const api = window.lotusSession, host = document.getElementById('studio-canvas'), loading = document.getElementById('studio-loading');
 let selected = api.channels[0].id;
@@ -49,7 +49,7 @@ function setupStudio() {
   if(interiorTask)return interiorTask;
   host.dataset.roomState='preparing';
   interiorTask=(async()=>{
-   const {createStudioInterior}=await import('./studio-interior.js?v=20261006-lake-surface1');
+   const {createStudioInterior}=await import('./studio-interior.js?v=20261007-performance1');
    const parts=await createStudioInterior({scene,root,renderer,api,camera,soundcube,host,touchables,selected:()=>selected});
    ({desk,faders,leds,channelButtons,selectionLights,oleds,details,soundSystem,archive,synths,consoleExtension,sessionScreens,backdrop}=parts);
    // Compile the interior before revealing it; compileAsync does not draw a frame.
@@ -58,7 +58,7 @@ function setupStudio() {
    await compilation;
    soundcube.setInteriorReady();renderer.shadowMap.needsUpdate=true;host.dataset.warmed='true';host.dataset.roomState='ready';
    Object.assign(window.lotusStudio,{desk,faders,details});
-  })();
+  })().catch(error=>{interiorTask=null;throw error});
   return interiorTask;
  }
  const stage=document.getElementById('studio-stage'),studioSection=document.getElementById('studio'),entry=document.getElementById('studio-entry'),openButton=document.getElementById('open-studio'),closeButton=document.getElementById('close-studio');
@@ -112,11 +112,13 @@ function setupStudio() {
  document.querySelectorAll('[data-studio-zoom]').forEach(button=>button.addEventListener('click',()=>{if(transition)return;const offset=(cameraMove?.to||camera.position).clone().sub(controls.target);offset.setLength(THREE.MathUtils.clamp(offset.length()*(button.dataset.studioZoom==='in'?.84:1.19),controls.minDistance,controls.maxDistance));moveCamera(controls.target.clone().add(offset),controls.target.clone())}));
  document.getElementById('studio-reset-view').addEventListener('click',()=>{if(transition)return;const view=roomOpen?insideView:cubeView;moveCamera(view.position.clone(),view.target.clone());document.querySelectorAll('[data-camera]').forEach(b=>b.classList.toggle('active',b.dataset.camera==='perspective'))});
  document.getElementById('auto-rotate').addEventListener('click', e => { if(!roomOpen||transition)return; controls.autoRotate = !controls.autoRotate; e.currentTarget.setAttribute('aria-pressed', String(controls.autoRotate)); });
- function resize() { const w = host.clientWidth, h = host.clientHeight; renderer.setPixelRatio(Math.min(devicePixelRatio,1.5,2200/w));renderer.setSize(w, h); camera.aspect = w / h; camera.fov = w < 600 ? 62 : 37; camera.updateProjectionMatrix(); }
+ function resize() { const w = host.clientWidth, h = host.clientHeight; if(!w||!h)return;renderer.setPixelRatio(Math.min(devicePixelRatio,1.5,2200/w));renderer.setSize(w, h); camera.aspect = w / h; camera.fov = w < 600 ? 62 : 37; camera.updateProjectionMatrix(); }
  new ResizeObserver(resize).observe(host); resize(); new IntersectionObserver(e => { visible = e[0].isIntersecting; }, { rootMargin: '160px' }).observe(host);
  canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); visible = false; loading.hidden = false; loading.textContent = 'The 3D view was interrupted. Refresh to restore it; the mixer below still works.'; });
+ let interactionUntil=0;
+ for(const event of ['pointerdown','pointermove','keydown'])canvas.addEventListener(event,()=>{interactionUntil=performance.now()+1200},{passive:true});
  const measure=new URLSearchParams(location.search).has('perf'),perfFrames=[];let perfAt=0,previousFrame=0;
- function animate(now) { requestAnimationFrame(animate); if (!visible || document.hidden || document.body.classList.contains('desktop-open')){previousFrame=0;return;} if(now-last<12)return; const cpuStart=performance.now();if(measure){renderer.info.autoReset=false;renderer.info.reset()}const frameInterval=previousFrame?now-previousFrame:16.7;previousFrame=now;last = now;if(transition){const raw=THREE.MathUtils.clamp((now-transition.at)/5800,0,1),q=raw*raw*raw*(raw*(raw*6-15)+10);entrance=THREE.MathUtils.lerp(transition.from,transition.to,q);travelAround(transition.position,transition.target,transition.destination.position,transition.destination.target,q);details.soundcube.setProgress(entrance);if(q===1)finishRoom()}if(cameraMove){const t=THREE.MathUtils.smoothstep((now-cameraMove.at)/1450,0,1);travelAround(cameraMove.from,cameraMove.fromTarget,cameraMove.to,cameraMove.target,t);if(t===1){cameraMove=null;controls.enabled=true;controls.enableDamping=!reduced}} if(controls.enabled)controls.update();details.update(now);soundSystem?.update(now);archive?.update(now);synths?.update(now);if(roomOpen)consoleExtension?.update(now);if(backdrop)backdrop.visible = true;
+ function animate(now) { requestAnimationFrame(animate); if (!visible || document.hidden || document.body.classList.contains('desktop-open')){previousFrame=0;return;} if(now-last<(transition||cameraMove||(roomOpen&&(controls.autoRotate||now<interactionUntil))?16:33))return; const cpuStart=performance.now();if(measure){renderer.info.autoReset=false;renderer.info.reset()}const frameInterval=previousFrame?now-previousFrame:16.7;previousFrame=now;last = now;if(transition){const raw=THREE.MathUtils.clamp((now-transition.at)/5800,0,1),q=raw*raw*raw*(raw*(raw*6-15)+10);entrance=THREE.MathUtils.lerp(transition.from,transition.to,q);travelAround(transition.position,transition.target,transition.destination.position,transition.destination.target,q);details.soundcube.setProgress(entrance);if(q===1)finishRoom()}if(cameraMove){const t=THREE.MathUtils.smoothstep((now-cameraMove.at)/1450,0,1);travelAround(cameraMove.from,cameraMove.fromTarget,cameraMove.to,cameraMove.target,t);if(t===1){cameraMove=null;controls.enabled=true;controls.enableDamping=!reduced}} if(controls.enabled)controls.update();if(roomOpen||transition){details.update(now);soundSystem?.update(now);archive?.update(now);synths?.update(now);if(roomOpen)consoleExtension?.update(now)}else soundcube.update(now);if(backdrop)backdrop.visible = true;
   const soloing = api.channels.some(c => c.solo),frameMeters=api.readMeters(now); if(roomOpen)api.channels.forEach((c, i) => { faders[i].position.z += (1.65-c.value/100*1.68-faders[i].position.z)*.28;
    const oled=oleds[i],stamp=`${c.value}/${selected===c.id}/${c.mute}/${c.solo}`;if(oled.last!==stamp){oled.last=stamp;const image=oled.screen.material.map.image,g=image.getContext('2d');image.width=512;image.height=224;g.fillStyle=selected===c.id?'#18252c':'#091318';g.fillRect(0,0,512,224);g.fillStyle=selected===c.id?'#e83324':'#94c3d6';g.fillRect(0,0,512,7);g.font='600 46px Arial';g.fillText(c.name,30,66);g.fillStyle='#e1e8ec';g.font='52px monospace';g.fillText(c.value===0?'−∞':`${(20*Math.log10(Math.pow(c.value/100,1.4))).toFixed(1)} dB`,30,145);g.font='23px monospace';g.fillStyle='#86a1b5';g.fillText(`${c.mute?'MUTED':c.solo?'SOLO':'STEREO'}    CH ${i+1}`,30,198);oled.screen.material.map.needsUpdate=true}
     const enabled = !c.mute && (!soloing || c.solo), level = api.audioState.playing && enabled && !api.audioState.muted ? THREE.MathUtils.clamp((frameMeters.channels[i].peakDb+60)/60,0,1) : 0; leds[i].forEach((led, k) => { const lit = k < level * 16; led.material.color.set(lit ? (k > 13 ? 0xf5ba54 : 0x73d9d2) : 0x17292c); led.material.emissiveIntensity = lit ? 1.7 : .015; }); selectionLights[i].material.emissiveIntensity = c.id === selected ? 3.3 : .6; selectionLights[i].material.color.set(c.id === selected ? 0xb5ecff : 0x407582); channelButtons[i].mute.material.color.set(c.mute ? 0xef4352 : 0xa9bcc4); channelButtons[i].solo.material.color.set(c.solo ? 0xf7c56b : 0xa9bcc4); });
@@ -124,8 +126,8 @@ function setupStudio() {
   if(!host.dataset.firstFrameMs){
    host.dataset.firstFrameMs=performance.now().toFixed(0);loading.hidden=true;
    window.dispatchEvent(new Event('lotus-studio-ready'));
-   // Two painted frames precede background preparation. Entering early shares this task.
-   requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(()=>prepareInterior().catch(error=>{host.dataset.roomState='error';console.warn('Background studio preparation failed:',error)}),500)));
+   // Keep the full-quality interior on demand. The closed cube needs none of its models, textures or shader compilation.
+   host.dataset.roomState='waiting';
   }
   if(measure){perfFrames.push({ms:frameInterval,cpu:performance.now()-cpuStart,calls:renderer.info.render.calls});if(now-perfAt>1800){const samples=perfFrames.splice(0);const sort=samples.map(s=>s.ms).sort((a,b)=>a-b);host.dataset.performance=JSON.stringify({frames:samples.length,medianMs:+sort[Math.floor(sort.length*.5)].toFixed(1),p95Ms:+sort[Math.floor(sort.length*.95)].toFixed(1),cpuMs:+(samples.reduce((n,s)=>n+s.cpu,0)/samples.length).toFixed(1),drawCalls:Math.round(samples.reduce((n,s)=>n+s.calls,0)/samples.length)});perfAt=now}}
  }

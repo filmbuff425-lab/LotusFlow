@@ -3,7 +3,7 @@ import * as THREE from 'three';
 // The same warm light lives in the wordmark, the distant dust and the cell membrane.
 export async function createHomeParticles(scene, map, reduced) {
  const root=new THREE.Group();scene.add(root);
- const image=new Image();image.src='./assets/lotus-flow-wordmark.png';await image.decode();
+ const image=new Image();image.src='./assets/lotus-flow-wordmark-web.webp';await image.decode();
  const canvas=document.createElement('canvas');canvas.width=600;canvas.height=Math.round(600*image.height/image.width);
  const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0,canvas.width,canvas.height);
  const data=ctx.getImageData(0,0,canvas.width,canvas.height).data,samples=[];
