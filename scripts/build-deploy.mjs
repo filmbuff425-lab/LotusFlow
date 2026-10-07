@@ -5,7 +5,7 @@ import {createHash} from 'node:crypto';
 const {transform}=await import(process.env.LOTUS_ESBUILD_PATH?pathToFileURL(process.env.LOTUS_ESBUILD_PATH).href:'esbuild');
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const input=path.join(root,'dist'),output=path.join(root,'deploy');
-const revision='20261007-deploy1';
+const revision='20261007-mobile4';
 // These older encodes are unreferenced. Current recordings stay byte-for-byte intact.
 const omitted=new Set(['assets/mv/airtight.mp4','assets/mv/feed-on.mp4','assets/mv/flow.mp4','assets/mv/juliet.mp4','assets/mv/show-me-love.mp4','assets/mv/show-me-love-20261006.mp4']);
 const studies=['_bar-study.html','design-review/','entry-study/','entry-visual/','home-demos/'];
@@ -45,3 +45,4 @@ const report={revision,copied,omittedFiles:[...omitted,...studies],omittedPayloa
 await fs.writeFile(path.join(output,'deployment.json'),JSON.stringify(report));
 await fs.mkdir(path.join(root,'outputs'),{recursive:true});await fs.writeFile(path.join(root,'outputs/deployment-integrity.json'),JSON.stringify({report,integrity},null,2));
 console.log(JSON.stringify(report,null,2));
+
