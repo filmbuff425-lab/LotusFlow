@@ -1,5 +1,20 @@
+// Count the original texels without encoding or copying any source canvas.
+export function studioTextureFootprint(objects){
+ const textures=new Set();
+ for(const root of objects)root?.traverse(object=>{
+  for(const material of Array.isArray(object.material)?object.material:[object.material]){
+   if(!material)continue;
+   for(const value of Object.values(material))if(value?.isTexture&&!value.isRenderTargetTexture)textures.add(value);
+   for(const uniform of Object.values(material.uniforms||{}))if(uniform.value?.isTexture&&!uniform.value.isRenderTargetTexture)textures.add(uniform.value);
+  }
+ });
+ let texels=0,sourceTexels=0;const largest=[],sources=new Set();
+ for(const texture of textures){const image=texture.image,w=image?.width||image?.naturalWidth||0,h=image?.height||image?.naturalHeight||0;texels+=w*h;if(!sources.has(texture.source)){sources.add(texture.source);sourceTexels+=w*h}largest.push({width:w,height:h,name: texture.name||image?.src?.split('/').pop()||'canvas'})}
+ return{textures:textures.size,uniqueSources:sources.size,sourceMiB:+(sourceTexels*4/1048576).toFixed(1),rgbaMiB:+(texels*4/1048576).toFixed(1),largest:largest.sort((a,b)=>b.width*b.height-a.width*a.height).slice(0,8)};
+}
+
 // Upload original textures in small batches instead of blocking the glass reveal.
-export async function warmStudioTextures(renderer,objects,{now=()=>performance.now(),yieldFrame=()=>new Promise(resolve=>requestAnimationFrame(resolve)),budgetMs=8,maxTextureSize=Infinity}={}){
+export async function warmStudioTextures(renderer,objects,{now=()=>performance.now(),yieldFrame=()=>new Promise(resolve=>requestAnimationFrame(resolve)),budgetMs=8}={}){
  const textures=new Set();
  for(const root of objects)root?.traverse(object=>{
   for(const material of Array.isArray(object.material)?object.material:[object.material]){
@@ -12,14 +27,6 @@ export async function warmStudioTextures(renderer,objects,{now=()=>performance.n
  for(const texture of textures){
   const image=texture.image;
   if(!image||image.complete===false)continue;
-  const width=image.naturalWidth||image.width,height=image.naturalHeight||image.height;
-  // Live console canvases are updated by their original owners; preserve them.
-  if(!(image instanceof HTMLCanvasElement)&&(width>maxTextureSize||height>maxTextureSize)){
-   const scale=Math.min(maxTextureSize/width,maxTextureSize/height),canvas=document.createElement('canvas');
-   canvas.width=Math.max(1,Math.round(width*scale));canvas.height=Math.max(1,Math.round(height*scale));
-   const context=canvas.getContext('2d');
-   if(context){context.drawImage(image,0,0,canvas.width,canvas.height);texture.image=canvas;texture.needsUpdate=true}
-  }
   renderer.initTexture(texture);count++;
   const elapsed=now()-sliceAt;
   if(elapsed>=budgetMs){longest=Math.max(longest,elapsed);slices++;await yieldFrame();sliceAt=now()}
@@ -55,4 +62,3 @@ export async function warmStudioGeometry(renderer,scene,camera,roots,target,{yie
  }
  return{objects:objects.length,batches:Math.ceil(objects.length/batchSize)};
 }
-

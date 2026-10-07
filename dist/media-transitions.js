@@ -4,27 +4,34 @@ import {armMediaOutput,mediaOutput} from './media-output.js?v=20261007-mobile3';
 const attached=new WeakMap(),mediaElements=new Set();
 export function softenMedia(media){
  if(attached.has(media))return attached.get(media);
- let frame=0,tapered=false,started=0;
+ let frame=0,tapered=false,started=0,fadeTimer=0,finishFade=null;
  const write=value=>{const output=mediaOutput(media);if(output)output.gain.gain.setValueAtTime(Math.max(0,Math.min(1,value)),output.context.currentTime)};
- function reset(){cancelAnimationFrame(frame);frame=0;if(tapered)write(1);tapered=false;delete media.dataset.audioTail;}
+ function reset(){cancelAnimationFrame(frame);frame=0;clearTimeout(fadeTimer);fadeTimer=0;finishFade?.(false);finishFade=null;const output=mediaOutput(media);output?.gain.gain.cancelScheduledValues(output.context.currentTime);if(tapered)write(1);tapered=false;delete media.dataset.audioTail;}
+ function fadeTo(target=0,duration=420){
+  const output=mediaOutput(media);if(!output||media.paused)return Promise.resolve(true);
+  const level=output.gain.gain.value;reset();const param=output.gain.gain,at=output.context.currentTime;
+  param.setValueAtTime(level,at);for(let i=1;i<=24;i++){const q=i/24,s=q*q*(3-2*q);param.linearRampToValueAtTime(level+(target-level)*s,at+duration*q/1000)}
+  tapered=true;media.dataset.audioTail='out';return new Promise(resolve=>{finishFade=resolve;fadeTimer=setTimeout(()=>{fadeTimer=0;finishFade=null;resolve(true)},duration)});
+ }
  function tick(now){
   frame=0;if(media.paused||media.ended||document.hidden){reset();return}
   const highlight=media.dataset.highlightActive==='true';
   const end=highlight?Math.min(Number(media.dataset.previewEnd)||Infinity,media.duration):media.duration;
-  const length=highlight?.85:1.8,remaining=(end-media.currentTime)/media.playbackRate;
+  const length=highlight?1.2:2.4,remaining=(end-media.currentTime)/media.playbackRate;
   const tail=!media.loop&&Number.isFinite(end)&&remaining<length;
-  const fadeIn=highlight?Math.min(1,(now-started)/280):1;
+  const fadeIn=Math.min(1,(now-started)/(highlight?360:650));
   if(tail||fadeIn<1){const q=tail?Math.max(0,Math.min(1,remaining/length)):1;write(Math.sin(q*Math.PI/2)*Math.sin(fadeIn*Math.PI/2));tapered=true;media.dataset.audioTail=tail?'out':'in'}
   else if(tapered){write(1);tapered=false;delete media.dataset.audioTail}
   frame=requestAnimationFrame(tick);
  }
- function start(){reset();started=performance.now();if(!frame)frame=requestAnimationFrame(tick)}
+ function start(){reset();started=performance.now();write(0);tapered=true;if(!frame)frame=requestAnimationFrame(tick)}
  media.crossOrigin='anonymous';mediaElements.add(media);
  media.addEventListener('playing',start);media.addEventListener('seeked',start);
  for(const event of ['pause','ended','emptied','loadstart'])media.addEventListener(event,reset);
  document.addEventListener('visibilitychange',()=>{if(document.hidden)reset();else if(!media.paused)start()});
- const api={reset};attached.set(media,api);if(!media.paused)start();return api;
+ const api={reset,fadeTo};attached.set(media,api);if(!media.paused)start();return api;
 }
+export const fadeMedia=(media,duration=420)=>softenMedia(media).fadeTo(0,duration);
 function scan(root){const candidates=root.matches?.('audio,video')?[root]:[];candidates.push(...(root.querySelectorAll?.('audio,video')||[]));for(const media of candidates)if(!media.dataset.ambient&&!media.dataset.heartbeat)softenMedia(media)}
 scan(document);
 new MutationObserver(records=>{for(const record of records)for(const node of record.addedNodes)scan(node)}).observe(document.body,{childList:true,subtree:true});

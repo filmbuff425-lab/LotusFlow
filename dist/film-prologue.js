@@ -2,6 +2,8 @@ import {timing} from './cut-timing.js?v=20261006-lake-surface1';
 import './blood-ink.js?v=20261007-mobile3';
 import {createIdentityScore,audioVisualTime} from './identity-score.js?v=20261007-mobile3';
 import {createInkFlow} from './identity-ink-flow.js?v=20261007-mobile3';
+import {scarThickness,bladeLength,fittedScar,followsScar} from './identity-gesture.js';
+import {createIdentityPeek} from './identity-peek.js';
 const artistSection=document.querySelector('#about'),gate=document.querySelector('.artist-gate');
 const seam=document.createElementNS('http://www.w3.org/2000/svg','svg');seam.classList.add('gate-seam-light');seam.setAttribute('aria-hidden','true');seam.setAttribute('preserveAspectRatio','xMidYMid slice');
 seam.innerHTML='<defs><linearGradient id="identity-seam-glow" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f5e8d0" stop-opacity="0"/><stop offset=".25" stop-color="#f0d8b4" stop-opacity=".4"/><stop offset=".51" stop-color="#fff3dc"/><stop offset=".76" stop-color="#e7bfa1" stop-opacity=".4"/><stop offset="1" stop-color="#f5e8d0" stop-opacity="0"/></linearGradient></defs><path class="seam-trace" pathLength="1000"/><path class="seam-aura"/><path class="seam-core"/><path class="seam-glimmer" pathLength="1000"/>';
@@ -15,7 +17,9 @@ dialog.innerHTML='<div class="poster-half poster-left"><canvas></canvas></div><d
 const flight=document.createElement('canvas');flight.className='blood-flight';flight.setAttribute('aria-hidden','true');dialog.append(flight);
 document.body.append(dialog);const canvases=[...dialog.querySelectorAll('.poster-half canvas')],effects=dialog.querySelector('.blade-effects'),glint=dialog.querySelector('.edge-glint'),incision=dialog.querySelector('.cut-incision'),steel=dialog.querySelector('.blade-steel'),white=dialog.querySelector('.blade-white'),afterimage=dialog.querySelector('.blade-afterimage'),impact=dialog.querySelector('.blade-impact');
 const openingInk=canvases.map(canvas=>{const ink=createInkFlow();canvas.after(ink.svg);return ink});
+const gatePeek=createIdentityPeek({gate,canvases,liquids:openingInk.map(ink=>ink.svg)});
 let cutting=false,openedAt=0,animation=0;
+const measureCut=new URLSearchParams(location.search).has('perf');let frameIntervals=[],previousCutFrame=0;
 const katana=dialog.querySelector('.katana-motion');
 const katanaAsset=new Image();katanaAsset.src='assets/cinema/katana.png';
 const bevel=dialog.querySelector('.steel-bevel'),spine=dialog.querySelector('.steel-spine'),soundToggle=dialog.querySelector('.cut-sound-toggle');
@@ -35,7 +39,8 @@ let identityVisible=false,visibilityFrame=0,foregroundClaimed=false;
 const scoreEnabled=()=>!muted&&!scoreMuted&&window.lotusSfx?.enabled!==false;
 function syncIdentityVisibility(){
  visibilityFrame=0;const r=artistSection.getBoundingClientRect();identityVisible=!document.hidden&&r.bottom>innerHeight*.2&&r.top<innerHeight*.75;
- gate.classList.toggle('seam-awake',identityVisible&&artistSection.dataset.artistLocked==='true');
+ gate.classList.toggle('seam-awake',!dialog.open&&identityVisible&&artistSection.dataset.artistLocked==='true');
+ if(identityVisible&&artistSection.dataset.artistLocked==='true')prepareBlade().catch(()=>{});
  if(dialog.open&&cutting)return;
  if(!identityVisible){foregroundClaimed=false;identityScore.pause()}else if(!scoreEnabled()||foregroundClaimed)identityScore.pause();else identityScore.enter(artistSection.dataset.artistLocked==='false');
 }
@@ -51,14 +56,17 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)identitySco
 window.addEventListener('pagehide',()=>identityScore.pause());
 let knifeTask;const knifeBytes=()=>knifeTask??=fetch('./assets/audio/knife-A-blood-approved.wav').then(r=>{if(!r.ok)throw new Error('Knife sound unavailable');return r.arrayBuffer()}).catch(()=>null);
 dialog.dataset.audioMix='A-blood-approved';
+async function prepareBlade(){
+ audioContext??=new(window.AudioContext||window.webkitAudioContext)();
+ if(knifeBuffer)return knifeBuffer;
+ decodeTask??=knifeBytes().then(data=>data?audioContext.decodeAudioData(data.slice(0)):null).then(buffer=>knifeBuffer=buffer).catch(error=>{decodeTask=null;throw error});
+ return decodeTask;
+}
 async function armSound(){
  try{
   audioContext??=new(window.AudioContext||window.webkitAudioContext)();
   await audioContext.resume();
-  if(!knifeBuffer){
-   decodeTask??=knifeBytes().then(data=>data?audioContext.decodeAudioData(data.slice(0)):null);
-   knifeBuffer=await decodeTask;
-  }
+  await prepareBlade();
   if(!knifeBuffer)throw new Error('Sound not ready');
   soundToggle.textContent=muted?'SOUND / OFF':'SOUND / ON';soundToggle.setAttribute('aria-pressed',String(!muted));
   dialog.dataset.audioState=muted?'muted':'ready';return audioContext.state==='running';
@@ -81,13 +89,13 @@ soundToggle.addEventListener('click',()=>{
  else{muted=false;armSound();syncIdentityVisibility()}
 });
 const clamp=x=>Math.max(0,Math.min(1,x)),easeOut=x=>1-Math.pow(1-clamp(x),4);
-function geometry(){const w=innerWidth,h=innerHeight,thick=Math.max(27,w*.046),a={x:w*.836+thick*.05,y:-h*.12},b={x:w*.154+thick*.05,y:h*1.12},dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy);return{a,b,dx,dy,len,nx:-dy/len,ny:dx/len}}
+function geometry(){const w=innerWidth,h=innerHeight,thick=scarThickness(w),a={x:w*.836+thick*.05,y:-h*.12},b={x:w*.154+thick*.05,y:h*1.12},dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy);return{a,b,dx,dy,len,nx:-dy/len,ny:dx/len}}
 function point(g,t,n=0){return `${g.a.x+g.dx*t+g.nx*n} ${g.a.y+g.dy*t+g.ny*n}`}
 function blade(g,p,length,width){return `M ${point(g,p)} L ${point(g,p-length,width)} L ${point(g,p-length*.77,0)} L ${point(g,p-length,-width*.18)} Z`}
 let posterSize='';
 function draw(){const w=innerWidth,h=innerHeight,scale=Math.min(devicePixelRatio,1.5),stamp=`${w}/${h}/${scale}`;if(posterSize===stamp)return;posterSize=stamp;const source=document.createElement('canvas');source.width=w*scale;source.height=h*scale;const c=source.getContext('2d');c.scale(scale,scale);let seed=1973;const rand=()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646};const bg=c.createRadialGradient(w*.28,h*.4,0,w*.6,h*.4,w*.9);bg.addColorStop(0,'#40110f');bg.addColorStop(.48,'#160908');bg.addColorStop(1,'#060606');c.fillStyle=bg;c.fillRect(0,0,w,h);
  for(let i=0;i<15000;i++){c.fillStyle=rand()>.48?'#8d292515':'#eee0c608';c.fillRect(rand()*w,rand()*h,rand()*1.8+.4,rand()*1.8+.4)}
- const atY=y=>w*(.77-.55*y/h),thick=Math.max(27,w*.046);dialog.style.setProperty("--seam-top",`${atY(0)+thick*.05}px`);dialog.style.setProperty("--seam-bottom",`${atY(h)+thick*.05}px`);
+ const atY=y=>w*(.77-.55*y/h),thick=scarThickness(w);dialog.style.setProperty("--seam-top",`${atY(0)+thick*.05}px`);dialog.style.setProperty("--seam-bottom",`${atY(h)+thick*.05}px`);
  // Dry ink, red flecks and the very thin white cut follow the supplied poster's diagonal.
  for(let i=0;i<2600;i++){const y=rand()*h,x=atY(y)+(rand()-.5)*thick*2.2;c.fillStyle=rand()>.15?'#b7241c80':'#71181140';c.fillRect(x,y,rand()*2+.3,rand()*3+.3)}
  c.fillStyle='#aa241c';c.beginPath();c.moveTo(atY(-30)-thick*.35,-30);for(let y=-30;y<h+30;y+=9)c.lineTo(atY(y)-thick*.4-rand()*4,y);for(let y=h+30;y>-30;y-=9)c.lineTo(atY(y)+thick*.5+rand()*6,y);c.closePath();c.fill();
@@ -99,22 +107,23 @@ function draw(){const w=innerWidth,h=innerHeight,scale=Math.min(devicePixelRatio
  for(const ink of [gateInk,...openingInk])ink.update({width:w,height:h,spine,thickness:thick*.48,falls});
 }
 function open(){
- if(dialog.open)return;cancelAnimationFrame(animation);cutting=false;openedAt=performance.now();dialog.classList.remove('cutting','blade-near');dialog.dataset.phase='waiting';dialog.style.setProperty('--cut-progress',0);dialog.style.setProperty('--cut-shock',0);effects.removeAttribute('style');katana.style.opacity='0';[incision,steel,white,afterimage,impact,bevel,spine].forEach(p=>p.setAttribute('d',''));dialog.showModal();document.body.classList.add('prologue-open');draw();dialog.querySelector('.prologue-enter').focus({preventScroll:true});idle(openedAt);
+ if(dialog.open)return;gatePeek.close();gate.classList.remove('seam-awake');cancelAnimationFrame(animation);cutting=false;openedAt=performance.now();dialog.classList.remove('cutting','blade-near');dialog.dataset.phase='waiting';dialog.style.setProperty('--cut-progress',0);dialog.style.setProperty('--cut-shock',0);effects.removeAttribute('style');katana.style.opacity='0';[incision,steel,white,afterimage,impact,bevel,spine].forEach(p=>p.setAttribute('d',''));dialog.showModal();document.body.classList.add('prologue-open');draw();gatePeek.carry(dialog,artistSection);dialog.querySelector('.prologue-enter').focus({preventScroll:true});idle(openedAt);
 }
 function idle(now){
  if(cutting||!dialog.open)return;const g=geometry(),p=((now-openedAt)/4400)%1;
  glint.setAttribute('d',`M ${point(g,clamp(p-.075))} L ${point(g,p)}`);glint.style.opacity=String(Math.sin(p*Math.PI)*.85);animation=requestAnimationFrame(idle);
 }
-function finish(){dialog.close();document.body.classList.remove('prologue-open');history.replaceState(null,'','#about');const heading=document.querySelector('#about-title');heading.tabIndex=-1;heading.focus({preventScroll:true});window.dispatchEvent(new Event('lotus-prologue-end'))}
+function finish(){if(measureCut&&frameIntervals.length){const sorted=frameIntervals.slice().sort((a,b)=>a-b);dialog.dataset.frameTiming=JSON.stringify({frames:sorted.length,medianMs:+sorted[Math.floor(sorted.length*.5)].toFixed(1),p95Ms:+sorted[Math.floor(sorted.length*.95)].toFixed(1),maxMs:+sorted.at(-1).toFixed(1)})}gatePeek.arrive(artistSection);dialog.close();document.body.classList.remove('prologue-open');history.replaceState(null,'','#about');const heading=document.querySelector('#about-title');heading.tabIndex=-1;heading.focus({preventScroll:true});window.dispatchEvent(new Event('lotus-prologue-end'))}
 function renderFrame(t){
  const {strikeStart,contact,release,spray,settle,duration}=timing,g=geometry();
+ gatePeek.cut(t,timing);
  if(reduced){dialog.style.setProperty('--cut-progress',clamp(t/180));window.dispatchEvent(new CustomEvent('lotus-cut-frame',{detail:{time:t<180?-1:duration}}));return}
  let tip;
  if(t<strikeStart){tip=-.30+.38*easeOut(t/strikeStart);dialog.dataset.phase='draw'}
  else if(t<contact){const q=clamp((t-strikeStart)/(contact-strikeStart));tip=.08+1.25*(q*q*(2-q));dialog.dataset.phase='strike'}
  else{tip=1.33+1.65*easeOut((t-contact)/140);dialog.dataset.phase=t<spray?'contact':t<settle?'spray':'settle'}
  const axis=Math.atan2(g.dy,g.dx)*180/Math.PI;
- const length=Math.min(innerWidth*.85,innerHeight*1.40),scale=length/2118;
+ const length=bladeLength(innerWidth,innerHeight),scale=length/2118;
  const tx=g.a.x+g.dx*tip,ty=g.a.y+g.dy*tip;
  katana.setAttribute('transform',`translate(${tx} ${ty}) rotate(${axis}) scale(${scale}) translate(-2146 0)`);
  katana.style.opacity=String(clamp(t/140)*(1-clamp((t-contact-50)/100)));
@@ -147,7 +156,8 @@ async function slash(){
  dialog.dataset.visualStart=String(at);if(audioAt!==null)dialog.dataset.bladeAt=String(audioAt);
  if(ready&&!reduced)cutSound(audioAt);
  if(scoreReady)identityScore.reveal(audioAt+(reduced ? .12 : timing.contact/1000));
- function animate(now){const t=Math.max(0,now-at);renderFrame(t);if(t<(reduced?180:timing.duration))animation=requestAnimationFrame(animate);else finish()}
+ frameIntervals=[];previousCutFrame=0;
+ function animate(now){if(measureCut&&previousCutFrame)frameIntervals.push(now-previousCutFrame);previousCutFrame=now;const t=Math.max(0,now-at);renderFrame(t);if(t<(reduced?180:timing.duration))animation=requestAnimationFrame(animate);else finish()}
  animation=requestAnimationFrame(animate);
 }
 dialog.addEventListener('pointermove',e=>{
@@ -159,10 +169,20 @@ dialog.addEventListener('click',e=>{if(!e.target.closest('button'))slash()});
 dialog.querySelector('.prologue-enter').addEventListener('click',()=>{armSound();slash()});dialog.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&!e.target.closest('.cut-sound-toggle')){e.preventDefault();armSound();slash()}});dialog.addEventListener('cancel',e=>{e.preventDefault();slash()});window.addEventListener('resize',()=>{if(dialog.open&&!cutting)draw()});
 
 document.querySelector('#replay-opening')?.addEventListener('click',open);
-gate.addEventListener('click',()=>{const rect=gate.getBoundingClientRect();open();armSound();if(reduced){slash();return}dialog.animate([{clipPath:`inset(${Math.max(0,rect.top)}px ${Math.max(0,innerWidth-rect.right)}px ${Math.max(0,innerHeight-rect.bottom)}px ${Math.max(0,rect.left)}px)`},{clipPath:'inset(0px)'}],{duration:600,easing:'cubic-bezier(.16,1,.3,1)'});setTimeout(slash,430);});
+function enterGate(){const rect=gate.getBoundingClientRect();open();armSound();if(reduced){slash();return}dialog.animate([{clipPath:`inset(${Math.max(0,rect.top)}px ${Math.max(0,innerWidth-rect.right)}px ${Math.max(0,innerHeight-rect.bottom)}px ${Math.max(0,rect.left)}px)`},{clipPath:'inset(0px)'}],{duration:600,easing:'cubic-bezier(.16,1,.3,1)'});setTimeout(slash,430)}
+let swipeStart=null,suppressClickUntil=0,scarFit;
+const swipeTrack=document.createElement('span');swipeTrack.className='gate-swipe-track';swipeTrack.setAttribute('aria-hidden','true');gate.append(swipeTrack);gate.dataset.swipeCue='light';
+gate.addEventListener('click',e=>{if(performance.now()<suppressClickUntil){e.preventDefault();return}enterGate()});
+swipeTrack.addEventListener('pointerdown',e=>{if(e.button!==0)return;swipeStart={id:e.pointerId,x:e.clientX,y:e.clientY};swipeTrack.setPointerCapture(e.pointerId);gate.classList.add('seam-near')});
+swipeTrack.addEventListener('pointermove',e=>{if(!swipeStart||swipeStart.id!==e.pointerId)return;if(followsScar(swipeStart,{x:e.clientX,y:e.clientY},scarFit)){swipeStart=null;suppressClickUntil=performance.now()+1200;enterGate()}});
+for(const event of ['pointerup','pointercancel'])swipeTrack.addEventListener(event,()=>{swipeStart=null;gate.classList.remove('seam-near')});
+swipeTrack.addEventListener('pointerenter',()=>gate.classList.add('seam-near'));swipeTrack.addEventListener('pointerleave',()=>{if(!swipeStart)gate.classList.remove('seam-near')});
+function sizeSwipeTrack(){const box=gate.getBoundingClientRect();scarFit=fittedScar(innerWidth,innerHeight,box.width,box.height);const band=32;swipeTrack.style.clipPath=`polygon(${scarFit.top-band}px 0,${scarFit.top+band}px 0,${scarFit.bottom+band}px 100%,${scarFit.bottom-band}px 100%)`}
+new ResizeObserver(sizeSwipeTrack).observe(gate);
+
 
 // The black/red chapter cover gates the artist with small yellow wayfinding.
-function drawGate(){draw();const target=gate.querySelector('canvas');target.width=canvases[0].width;target.height=canvases[0].height;target.getContext('2d').drawImage(canvases[0],0,0);const w=innerWidth,h=innerHeight,thick=Math.max(27,w*.046),x=y=>w*(.77-.55*y/h)+thick*.05;seam.setAttribute('viewBox',`0 0 ${w} ${h}`);for(const p of seam.querySelectorAll('path')){const n=0;p.setAttribute('d',`M ${x(0)+n} 0 L ${x(h)+n} ${h}`)}}
+function drawGate(){draw();const target=gate.querySelector(':scope>canvas');target.width=canvases[0].width;target.height=canvases[0].height;target.getContext('2d').drawImage(canvases[0],0,0);const w=innerWidth,h=innerHeight,thick=scarThickness(w),x=y=>w*(.77-.55*y/h)+thick*.05;seam.setAttribute('viewBox',`0 0 ${w} ${h}`);for(const p of seam.querySelectorAll('path')){const n=0;p.setAttribute('d',`M ${x(0)+n} 0 L ${x(h)+n} ${h}`)}if(artistSection.dataset.artistLocked==='true'&&!dialog.open)gatePeek.mount();else gatePeek.size()}
 drawGate();let gateResize;addEventListener('resize',()=>{clearTimeout(gateResize);gateResize=setTimeout(drawGate,180)});
 new IntersectionObserver(scheduleIdentityVisibility,{threshold:.08}).observe(artistSection);scheduleIdentityVisibility();
 

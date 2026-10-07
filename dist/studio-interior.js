@@ -1,4 +1,5 @@
 import {prepareStudioClay,clayStats} from './studio-clay.js?v=20261007-mobile3';
+import {canvasScale} from './device-profile.js';
 import * as THREE from 'three';
 import {createStudioSynths} from './studio-synths.js?v=20261007-mobile3';
 import {studioLayout} from './studio-layout.js?v=20261006-lake-surface1';
@@ -26,7 +27,12 @@ export async function createStudioInterior({scene,root,renderer,api,camera,sound
  const red = new THREE.MeshStandardMaterial({ color: 0xf12938, emissive: 0xd81123, emissiveIntensity: 1.7 });
  const green = new THREE.MeshStandardMaterial({ color: 0x80e6bc, emissive: 0x36c390, emissiveIntensity: 1.4 });
  const warm = new THREE.MeshStandardMaterial({ color: 0xf1c362, emissive: 0xa66f0e, emissiveIntensity: 1.7 });
- const texture = (w, h, draw) => { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy()); return t; };
+ const texture = (w, h, draw) => {
+  const original=document.createElement('canvas'),scale=canvasScale(w,h);original.width=w;original.height=h;draw(original.getContext('2d'),w,h);
+  let image=original;
+  if(scale<1){image=document.createElement('canvas');image.width=Math.round(w*scale);image.height=Math.round(h*scale);image.getContext('2d').drawImage(original,0,0,image.width,image.height);original.width=original.height=1}
+  const t=new THREE.CanvasTexture(image);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());return t;
+ };
  const wood = new THREE.MeshPhysicalMaterial({color:0x8da8b9,roughness:.12,metalness:.08,transmission:.12,thickness:.32,ior:1.47,transparent:true,opacity:.20,clearcoat:1,depthWrite:false});
  function box(w, h, d, x, y, z, material, parent = root, shadow = false) { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), material); m.position.set(x, y, z); m.castShadow = shadow; m.receiveShadow = true; parent.add(m); return m; }
  function bevel(w, h, d, radius, x, y, z, material, parent = root) { const r = Math.min(radius, w / 4, h / 4, d / 4), shape = new THREE.Shape(); shape.moveTo(-w / 2 + r, -h / 2 + r); shape.lineTo(w / 2 - r, -h / 2 + r); shape.lineTo(w / 2 - r, h / 2 - r); shape.lineTo(-w / 2 + r, h / 2 - r); shape.closePath(); const geo = new THREE.ExtrudeGeometry(shape, { depth: d - r * 2, bevelEnabled: true, bevelThickness: r, bevelSize: r, bevelSegments: 3, steps: 1 }); geo.center(); const m = new THREE.Mesh(geo, material); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; parent.add(m); return m; }
@@ -141,6 +147,8 @@ export async function createStudioInterior({scene,root,renderer,api,camera,sound
  // use the shared half-resolution transmission pass; keep their optical depth.
  scene.traverse(o=>{if(o.isMesh){for(const m of Array.isArray(o.material)?o.material:[o.material]){if(m.transmission>0&&!m.userData.preserveTransmission){if(m.opacity>.6)m.opacity=.24;m.transmission=0;m.depthWrite=false;m.needsUpdate=true}if(m.transparent&&m.side===THREE.DoubleSide&&o.geometry.type==='PlaneGeometry')m.forceSinglePass=true}}});
  await nextStage('hospitalitySynths');
+ // Keep zero-alpha hit meshes available to raycasting without submitting them to the GPU.
+ let hitOnly=0;root.traverse(o=>{if(o.isMesh&&!Array.isArray(o.material)&&o.material.transparent&&o.material.opacity===0&&!o.children.length){o.visible=false;hitOnly++}});host.dataset.hitOnlyMeshes=String(hitOnly);
  const batching=batchStudio(root,touchables);host.dataset.staticMeshes=JSON.stringify(batching);stage('batch');if(measured){host.dataset.modelTimings=JSON.stringify(stages);host.dataset.sculptureGeometry=JSON.stringify(clayStats())}
  renderer.shadowMap.autoUpdate=false;renderer.shadowMap.needsUpdate=true;
  const backdrop=details.room;touchables.push(...details.soundcube.recordTargets);

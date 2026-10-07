@@ -21,7 +21,7 @@ if(ctx){
   canvas.dataset.active='true';start();
  }
  function frame(now){
-  raf=0;if(document.hidden||canvas.hidden){clear();return}const dt=Math.min(.045,(now-last)/1000||.016);last=now;ctx.clearRect(0,0,width,height);let alive=0;ctx.globalCompositeOperation='lighter';ctx.lineCap='round';
+  raf=0;if(document.hidden||canvas.hidden){clear();return}const dt=Math.max(0,Math.min(.045,(now-last)/1000||.016));last=now;ctx.clearRect(0,0,width,height);let alive=0;ctx.globalCompositeOperation='lighter';ctx.lineCap='round';
   for(const p of particles){
    if(p.life<=0)continue;p.life-=dt/p.max;if(p.life<=0)continue;alive++;
    p.phase+=dt*p.turn;p.vx*=Math.exp(-dt*1.2);p.vy*=Math.exp(-dt*1.2);p.x+=(p.vx+Math.cos(p.phase)*10)*dt;p.y+=(p.vy+Math.sin(p.phase)*10-4)*dt;

@@ -1,4 +1,5 @@
 import {newArtists} from './new-collaborators.js?v=20261006-lake-surface1';
+import {mobileAsset} from './device-profile.js';
 // Biographical notes are paraphrased from the linked artist, label and release sources.
 // Artist photographs remain separate from the original release artwork.
 const lotus={name:'LOTUS FLOW',sub:'PRODUCER / SONGWRITER / RECORDING ARTIST',bio:'I’m a Chinese producer, songwriter and artist based in Los Angeles. My work moves between electronic music, pop, experimental sound and visual world-building. I trained in classical piano from age five and earned my degree in Electronic Music Production and Sound Design at Berklee College of Music.',facts:[['PUBLISHING','Universal Music Publishing Group China / signed at 20'],['PRACTICE','Production · Songwriting · Arrangement · Recording artist'],['APPROACH','Sound as architecture. Production as storytelling.']],sources:[['ARTIST CATALOGUE','https://music.apple.com/us/artist/lotus-flow/1715231436']]};
@@ -43,8 +44,8 @@ wind.members=[
 export function artistSocials(a){return `<div class="artist-socials" aria-label="${a.name} official accounts">${(a.socials||[]).map(([label,url])=>`<a href="${url}" target="_blank" rel="noopener noreferrer">${label} <span aria-hidden="true">↗</span></a>`).join('')}</div>`}
 export function artistPortrait(a){
  if(!a.portrait&&!a.members)return '';
- if(a.members)return `<div class="artist-ensemble">${a.members.map(p=>`<figure><img src="${p.portrait}" alt="${p.name} portrait" loading="lazy" width="600" height="600"><figcaption>${p.name}</figcaption>${artistSocials(p)}</figure>`).join('')}</div>`;
- return `<figure class="artist-portrait"><img src="${a.portrait}" alt="${a.name} ${a.photoLabel?.includes('LABEL')?'official label identity':'portrait'}" loading="lazy" width="600" height="600" style="object-position:${a.portraitPosition||'50% 34%'}"><figcaption>${a.photoLabel||'ARTIST PORTRAIT'}</figcaption></figure>`;
+ if(a.members)return `<div class="artist-ensemble">${a.members.map(p=>`<figure><img src="${mobileAsset(p.portrait)}" alt="${p.name} portrait" loading="lazy" width="600" height="600"><figcaption>${p.name}</figcaption>${artistSocials(p)}</figure>`).join('')}</div>`;
+ return `<figure class="artist-portrait"><img src="${mobileAsset(a.portrait)}" alt="${a.name} ${a.photoLabel?.includes('LABEL')?'official label identity':'portrait'}" loading="lazy" width="600" height="600" style="object-position:${a.portraitPosition||'50% 34%'}"><figcaption>${a.photoLabel||'ARTIST PORTRAIT'}</figcaption></figure>`;
 }
 export const collaboratorFiles={'flow':[renkai],'feed-on':[sulianya],'show-me-love':[tia,wiz,bees],news:[benzo],bridge:[yitai],juliet:[alexa],summer:[adn,lotus],adult:[duan,hybrid],lov:[xlov],runaway:[lotus],casual:[lotus],only:[lotus],airtight:[wind]};
 Object.assign(collaboratorFiles, {"im-falling":[newArtists.dena],"right-here":[newArtists.emma],"pick-a-side":[newArtists.haezee],"midsummer-heat":[newArtists.jenzee],"endlessly":[newArtists.kayla],"red-flag-101":[newArtists.laurie],"rendezvous":[newArtists.laurie],"jellyfish":[newArtists.lilypichu],"mirror":[lotus],"say-it-to-me":[newArtists.sabai,newArtists.haliene,newArtists.ande],"train-to-nowhere":[newArtists.santa],"still-miss-you":[lotus]});

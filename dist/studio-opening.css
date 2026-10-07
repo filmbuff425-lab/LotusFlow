@@ -29,3 +29,53 @@
 @keyframes ink-inner-light{0%,100%{opacity:.18}45%{opacity:.36}70%{opacity:.23}}
 @media(prefers-reduced-motion:reduce){.gate-seam-light path,.blood-flow path{animation:none!important}.gate-seam-light .seam-core{opacity:.7}.gate-seam-light .seam-aura{opacity:.3}}
 @media(prefers-reduced-motion:reduce){.identity-liquid path{animation:none!important}.identity-liquid .ink-current{stroke-dasharray:none;opacity:.28}.identity-liquid .ink-drip{opacity:.25}}
+
+/* A moving glint follows the scar itself; the narrow strip accepts a swipe. */
+.artist-gate .gate-action{display:none}
+.gate-swipe-track{position:absolute;inset:0;z-index:3;touch-action:none;cursor:crosshair}
+.gate-seam-light .seam-glimmer{stroke:#fff9ed;stroke-width:3.1;stroke-dasharray:65 1100;filter:none;animation-duration:5.8s}
+.artist-gate.seam-near .seam-glimmer{stroke-width:4.2}
+.artist-gate.seam-near .seam-core{opacity:1}
+@keyframes identity-seam-glimmer{0%,8%{stroke-dashoffset:1100;opacity:0}17%{opacity:.85}70%{opacity:1}87%,100%{stroke-dashoffset:0;opacity:0}}
+.prologue-open .artist-gate .identity-liquid path,#film-prologue.cutting .identity-liquid path,.prologue-open #about>.identity-liquid path{animation-play-state:paused!important}
+
+/* The closed cover hints at an opening while concealing the profile. */
+.gate-cover-half{position:absolute;inset:0;display:none;pointer-events:none;overflow:hidden;z-index:1;animation-duration:7.6s;animation-timing-function:cubic-bezier(.22,.68,.35,1);animation-iteration-count:infinite;animation-play-state:paused}
+.gate-cover-half canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.artist-gate.has-peek-panels .gate-cover-half{display:block}
+.artist-gate.has-peek-panels>:is(canvas,.gate-seam-light,.identity-liquid){visibility:hidden}
+.gate-cover-left{animation-name:identity-peek-left}
+.gate-cover-right{animation-name:identity-peek-right}
+.artist-gate.has-peek-panels.seam-awake .gate-cover-half{animation-play-state:running}
+.artist-gate.has-peek-panels.seam-awake .gate-cover-half .identity-liquid path{animation-play-state:running!important}
+.gate-gap-light{position:absolute;inset:0;width:100%;height:100%;display:none;pointer-events:none;z-index:0}
+.artist-gate.has-peek-panels .gate-gap-light{display:block}
+.gate-gap-light path{fill:none;stroke:url(#gate-secret-light);stroke-linecap:round}
+.gate-gap-light .gap-halo{stroke-width:28;filter:blur(7px);opacity:.7}
+.gate-gap-light .gap-core{stroke-width:20;opacity:1}
+@keyframes identity-peek-left{0%,14%,92%,100%{transform:translate(0,0)}20%{transform:translate(calc(var(--peek-x)*-.06),calc(var(--peek-y)*-.06));animation-timing-function:cubic-bezier(.16,.85,.22,1)}38%{transform:translate(calc(var(--peek-x)*-1),calc(var(--peek-y)*-1))}49%{transform:translate(calc(var(--peek-x)*-.94),calc(var(--peek-y)*-.94))}71%{transform:translate(calc(var(--peek-x)*-.3),calc(var(--peek-y)*-.3))}}
+@keyframes identity-peek-right{0%,14%,92%,100%{transform:translate(0,0)}20%{transform:translate(calc(var(--peek-x)*.06),calc(var(--peek-y)*.06));animation-timing-function:cubic-bezier(.16,.85,.22,1)}38%{transform:translate(var(--peek-x),var(--peek-y))}49%{transform:translate(calc(var(--peek-x)*.94),calc(var(--peek-y)*.94))}71%{transform:translate(calc(var(--peek-x)*.3),calc(var(--peek-y)*.3))}}
+.gate-light-spill{position:absolute;inset:0;width:100%;height:100%;display:none;pointer-events:none;z-index:2;opacity:0;animation:identity-light-spill 7.6s cubic-bezier(.22,.68,.35,1) infinite paused}
+.artist-gate.has-peek-panels .gate-light-spill{display:block}
+.artist-gate.seam-awake .gate-light-spill,.artist-gate.seam-awake .gap-dust{animation-play-state:running}
+.gap-spill-core{fill:none;stroke:#fff;stroke-width:9;opacity:.16;filter:blur(8px)}
+.gap-spill-field{filter:blur(12px)}
+.gap-spill-rays{fill:none;stroke:url(#gate-spill-width);filter:blur(5px)}
+.gap-dust{fill:#fff;opacity:.25;animation:identity-light-dust 5s ease-in-out infinite paused}
+@keyframes identity-light-spill{0%,14%,92%,100%{opacity:0}20%{opacity:.06;animation-timing-function:cubic-bezier(.16,.85,.22,1)}38%{opacity:1}49%{opacity:.94}71%{opacity:.3}}
+@keyframes identity-light-dust{0%{transform:translate(0,0);opacity:0}30%{opacity:.38}70%{opacity:.22}100%{transform:translate(var(--dust-x),var(--dust-y));opacity:0}}
+.identity-carried-light{display:block;animation:none;opacity:.4}
+#film-prologue .identity-carried-light{z-index:2}
+#film-prologue .identity-carried-slit{display:block;z-index:0}
+#film-prologue .poster-half{z-index:1}
+#film-prologue :is(.blade-effects,.blood-flight){z-index:3}
+#film-prologue :is(.prologue-enter,.cut-sound-toggle,.prologue-instruction,.prologue-edition){z-index:4}
+#film-prologue .poster-left{transform:translate(calc(var(--cut-progress)*-90vw + var(--cut-shock,0)*-3px - var(--aperture-x,0px)),calc(var(--cut-progress)*-19vh - var(--aperture-y,0px))) rotate(calc(var(--cut-progress)*-2deg))}
+#film-prologue .poster-right{transform:translate(calc(var(--cut-progress)*90vw + var(--cut-shock,0)*3px + var(--aperture-x,0px)),calc(var(--cut-progress)*19vh + var(--aperture-y,0px))) rotate(calc(var(--cut-progress)*2deg))}
+#film-prologue .identity-carried-light .gap-dust{animation-play-state:running}
+#about>.identity-arrived-light{z-index:-1;animation:identity-arrival-fade 3.8s ease-out forwards}
+.identity-arrived-light .gap-dust{animation-play-state:running}
+.identity-arrived-light .gap-spill-core{display:none}
+@keyframes identity-arrival-fade{0%{opacity:.24}30%{opacity:.15}100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.gate-cover-half,.gate-light-spill,.gap-dust{animation:none!important}.gate-gap-light .gap-core{opacity:1}.gate-light-spill{opacity:0}.identity-carried-light{opacity:.24}}
+@media(prefers-reduced-motion:reduce){.identity-arrived-light{display:none!important}}

@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const threeURL=new URL('../dist/vendor/three.module.js',import.meta.url).href;
+const source=fs.readFileSync('dist/texture-sources.js','utf8').replace("from 'three'",`from '${threeURL}'`).replace("from './device-profile.js'",`from '${new URL('../dist/device-profile.js',import.meta.url).href}'`);
+const {createTextureSourcePool}=await import('data:text/javascript,'+encodeURIComponent(source));
+const THREE=await import(threeURL);let loads=0,complete;
+const shared=createTextureSourcePool((url,onLoad)=>{loads++;complete=onLoad;return new THREE.Texture({width:1254,height:1254,src:url})},()=> 'https://example.test/');
+const callbacks=[];const a=shared('./assets/art.png',t=>callbacks.push(t)),b=shared('/assets/art.png',t=>callbacks.push(t));
+a.repeat.set(.1,1);a.anisotropy=8;b.anisotropy=4;
+assert.equal(loads,1);assert.equal(a.source,b.source);assert.notEqual(a,b);assert.equal(b.repeat.x,1,'UV transformations stay independent');assert.equal(b.anisotropy,4,'Each use keeps its exact sampler');
+complete();assert.deepEqual(callbacks,[a,b]);assert.ok(a.version>0&&b.version>0);
+const c=shared('assets/art.png',t=>callbacks.push(t));await Promise.resolve();assert.equal(c.source,a.source);assert.equal(callbacks[2],c);assert.equal(loads,1);assert.equal(c.image.width,1254,'No resizing or re-encoding');
+shared('assets/other.png');assert.equal(loads,2);
+console.log('Texture source checks passed: shared original pixels, pending callbacks and independent UVs/samplers.');

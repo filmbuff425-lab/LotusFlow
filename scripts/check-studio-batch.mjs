@@ -25,10 +25,17 @@ const sharedTexture=new THREE.Texture();sharedTexture.source.toJSON=()=>{throw n
 for(let i=0;i<3;i++)add(root,new THREE.MeshStandardMaterial({map:sharedTexture,roughness:.5}));
 const result=batchStudio(root,[interactive]);root.updateMatrixWorld(true);
 const batch=root.children.find(o=>o.name==='Static studio batch');
+assert.ok(batch.geometry.index,'Indexed geometry remains indexed');assert.ok(result.indexedBytes<result.expandedBytes,'Preserving indices uses less buffer memory');
 assert.ok(batch,'Distinct material instances with identical optical properties merge');
 assert.equal(result.before-result.after,7);
 const after=vertices(batch);assert.equal(after.length,before.length);
 for(const point of after){const i=before.findIndex(candidate=>point.every((v,axis)=>Math.abs(v-candidate[axis])<1e-5));assert.ok(i>=0,'World-space vertices match within Float32 precision');before.splice(i,1);}
 assert.equal(batch.material.roughness,.48);assert.equal(batch.material.metalness,.12);
+assert.equal(batch.matrixAutoUpdate,false,'A static batch keeps its fixed local transform');
+assert.equal(interactive.matrixAutoUpdate,true,'Interactive transforms remain live');
+for(const mesh of moving)assert.equal(mesh.matrixAutoUpdate,true,'Moving branches remain live');
+const oldWorld=batch.matrixWorld.clone();root.position.x+=2;root.updateMatrixWorld(true);assert.ok(Math.abs(batch.matrixWorld.elements[12]-oldWorld.elements[12]-2)<1e-5,'Frozen local transforms still follow moving parents');
 for(const mesh of [interactive,glass,custom,extra,another,...hiddenParts,...moving])assert.ok(mesh.parent,'Interactive, glass, dynamic, hidden, custom and different materials stay independent');
+const hitOnly=new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.MeshBasicMaterial({transparent:true,opacity:0}));hitOnly.visible=false;hitOnly.updateMatrixWorld(true);
+const ray=new THREE.Raycaster(new THREE.Vector3(0,0,5),new THREE.Vector3(0,0,-1));assert.ok(ray.intersectObject(hitOnly).length,'Hidden hit targets still receive pointer raycasts');
 console.log('Studio batching checks passed: fewer draw calls, matching geometry/materials, preserved controls, glass, hidden and moving parts.');

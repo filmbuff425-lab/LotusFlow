@@ -1,16 +1,16 @@
+import {mobileAsset} from './device-profile.js';
 import {loadHook,previewEnded,cancelHook} from './preview-hooks.js?v=20261007-mobile3';
 import {createMusicSignal} from './music-signal.js?v=20261007-mobile3';
 import {drawerReflection} from './pressing-profiles.js?v=20261006-lake-surface1';
-import {mountShelfObjects} from './record-shelf-objects.js?v=20261006-lake-surface1';
 import {mountRecognition} from './recognition.js?v=20261006-lake-surface1';
 const tracks=window.lotusCatalog,rack=document.querySelector('#shop-rack'),spines=[...rack.querySelectorAll('.cd-spine')],panel=document.querySelector('#record-inspector'),audio=document.querySelector('#collection-audio'),note=document.querySelector('#collection-audio-note'),caption=document.querySelector('#shelf-caption'),canvas=document.querySelector('#case-voice'),ctx=canvas.getContext('2d');
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,signal=createMusicSignal(audio);
 // Two clear glass shelves; original accessible cases keep their pickup gestures.
 const middle=Math.ceil(spines.length/2),shelfGroups=[spines.slice(0,middle),spines.slice(middle)];
-const sleeve=id=>{const t=tracks.find(t=>t.id===id);return `<div class="shelf-sleeve"><img src="${t.image}" alt="" loading="eager"><i></i></div>`};
+const sleeve=id=>{const t=tracks.find(t=>t.id===id);return `<div class="shelf-sleeve"><img src="${mobileAsset(t.image)}" alt="" loading="eager"><i></i></div>`};
 const shelfScenes=[
- `<div class="shelf-objects objects-left">${sleeve('flow')}<span class="shelf-notebook"></span><canvas class="shelf-ceramic shelf-blue-addition" data-shelf-object="love" aria-label="Blue Love Myself ceramic sculpture"></canvas></div><div class="shelf-objects objects-right"><div class="shelf-flat-stack">${['news','juliet','lov','airtight'].map(id=>`<i style="--flat-art:url('${tracks.find(t=>t.id===id).image}')"></i>`).join('')}</div><span class="shelf-paper-sleeves"></span><canvas class="shelf-ceramic shelf-glass-buddha" data-shelf-object="crystal" aria-label="Seated glass Buddha"></canvas></div>`,
- `<div class="shelf-objects objects-left"><canvas class="shelf-ceramic shelf-opal-lamp" data-shelf-object="lamp" aria-label="Opal glass and silver three-shade lamp"></canvas>${sleeve('summer')}</div><div class="shelf-objects objects-right"><span class="shelf-photo-frame">${sleeve('feed-on')}</span><span class="shelf-metal-canister"></span><canvas class="shelf-ceramic shelf-candle" data-shelf-object="candle" aria-label="Lit wax candle in a ceramic holder"></canvas></div>`
+ `<div class="shelf-objects objects-left">${sleeve('flow')}<span class="shelf-notebook"></span><canvas class="shelf-ceramic shelf-blue-addition" data-shelf-object="love" aria-label="Blue Love Myself ceramic sculpture"></canvas></div><div class="shelf-objects objects-right"><div class="shelf-flat-stack">${['news','juliet','lov','airtight'].map(id=>`<i style="--flat-art:url('${tracks.find(t=>t.id===id).image}')"></i>`).join('')}</div><span class="shelf-paper-sleeves"></span></div>`,
+ `<div class="shelf-objects objects-left"><canvas class="shelf-ceramic shelf-glass-buddha" data-shelf-object="crystal" aria-label="Seated glass Buddha"></canvas>${sleeve('summer')}</div><div class="shelf-objects objects-right"><span class="shelf-photo-frame">${sleeve('feed-on')}</span><span class="shelf-metal-canister"></span><canvas class="shelf-ceramic shelf-candle" data-shelf-object="candle" aria-label="Lit wax candle in a ceramic holder"></canvas></div>`
 ];
 const wall=document.createElement('div');wall.className='shelf-wall-tracks';wall.setAttribute('aria-hidden','true');wall.innerHTML='<i></i><i></i>';rack.before(wall);
 rack.replaceChildren();
@@ -20,7 +20,8 @@ for(const [index,group] of shelfGroups.entries()){
  const cases=document.createElement('div');cases.className='shelf-records';cases.append(...group);
  row.append(objects.firstElementChild,cases,objects.lastElementChild);rack.append(row);
 }
-mountShelfObjects(rack);
+// A decorative WebGL failure must not block the shelves or record controls.
+import('./record-shelf-objects.js?v=20261007-seam-soft11').then(({mountShelfObjects})=>mountShelfObjects(rack)).catch(error=>console.warn('Shelf decoration unavailable:',error));
 document.querySelector('.shelf-scroll').setAttribute('aria-label','Two shelves of CDs. Use arrow keys to browse the records, or scroll horizontally on a small screen.');
 let motion=0,flight=null,flightRaf=0,hoverId=null,hoverTimer=0,hoverTicket=0,hoverPlaying=false,hoverEnabled=true;
 const hoverButton=document.createElement('button');hoverButton.className='collection-hover-sound';hoverButton.textContent='HOVER SOUND / ON';hoverButton.setAttribute('aria-pressed','true');document.querySelector('.library-caption').append(hoverButton);
@@ -40,7 +41,7 @@ function openRecord(track,source,updateURL=true){
  for(const spine of spines)spine.classList.remove('taken');
  for(const spine of spines)spine.setAttribute('aria-expanded',String(spine.dataset.record===track.id));
  setText('project-meta',`${track.year} / ${track.categories.includes('artist')?'ARTIST RELEASE':'COLLABORATION'}`);setText('project-title',track.title);setText('project-artist',track.artist);setText('project-role',track.role);setText('project-credit',track.credits);
- document.querySelector('#case-disc-art').src=track.image;document.querySelector('#case-lid-art').src=track.image;
+ document.querySelector('#case-disc-art').src=mobileAsset(track.image);document.querySelector('#case-lid-art').src=mobileAsset(track.image);
  document.querySelector('#project-detail').href=track.detailUrl;document.querySelector('#project-official').href=track.url;
  let recognition=panel.querySelector('[data-recognition-host]');if(!recognition){recognition=document.createElement('section');recognition.dataset.recognitionHost='';panel.querySelector('.project-links').before(recognition)}mountRecognition(recognition,track,{compact:true});
  loadHook(audio,track,{full:true});audio.setAttribute('aria-label',`Listen to ${track.title} by ${track.artist}`);
@@ -54,7 +55,7 @@ function openRecord(track,source,updateURL=true){
 }
 function makeFlight(track){
  const el=document.createElement('div');el.className='flying-case';el.setAttribute('aria-hidden','true');
- const face=document.createElement('div');face.className='pickup-face';const img=new Image();img.src=track.image;img.alt='';face.append(img);el.append(face);const edge=document.createElement('i');edge.className='pickup-spine';el.append(edge);document.body.append(el);return el;
+ const face=document.createElement('div');face.className='pickup-face';const img=new Image();img.src=mobileAsset(track.image);img.alt='';face.append(img);el.append(face);const edge=document.createElement('i');edge.className='pickup-spine';el.append(edge);document.body.append(el);return el;
 }
 const smooth=x=>x*x*(3-2*x),clamp=x=>Math.max(0,Math.min(1,x));
 function takeFromShelf(source,serial,returning=false,done){

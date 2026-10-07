@@ -1,3 +1,4 @@
+import {createSharedTextureLoader} from './texture-sources.js';
 import * as THREE from 'three';
 import {createGlassRecords} from './studio-glass-records.js?v=20261006-lake-surface1';
 import {createMVWall} from './studio-mv-wall.js?v=20261006-lake-surface1';
@@ -45,7 +46,7 @@ export function createRecordingRoom({root,renderer,texture,camera,scene}){
  for(const z of [-14.47,14.47])box(34.94,.035,.035,0,19.92,z,edgeLight,architecture);
  for(const x of [-17.47,17.47])box(.035,.035,28.94,x,19.92,0,edgeLight,architecture);
  // Objects use world units independently from the glass architecture's scale.
- const coverLoader=new THREE.TextureLoader(),recordTargets=[];
+ const coverLoader=createSharedTextureLoader(),recordTargets=[];
  const acrylic=new THREE.MeshPhysicalMaterial({color:0xd9e5df,transparent:true,opacity:.11,metalness:.04,roughness:.09,clearcoat:1,depthWrite:false});
  const edge=new THREE.LineBasicMaterial({color:0xd2e2df,transparent:true,opacity:.55});
  const objects=createReferenceObjects(texture);

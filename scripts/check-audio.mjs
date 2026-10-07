@@ -13,7 +13,7 @@ function environment({failFetch=0,failPlay=0}={}){
  const window={...listeners(),lotusSession:{audioState:{playing:false}}};
  window.dispatchEvent=e=>{for(const fn of window.handlers.get(e.type)||[])fn(e);return true};
  let intersection;
- function node(){return {connect(next){return next},disconnect(){},gain:{value:0,setValueAtTime(v){this.value=v},setTargetAtTime(v){this.value=v},exponentialRampToValueAtTime(v){this.value=v}},frequency:{value:0,setValueAtTime(){},exponentialRampToValueAtTime(){}},pan:{value:0},threshold:{},knee:{},ratio:{}}}
+ function node(){return {connect(next){return next},disconnect(){},gain:{value:0,setValueAtTime(v){this.value=v},setTargetAtTime(v){this.value=v},linearRampToValueAtTime(v){this.value=v},setValueCurveAtTime(){},cancelAndHoldAtTime(){},exponentialRampToValueAtTime(v){this.value=v}},frequency:{value:0,setValueAtTime(){},linearRampToValueAtTime(){},exponentialRampToValueAtTime(){}},pan:{value:0},threshold:{},knee:{},ratio:{}}}
  class AudioContext{
   constructor(){Object.assign(this,listeners());this.state='suspended';this.currentTime=1;this.sampleRate=22050;this.destination=node();contexts.push(this)}
   async resume(){order.push('context.resume');this.state='running';await this.emit('statechange');order.push('context.resumed')}
@@ -33,7 +33,7 @@ function environment({failFetch=0,failPlay=0}={}){
  const storage={getItem(){return null},setItem(){}};
  const context={window,document,URL,URLSearchParams,CustomEvent:class{constructor(type,options){this.type=type;this.detail=options.detail}},location:{search:"",origin:"http://localhost"},Float32Array,console,localStorage:storage,sessionStorage:storage,performance:{now:()=>1000},MutationObserver:class{observe(){}},IntersectionObserver:class{constructor(fn){intersection=fn}observe(){}},fetch:async()=>{if(failFetch-->0)return{ok:false};return{ok:true,arrayBuffer:async()=>new ArrayBuffer(8)}},setInterval(fn){intervals.push(fn);return intervals.length},clearInterval(){},setTimeout(){},innerWidth:1000,addEventListener:window.addEventListener.bind(window)};
  vm.createContext(context);
- return{nodes,contexts,sources,intervals,order,document,window,context,stage,visible(v){intersection([{isIntersecting:v}])},load(file){let code=fs.readFileSync('dist/'+file,'utf8');if(file==='interaction-sound.js'){vm.runInContext(fs.readFileSync('dist/water-surface.js','utf8').replace('export function','function'),context);code=code.replace(/^import .*?;\n/gm,'')}code=code.replaceAll('import.meta.url',JSON.stringify('http://localhost/'+file)).replaceAll('export async function','async function').replaceAll('export function','function');vm.runInContext(code,context)},call(code){return vm.runInContext(code,context)}};
+ return{nodes,contexts,sources,intervals,order,document,window,context,stage,visible(v){intersection([{isIntersecting:v}])},load(file){let code=fs.readFileSync('dist/'+file,'utf8');if(file==='interaction-sound.js'){vm.runInContext(fs.readFileSync('dist/water-surface.js','utf8').replace('export function','function'),context);vm.runInContext(fs.readFileSync('dist/air-sound.js','utf8').replace('export function','function'),context);code=code.replace(/^import .*?;\n/gm,'')}code=code.replaceAll('import.meta.url',JSON.stringify('http://localhost/'+file)).replaceAll('export async function','async function').replaceAll('export function','function');vm.runInContext(code,context)},call(code){return vm.runInContext(code,context)}};
 }
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
 
@@ -82,9 +82,12 @@ for(let i=0;i<160;i++)a.intervals[0]();assert.ok(ambient.volume<.017,'Music duck
 foreground.muted=true;for(let i=0;i<160;i++)a.intervals[0]();subtleBed();
 a.window.lotusIdentityAudio={playing:true};for(let i=0;i<160;i++)a.intervals[0]();assert.ok(ambient.volume<.017,'Identity score also ducks the ambient bed');
 a.window.lotusIdentityAudio.playing=false;
+a.window.dispatchEvent(new a.context.CustomEvent('lotus-room-change',{detail:true}));assert.equal(sound.dataset.airCue,'studio-wind','Wind starts on the actual camera entrance event');
+assert.equal(a.window.lotusSfx.play('seam-air'),true);assert.equal(sound.dataset.airDesign,'unpitched-soft-breath');
 let scoreEnabled=true;a.window.addEventListener('lotus-effects-change',e=>{scoreEnabled=e.detail});
 await sound.emit('click');for(let i=0;i<160;i++)a.intervals[0]();assert.equal(ambient.paused,true);assert.equal(sound.textContent,'SOUND / OFF');
 assert.equal(scoreEnabled,false,'The global sound switch tells the Identity score to stop');
+const mutedSources=a.sources.length;assert.equal(a.window.lotusSfx.play('seam-air',{performanceAction:true}),false);assert.equal(a.sources.length,mutedSources,'The opening hint cannot bypass the visitor’s mute preference');
 await sound.emit('click');assert.equal(ambient.paused,false);assert.equal(sound.textContent,'SOUND / ON');
 a.document.hidden=true;await a.document.emit('visibilitychange');assert.equal(ambient.paused,true);assert.equal(a.contexts[0].state,'suspended');
 a.document.hidden=false;await a.document.emit('visibilitychange');await flush();assert.equal(ambient.paused,false);assert.equal(a.contexts[0].state,'running');

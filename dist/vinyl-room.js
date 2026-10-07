@@ -1,4 +1,5 @@
 import {createVisibleFrameLoop} from './visible-frame-loop.js?v=20261007-deploy1';
+import {deviceProfile} from './device-profile.js';
 import {mountRecordingContext} from './recognition.js?v=20261006-lake-surface1';
 import * as THREE from 'three';
 import {createArtRecord} from './record-design.js?v=20261006-lake-surface1';
@@ -18,7 +19,7 @@ window.addEventListener('lotus-filter-change',e=>{filter=e.detail;items=api.trac
 try{setup()}catch(error){fallback();console.warn('Vinyl room unavailable:',error.message)}
 function fallback(){api.setView('gallery');const b=document.querySelector('[data-view="vinyl"]');b.disabled=true;b.title='The vinyl view needs WebGL. Use Grid or List to explore every release.'}
 function setup(){
- const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.25;
+ const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,deviceProfile.handheld?deviceProfile.pixelRatio:1.6));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.25;
  const scene=new THREE.Scene(),space=createRecordSpace(scene),gallery=new THREE.Group();scene.add(gallery);space.setOpacity(0);const camera=new THREE.OrthographicCamera(-9,9,3.5,-3.5,.1,100);camera.position.set(0,0,22);const canvas=renderer.domElement;canvas.tabIndex=0;canvas.setAttribute('aria-label','Vinyl record room. Move against a record to nudge it, drag a record to move it, or drag the background to browse releases. Arrow keys select; Enter opens the album and plays the song.');host.append(canvas);
  scene.add(new THREE.AmbientLight(0xffffff,1.15));const light=new THREE.DirectionalLight(0xffffff,1.8);light.position.set(-4,6,12);scene.add(light);const rim=new THREE.DirectionalLight(0xe5eaff,2);rim.position.set(5,-3,8);scene.add(rim);
  const envCanvas=document.createElement('canvas');envCanvas.width=1024;envCanvas.height=512;const eg=envCanvas.getContext('2d');eg.fillStyle='#222';eg.fillRect(0,0,1024,512);eg.fillStyle='#fff';eg.fillRect(70,30,145,410);eg.fillRect(430,0,80,512);eg.fillRect(790,80,200,130);eg.fillStyle='#ddd';eg.fillRect(590,180,100,260);const envTexture=new THREE.CanvasTexture(envCanvas);envTexture.colorSpace=THREE.SRGBColorSpace;envTexture.mapping=THREE.EquirectangularReflectionMapping;const pmrem=new THREE.PMREMGenerator(renderer),environment=pmrem.fromEquirectangular(envTexture);scene.environment=environment.texture;envTexture.dispose();pmrem.dispose();

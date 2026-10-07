@@ -1,9 +1,11 @@
+import {createSharedTextureLoader} from './texture-sources.js';
+import {deviceProfile} from './device-profile.js';
 import * as THREE from 'three';
 import {studioLayout} from './studio-layout.js?v=20261006-lake-surface1';
 
 // Control coordinates follow the Sequential front-panel photograph and the
 // Moog Subsequent 37 product photographs, rather than a generic knob grid.
-export function createStudioSynths({root,texture,touchables,loadTexture=path=>new THREE.TextureLoader().load(path)}) {
+export function createStudioSynths({root,texture,touchables,loadTexture=path=>createSharedTextureLoader().load(path)}) {
  const rig=new THREE.Group();rig.name='Moog Subsequent 37 / Sequential Prophet-6';rig.position.set(...studioLayout.synths);rig.rotation.y=studioLayout.synthRotation;rig.scale.setScalar(.765);root.add(rig);
  const keys=[],controls=[],geometries=new Map();
  const cached=(id,make)=>{if(!geometries.has(id))geometries.set(id,make());return geometries.get(id)};
@@ -54,12 +56,12 @@ export function createStudioSynths({root,texture,touchables,loadTexture=path=>ne
  function screw(p,x,y,z){cylinder(p,.029,.022,x,y,z,steel);box(p,.030,.009,.006,x,y+.016,z,rubber)}
  // One opaque, mipmapped silk-screen texture per panel. No floating labels or
  // coincident transparent faces: the print belongs to the metal face itself.
- function panel(parent,w,d,x,y,z,angle,bg){const p=new THREE.Group();p.position.set(x,y,z);p.rotation.x=angle;parent.add(p);bevel(p,w,.15,d,0,-.087,0,black);const canvas=document.createElement('canvas');canvas.width=4096;canvas.height=Math.round(4096*d/w);const g=canvas.getContext('2d'),sx=canvas.width/w,sy=canvas.height/d;g.fillStyle=bg;g.fillRect(0,0,canvas.width,canvas.height);g.lineJoin='round';g.textAlign='center';g.textBaseline='middle';
+ function panel(parent,w,d,x,y,z,angle,bg){const p=new THREE.Group();p.position.set(x,y,z);p.rotation.x=angle;parent.add(p);bevel(p,w,.15,d,0,-.087,0,black);const canvas=document.createElement('canvas');canvas.width=deviceProfile.panelWidth;canvas.height=Math.round(canvas.width*d/w);const g=canvas.getContext('2d'),sx=canvas.width/w,sy=canvas.height/d;g.fillStyle=bg;g.fillRect(0,0,canvas.width,canvas.height);g.lineJoin='round';g.textAlign='center';g.textBaseline='middle';
   const px=a=>(a+w/2)*sx,pz=a=>(a+d/2)*sy;
   const text=(s,a,b,size=.064,color='#c4c4bb',font='Arial')=>{g.fillStyle=color;g.font=`${size*sy}px ${font}`;g.fillText(s,px(a),pz(b))};
   const line=(points,width=.016,color='#babcb0')=>{g.strokeStyle=color;g.lineWidth=width*sy;g.beginPath();points.forEach(([a,b],i)=>i?g.lineTo(px(a),pz(b)):g.moveTo(px(a),pz(b)));g.stroke()};
   const rect=(l,t,r,b,color)=>{g.fillStyle=color;g.beginPath();g.roundRect(px(l),pz(t),(r-l)*sx,(b-t)*sy,.042*sy);g.fill()};
-  const section=(title,l,t,r,b)=>{g.strokeStyle='#b5b8ac';g.lineWidth=.018*sy;g.beginPath();g.roundRect(px(l),pz(t),(r-l)*sx,(b-t)*sy,.075*sy);g.stroke();g.font=`${.084*sy}px Arial`;const tw=g.measureText(title).width;g.fillStyle=bg;g.fillRect(px((l+r)/2)-tw/2-8,pz(t)-9,tw+16,18);text(title,(l+r)/2,t,.084)};
+  const section=(title,l,t,r,b)=>{g.strokeStyle='#b5b8ac';g.lineWidth=.018*sy;g.beginPath();g.roundRect(px(l),pz(t),(r-l)*sx,(b-t)*sy,.075*sy);g.stroke();g.font=`${.084*sy}px Arial`;const tw=g.measureText(title).width,printScale=canvas.width/4096;g.fillStyle=bg;g.fillRect(px((l+r)/2)-tw/2-8*printScale,pz(t)-9*printScale,tw+16*printScale,18*printScale);text(title,(l+r)/2,t,.084)};
   const arc=(a,b,r)=>{g.strokeStyle='#b7b9b0';g.lineWidth=.012*sy;g.beginPath();g.arc(px(a),pz(b),r*sx,Math.PI*.70,Math.PI*2.30);g.stroke();for(let i=0;i<11;i++){const q=Math.PI*.70+i*Math.PI*1.6/10;line([[a+Math.cos(q)*r,b+Math.sin(q)*r],[a+Math.cos(q)*(r+.047),b+Math.sin(q)*(r+.047)]],.011)}};
   const map=new THREE.CanvasTexture(canvas);map.colorSpace=THREE.SRGBColorSpace;map.anisotropy=8;const face=add(p,new THREE.PlaneGeometry(w-.025,d-.025),new THREE.MeshStandardMaterial({map,roughness:.60,metalness:.26,bumpMap:grain,bumpScale:.0006}),0,.025,0);face.rotation.x=-Math.PI/2;face.castShadow=face.receiveShadow=false;
   return{p,text,line,section,arc,rect,map,finish(){map.needsUpdate=true}};

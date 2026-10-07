@@ -1,3 +1,4 @@
+import {createSharedTextureLoader} from './texture-sources.js';
 import * as THREE from 'three';
 
 // Upright jewel cases: printed inserts sit inside separate clear lids and hinges.
@@ -8,7 +9,7 @@ export function createGlassRecords({parent,texture,backWall,objects}) {
  const glass=new THREE.MeshPhysicalMaterial({color:0xe8f4ff,roughness:.11,metalness:.03,transparent:true,opacity:.15,clearcoat:1,depthWrite:false});
  const edge=new THREE.LineBasicMaterial({color:0xc1d8ed,transparent:true,opacity:.48});
  const clearHinge=new THREE.MeshStandardMaterial({color:0x9bb5c4,metalness:.32,roughness:.26});
- const loader=new THREE.TextureLoader(),height=4.05,width=4.30,depth=.42,y=17.30,z=-25.1,angle=Math.PI/2-.055;
+ const loader=createSharedTextureLoader(),height=4.05,width=4.30,depth=.42,y=17.30,z=-25.1,angle=Math.PI/2-.055;
  const add=(geo,mat,p,x=0,y=0,z=0)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);p.add(m);return m};
  const box=(w,h,d,p,x,y,z,mat)=>add(new THREE.BoxGeometry(w,h,d),mat,p,x,y,z);
  box(31,.10,4.9,group,0,15.20,z,glass);

@@ -1,3 +1,4 @@
+import {createSharedTextureLoader} from './texture-sources.js';
 import * as THREE from 'three';
 import {createH100} from './studio-h100.js?v=20261006-lake-surface1';
 import {studioLayout} from './studio-layout.js?v=20261006-lake-surface1';
@@ -55,12 +56,12 @@ export function createStudioCDPlayer({root,texture,touchables}){
  box(deck,.32,.30,.44,0,-4.35,.11,edge);
  const phones=createH100({parent:deck,texture,x:0,y:-5.69,z:.44,scale:1.1,angle:-.20});
  cable(deck,[[.6,-4.13,.1],[.66,-4.7,.42],[1.7,-5.4,.56],[1.6,-6.8,.42],[1.0,-7.45,.43],[.25,-8.1,.32],[-1.6,-9.4,.15],[-2,-11.8,.1]]);
- let previous=0,stamp='',artId='',pressAt=0,pressed=null;const maps=new Map(),loader=new THREE.TextureLoader();
+ let previous=0,stamp='',artId='',pressAt=0,pressed=null;const maps=new Map(),loader=createSharedTextureLoader();
  function drawDisplay(number,playing,slot){dg.fillStyle='#191a1b';dg.fillRect(0,0,256,256);dg.fillStyle='#abb0aa';dg.font='16px Arial';dg.textAlign='center';dg.fillText('Disc',128,43);for(let i=0;i<3;i++){dg.fillStyle=i===slot?'#ef4c25':'#353431';dg.beginPath();dg.arc(84+i*44,65,5,0,Math.PI*2);dg.fill()}dg.fillStyle='#080807';dg.fillRect(42,98,174,100);dg.fillStyle='#ff3b16';dg.font='72px monospace';dg.fillText(String(number).padStart(2,'0'),128,174);dg.fillStyle='#b5b9b4';dg.font='15px Arial';dg.fillText(playing?'PLAYING':'STOP',128,220);digitsMap.needsUpdate=true;}
  const favorites=['summer','mirror','still-miss-you'];
- function command(action){const media=window.lotusStudioMedia;if(!media)return;if(media.mode!=='music')media.setMode('music');if(action.startsWith('disc-'))media.choose(favorites[Number(action.slice(-1))-1]);else if(action==='toggle')media.toggle();else if(action==='stop'){media.pause();media.seekTo(0)}else media.advance(action==='next'?1:-1)}
+ async function command(action){const media=window.lotusStudioMedia;if(!media)return;if(media.mode!=='music'&&!await media.setMode('music',{start:false}))return;if(action.startsWith('disc-'))media.choose(favorites[Number(action.slice(-1))-1]);else if(action==='toggle')media.toggle();else if(action==='stop'){media.pause();media.seekTo(0)}else media.advance(action==='next'?1:-1)}
  function press(object){pressed=object;pressAt=performance.now();command(object.userData.command)}
- function update(now){const media=window.lotusStudioMedia,dt=Math.min(.05,(now-previous)/1000||0);previous=now;if(!media)return;const t=media.track,playing=!media.media.paused;rotor.rotation.z-=playing?dt*1.3:0;knob.rotation.z=.9-media.media.volume*4.5;
+ function update(now){const media=window.lotusStudioMedia,dt=Math.min(.05,(now-previous)/1000||0);previous=now;if(!media)return;const t=media.track,playing=!media.media.paused;rotor.rotation.z-=playing?dt*1.3:0;knob.rotation.z=.9-media.listeningVolume*4.5;
   if(pressed){pressed.position.z=.395-Math.sin(Math.min(1,(now-pressAt)/230)*Math.PI)*.035;if(now-pressAt>230)pressed=null}
   const number=Math.max(0,media.collection.findIndex(x=>x.id===t.id))+1,nextStamp=[t.id,playing].join('/');if(stamp!==nextStamp){stamp=nextStamp;drawDisplay(number,playing,favorites.indexOf(t.id))}
   if(artId!==t.id){artId=t.id;if(maps.has(t.id)){discMat.map=maps.get(t.id);discMat.needsUpdate=true}else{const map=loader.load(t.image,()=>{if(artId===t.id){discMat.map=map;discMat.needsUpdate=true}});map.colorSpace=THREE.SRGBColorSpace;maps.set(t.id,map)}}

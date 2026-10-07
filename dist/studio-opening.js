@@ -2,16 +2,16 @@
 // Prime this exact media element in the entry gesture, before the room loads.
 export function createStudioOpening({media,stopScreen,announce,onState=()=>{}}){
  let revision=0,active=false;
- const volume=media.volume;
+ const volume=media.volume,originalMuted=media.muted;
  function state(value){media.dataset.audioState=value;onState(value)}
- function stop(){revision++;active=false;media.pause();media.volume=volume;state('paused')}
+ function stop(){revision++;active=false;media.pause();media.volume=volume;media.muted=originalMuted;state('paused')}
  async function arm(){
-  const token=++revision;active=false;media.volume=0;state('arming');
-  try{await media.play();if(token!==revision)return;media.pause();media.currentTime=0;media.volume=volume;state('armed')}
-  catch{if(token===revision){media.volume=volume;state('needs-gesture')}}
+  const token=++revision;active=false;media.muted=true;media.volume=0;state('arming');
+  try{await media.play();if(token!==revision)return;media.pause();media.currentTime=0;media.volume=volume;media.muted=originalMuted;state('armed')}
+  catch{if(token===revision){media.volume=volume;media.muted=originalMuted;state('needs-gesture')}}
  }
  async function start(){
-  const token=++revision;active=true;stopScreen();media.pause();media.currentTime=0;media.volume=volume;
+  const token=++revision;active=true;stopScreen();media.pause();media.currentTime=0;media.volume=volume;media.muted=originalMuted;
   announce();state('starting');
   try{await media.play();if(token!==revision)return;state(media.paused?'needs-gesture':'playing')}
   catch{if(token===revision)state('needs-gesture')}

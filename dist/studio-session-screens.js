@@ -21,7 +21,7 @@ export function createSessionScreens({api,arrange,mix,dawTexture,mixerTexture,se
   g.save();g.beginPath();g.roundRect(8,57,W-16,605,[0,0,9,9]);g.clip();g.drawImage(snapshot,8,57,W-16,605);g.restore();
   g.fillStyle='#b2bdd02b';g.beginPath();g.roundRect(W/2-142,673,284,42,13);g.fill();
   const icons=[['#50aafa','⌘'],['#326ab4','✧'],['#ee6388','♫'],['#696473','≋'],['#a8acb5','⚙︎'],['#39495a','▤']];
-  icons.forEach(([c,label],i)=>{const x=W/2-129+i*44;g.fillStyle=c;g.beginPath();g.roundRect(x,679,31,30,7);g.fill();g.fillStyle='#fff';g.font='23px -apple-system,BlinkMacSystemFont,sans-serif';g.textAlign='center';g.fillText(label,x+15,703);g.textAlign='left'});
+  icons.forEach(([c,label],i)=>{const x=W/2-129+i*44;g.fillStyle=c;g.beginPath();g.roundRect(x,679,31,30,7);g.fill();g.fillStyle='#fff';g.font='23px -apple-system,BlinkMacSystemFont,sans-serif';g.textAlign='center';if(label.startsWith('⚙')){g.save();g.translate(x+15,694);g.strokeStyle='#fff';g.lineWidth=1.6;g.beginPath();g.arc(0,0,6,0,Math.PI*2);g.moveTo(2.2,0);g.arc(0,0,2.2,0,Math.PI*2);for(let k=0;k<8;k++){const q=k*Math.PI/4;g.moveTo(Math.cos(q)*6,Math.sin(q)*6);g.lineTo(Math.cos(q)*9,Math.sin(q)*9)}g.stroke();g.restore()}else g.fillText(label,x+15,703);g.textAlign='left'});
  }
  let lastStamp='';
  function update(now){

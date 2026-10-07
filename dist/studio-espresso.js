@@ -1,3 +1,4 @@
+import {createSharedTextureLoader} from './texture-sources.js';
 import * as THREE from 'three';
 import {createReferenceCoffeeCup} from './studio-coffee-cup.js?v=20261006-lake-surface1';
 export function createSculpturalEspresso({parent,texture}){
@@ -6,7 +7,7 @@ export function createSculpturalEspresso({parent,texture}){
  const box=(p,w,h,d,x,y,z,m,r=.07)=>{r=Math.min(r,w*.45,h*.45);const bevel=Math.min(.03,w*.15,h*.15,d*.15);const s=new THREE.Shape();s.moveTo(-w/2+r,-h/2);s.lineTo(w/2-r,-h/2);s.quadraticCurveTo(w/2,-h/2,w/2,-h/2+r);s.lineTo(w/2,h/2-r);s.quadraticCurveTo(w/2,h/2,w/2-r,h/2);s.lineTo(-w/2+r,h/2);s.quadraticCurveTo(-w/2,h/2,-w/2,h/2-r);s.lineTo(-w/2,-h/2+r);s.quadraticCurveTo(-w/2,-h/2,-w/2+r,-h/2);const g=new THREE.ExtrudeGeometry(s,{depth:d-bevel*2,bevelEnabled:true,bevelSize:bevel,bevelThickness:bevel,bevelSegments:2,curveSegments:8});g.center();const uv=g.attributes.uv,pos=g.attributes.position,n=g.attributes.normal;for(let i=0;i<uv.count;i++){const side=Math.abs(n.getX(i))>.6;uv.setXY(i,(side?pos.getZ(i):pos.getX(i))/2+.5,(Math.abs(n.getY(i))>.6?pos.getZ(i):pos.getY(i))/2+.5)}return add(g,m,p,x,y,z)};
  const cyl=(p,r,h,x,y,z,m,rb=r)=>add(new THREE.CylinderGeometry(r,rb,h,40),m,p,x,y,z);
  const tube=(p,pts,r,m)=>add(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts.map(v=>new THREE.Vector3(...v))),28,r,8,false),m,p);
- const stoneMap=new THREE.TextureLoader().load('assets/materials/porous-stone-albedo.png');stoneMap.colorSpace=THREE.SRGBColorSpace;stoneMap.wrapS=stoneMap.wrapT=THREE.RepeatWrapping;stoneMap.anisotropy=8;
+ const stoneMap=createSharedTextureLoader().load('assets/materials/porous-stone-albedo.png');stoneMap.colorSpace=THREE.SRGBColorSpace;stoneMap.wrapS=stoneMap.wrapT=THREE.RepeatWrapping;stoneMap.anisotropy=8;
  const stone=new THREE.MeshStandardMaterial({color:0xb0b3af,map:stoneMap,bumpMap:stoneMap,bumpScale:.028,roughness:.91});
  const chrome=new THREE.MeshPhysicalMaterial({color:0xe4e5df,metalness:1,roughness:.13,clearcoat:.12}),brushed=new THREE.MeshStandardMaterial({color:0xaeb2af,metalness:.91,roughness:.28}),black=new THREE.MeshStandardMaterial({color:0x121313,roughness:.47,metalness:.05}),coffee=new THREE.MeshPhysicalMaterial({color:0x653b19,roughness:.23,clearcoat:.7});
  box(machine,3.75,.47,2.40,0,.255,0,stone,.16);box(machine,1.58,.96,1.98,1.02,.89,-.08,stone,.12);box(machine,1.91,.67,1.82,-.86,.86,.15,stone,.10);box(machine,1.88,.62,.06,-.86,.88,1.078,chrome,.065);

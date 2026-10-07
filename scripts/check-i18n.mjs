@@ -22,6 +22,7 @@ for(const track of chinese.window.lotusCatalog){
  assert.notEqual(zh(track.credits),track.credits,`Translate credits: ${track.id}`);
  assert.equal(en(track.credits),track.credits,`Restore English credits: ${track.id}`);
 }
+for(const [a,b] of [['My music.','我的音乐'],['Music films.','音乐影像'],['Sound lab.','声音实验室']])assert.equal(zh(a),b);
 assert.equal(zh('02 / Identity'),'02 / 个人简介');
 assert.equal(zh('Play NEWs'),'播放 NEWs');
 assert.equal(zh('NOW PLAYING / NEWs · OFFICIAL PREVIEW'),'正在播放 / NEWs · 官方试听');

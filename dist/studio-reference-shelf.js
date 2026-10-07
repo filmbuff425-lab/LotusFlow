@@ -1,3 +1,4 @@
+import {createSharedTextureLoader} from './texture-sources.js';
 import * as THREE from 'three';
 import {createReferenceObjects} from './studio-reference-objects.js?v=20261007-mobile3';
 
@@ -8,7 +9,7 @@ export function createReferenceShelf({ root, texture }) {
   group.position.set(0, 0, -24);
   group.userData.reference = 'IMG_4710 / IMG_4711';
   root.add(group);
-  const recordTargets = [], geometryCache = new Map(), loader = new THREE.TextureLoader();
+  const recordTargets = [], geometryCache = new Map(), loader = createSharedTextureLoader();
   const geo = (type, values, create) => {
     const key = `${type}/${values.join('/')}`;
     if (!geometryCache.has(key)) geometryCache.set(key, create());

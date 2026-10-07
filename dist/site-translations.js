@@ -1546,15 +1546,15 @@ window.LotusTranslations = {
   },
   "My music.": {
     "en": "My music.",
-    "zh": "我的音乐。"
+    "zh": "我的音乐"
   },
   "Music films.": {
     "en": "Music films.",
-    "zh": "音乐影像。"
+    "zh": "音乐影像"
   },
   "Sound lab.": {
     "en": "Sound lab.",
-    "zh": "声音实验室。"
+    "zh": "声音实验室"
   },
   "Search library": {
     "en": "Search library",

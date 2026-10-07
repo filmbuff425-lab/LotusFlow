@@ -6,7 +6,7 @@
  let saved;try{saved=localStorage.getItem(key)}catch{}
  const query=new URLSearchParams(location.search).get('lang');
  let locale=valid(query)?query:valid(saved)?saved:'en';
- const sourceText=new WeakMap(),sourceAttributes=new WeakMap();
+ const sourceText=new WeakMap(),sourceAttributes=new WeakMap(),symbolSources=new WeakMap();
  const skip='script,style,svg,[translate="no"],.site-language-switch,.studio-heading,#about-title,.mac-side-note';
  const attributes=['aria-label','placeholder','title','label','alt','content'];
  const terms=Object.entries(window.LotusTranslationTerms||{}).sort((a,b)=>b[0].length-a[0].length);
@@ -53,6 +53,23 @@
   return value;
  };
  const isSkipped=node=>node.parentElement?.closest(skip);
+ const symbolPattern=/([↗↙↖↘▶◀⚙])[\uFE0E\uFE0F]?/g;
+ const symbolPaths={
+  '↗':'<path d="M4 16 16 4M5 4h11v11"/>',
+  '↙':'<path d="M16 4 4 16M4 5v11h11"/>',
+  '↖':'<path d="M16 16 4 4M4 15V4h11"/>',
+  '↘':'<path d="M4 4 16 16M5 16h11V5"/>',
+  '▶':'<path d="m6 3 12 7L6 17Z" fill="currentColor" stroke="none"/>',
+  '◀':'<path d="m14 3-12 7 12 7Z" fill="currentColor" stroke="none"/>',
+  '⚙':'<circle cx="10" cy="10" r="5.5"/><circle cx="10" cy="10" r="2"/><path d="M10 2v2m0 12v2M2 10h2m12 0h2M4.3 4.3l1.4 1.4m8.6 8.6 1.4 1.4M4.3 15.7l1.4-1.4m8.6-8.6 1.4-1.4"/>'
+ };
+ function symbolCopy(copy){
+  const source=symbolSources.get(copy);if(source===undefined)return;
+  const rendered=phrase(source);if(copy.dataset.symbolLocale===locale&&copy.dataset.symbolText===rendered)return;
+  const parts=rendered.split(symbolPattern),fragment=document.createDocumentFragment();
+  parts.forEach(part=>{if(symbolPaths[part]){const icon=document.createElementNS('http://www.w3.org/2000/svg','svg');icon.setAttribute('viewBox','0 0 20 20');icon.setAttribute('aria-hidden','true');icon.setAttribute('fill','none');icon.setAttribute('stroke','currentColor');icon.setAttribute('stroke-width','1.7');icon.setAttribute('stroke-linecap','round');icon.setAttribute('stroke-linejoin','round');icon.classList.add('interface-arrow');icon.innerHTML=symbolPaths[part];fragment.append(icon)}else fragment.append(document.createTextNode(part))});
+  copy.replaceChildren(fragment);copy.dataset.symbolLocale=locale;copy.dataset.symbolText=rendered;
+ }
  function textNode(node){
   if(isSkipped(node)||!normalize(node.data))return;
   let entry=sourceText.get(node);
@@ -60,6 +77,7 @@
   if(!entry||node.data!==entry.rendered)entry={source:node.data,rendered:node.data};
   const translated=phrase(entry.source),padding=entry.source.match(/^(\s*)[\s\S]*?(\s*)$/);
   const next=translated===entry.source?entry.source:padding[1]+translated+padding[2];
+  if(/[↗↙↖↘▶◀⚙]/.test(entry.source)){const copy=document.createElement('span');copy.className='interface-copy';copy.setAttribute('translate','no');symbolSources.set(copy,entry.source);symbolCopy(copy);node.replaceWith(copy);return}
   if(node.data!==next)node.data=next;
   entry.rendered=next;sourceText.set(node,entry);
  }
@@ -79,11 +97,14 @@
  function translateTree(root){
   if(root.nodeType===3){textNode(root);return}
   if(root.nodeType!==1&&root.nodeType!==9)return;
+  if(root.nodeType===1&&symbolSources.has(root)){symbolCopy(root);return}
+  root.querySelectorAll('.interface-copy').forEach(symbolCopy);
   if(root.nodeType===1&&root.closest(skip))return;
   if(root.nodeType===1)elementAttributes(root);
   root.querySelectorAll('[aria-label],[placeholder],[title],[label],[alt],meta[name="description"]').forEach(elementAttributes);
-  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let node;
-  while((node=walker.nextNode()))textNode(node);
+  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),nodes=[];let node;
+  while((node=walker.nextNode()))nodes.push(node);
+  nodes.forEach(textNode);
  }
  let observer,pending=false;const dirty=new Set();
  const observe=()=>observer?.observe(document.documentElement,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:attributes});

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {handheld} from './device-profile.js';
 
 // Frosted resin speaker bodies follow the updated 4722/4723 reference.
 export function createSculpturalSpeakers({ root, texture }) {
@@ -55,13 +56,15 @@ export function createSculpturalSpeakers({ root, texture }) {
   // White attenuation preserves the milky body; the enclosed red light is
   // integrated along the view ray so its depth changes naturally when orbiting.
   const wax=new THREE.MeshPhysicalMaterial({
-    color:0xfafaf6,metalness:0,roughness:.52,transmission:.91,
+    color:0xfafaf6,metalness:0,roughness:.52,transmission:handheld?0:.91,
     thickness:2.35,ior:1.42,attenuationColor:0xf8f6f0,attenuationDistance:14,
     bumpMap:frostMap,bumpScale:.002,clearcoat:.02,clearcoatRoughness:.56,
-    specularIntensity:.38,opacity:1,depthWrite:true
+    specularIntensity:.38,transparent:handheld,opacity:handheld?.78:1,depthWrite:!handheld
   });
   wax.name='Translucent white wax · micro-etched exterior · enclosed red light';
-  wax.userData.preserveTransmission=true;
+  // Mobile retains the etched shell and volumetric red light without rendering
+  // the whole studio a second time for refraction. Desktop optics stay intact.
+  wax.userData.preserveTransmission=!handheld;
   const breathingGlow={value:1},reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   wax.onBeforeCompile=shader=>{
     shader.uniforms.uWaxGlow=breathingGlow;

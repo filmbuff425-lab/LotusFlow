@@ -3,6 +3,8 @@ import './media-transitions.js?v=20261007-mobile3';
 import './site-atmosphere.js?v=20261006-lake-surface1';
 import './music-cursor.js?v=20261006-lake-surface1';
 import './portfolio-entrances.js?v=20261007-layout7';
+import {applyMobileImages} from './device-profile.js';
+applyMobileImages();
 // Same-origin navigation retains a calm visual bridge, including browsers without cross-document transitions.
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let leaving=false;

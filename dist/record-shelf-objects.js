@@ -16,9 +16,9 @@ export function mountShelfObjects(host){
   const objects=createReferenceObjects(texture),kind=canvas.dataset.shelfObject,object=objects[kind](scene,0,0,0,1,kind==='cat'?-.26:kind==='love'?.12:0);
   const height=kind==='candle'||kind==='crystal'?1.65:kind==='lamp'?1.95:2.15,camera=new THREE.OrthographicCamera(-1,1,1,-1,.1,20);camera.position.set(kind==='crystal'?.85:1.45,height*.72,7.5);camera.lookAt(0,height*.46,0);
   const resize=()=>{const w=canvas.clientWidth,h=canvas.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);const half=height*.57;camera.top=half;camera.bottom=-half;camera.left=-half*w/h;camera.right=half*w/h;camera.updateProjectionMatrix();renderer.render(scene,camera)};
-  const item={canvas,renderer,scene,camera,object,visible:false};items.push(item);new ResizeObserver(resize).observe(canvas);new IntersectionObserver(([e])=>{item.visible=e.isIntersecting;if(item.visible){resize();start()}},{rootMargin:'80px'}).observe(canvas);resize();canvas.dataset.materialReady='true';
+  const item={canvas,renderer,scene,camera,object,visible:false,dynamic:typeof object.userData.update==='function'};items.push(item);new ResizeObserver(resize).observe(canvas);new IntersectionObserver(([e])=>{item.visible=e.isIntersecting;if(item.visible){resize();start()}},{rootMargin:'80px'}).observe(canvas);resize();canvas.dataset.materialReady='true';
  }
- let raf=0,last=0;function draw(now){raf=0;if(document.hidden||!items.some(i=>i.visible))return;if(now-last>33){last=now;for(const i of items)if(i.visible){i.object.userData.update?.(reduced.matches?0:now/1000);i.renderer.render(i.scene,i.camera)}}if(!reduced.matches)raf=requestAnimationFrame(draw)}
- function start(){if(!raf&&!document.hidden&&!reduced.matches)raf=requestAnimationFrame(draw)}
+ let raf=0,last=0;function draw(now){raf=0;if(document.hidden||!items.some(i=>i.visible&&i.dynamic))return;if(now-last>33){last=now;for(const i of items)if(i.visible&&i.dynamic){i.object.userData.update(now/1000);i.renderer.render(i.scene,i.camera)}}if(!reduced.matches)raf=requestAnimationFrame(draw)}
+ function start(){if(!raf&&!document.hidden&&!reduced.matches&&items.some(i=>i.visible&&i.dynamic))raf=requestAnimationFrame(draw)}
  document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(raf);raf=0}else start()});addEventListener('pagehide',()=>{cancelAnimationFrame(raf);raf=0});addEventListener('pageshow',start);
 }

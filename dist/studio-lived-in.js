@@ -1,3 +1,4 @@
+import {createSharedTextureLoader} from './texture-sources.js';
 import * as THREE from 'three';
 import {studioLayout} from './studio-layout.js?v=20261006-lake-surface1';
 export function createLivedInStudio(root){
@@ -26,7 +27,7 @@ export function createLivedInStudio(root){
  line(set,[[32.45,.32,-24.6],[33.10,.065,-23.8],[32.4,.065,-22.8],[31.5,.065,-23.1],[32.2,.065,-23.8],[34.0,.065,-24.9]],.025,black);
  // Full official artwork, attached directly to the inner glass with translucent tape.
  const poster=new THREE.Group();poster.name='Taped official Kill Bill poster';poster.position.set(-27.3,20.2,studioLayout.backWall+.13);poster.rotation.y=0;set.add(poster);
- const art=new THREE.TextureLoader().load('assets/cinema/kill-bill-official.jpg');art.colorSpace=THREE.SRGBColorSpace;
+ const art=createSharedTextureLoader().load('assets/cinema/kill-bill-official.jpg');art.colorSpace=THREE.SRGBColorSpace;
  add(new THREE.PlaneGeometry(7,7*733/500),new THREE.MeshStandardMaterial({map:art,roughness:.88,side:THREE.DoubleSide,emissive:0x3d2c06,emissiveIntensity:.16}),poster,0,0,.014);
  const tapeCanvas=document.createElement('canvas');tapeCanvas.width=128;tapeCanvas.height=48;const tg=tapeCanvas.getContext('2d');tg.fillStyle='#e8e6d81f';tg.fillRect(0,0,128,48);
  for(let i=0;i<280;i++){const x=(i*37)%128,y=(i*19)%48;tg.fillStyle=i%3?'#ffffff19':'#8c8a7922';tg.fillRect(x,y,1+(i%7),1)}

@@ -1,3 +1,4 @@
+import {createSharedTextureLoader} from './texture-sources.js';
 import * as THREE from 'three';
 import {createRecordPrint} from './record-print.js?v=20261006-lake-surface1';
 import {discReflection,coverColor} from './jewel-surface.js?v=20261006-lake-surface1';
@@ -25,7 +26,7 @@ export function createArtRecord({image,id,index=0,radius=1,glass=false}){
  const key=id||image?.split('/').pop()?.split('.')[0],design=designs[key]||Object.values(designs)[index%9],group=new THREE.Group(),materials=[];
  const keep=m=>{materials.push(m);return m},clear=['clear','liquid','smoke'].includes(design.finish),R=radius;
  const add=(geo,mat,z=0)=>{const m=new THREE.Mesh(geo,mat);m.position.z=z;group.add(m);return m};
- const map=new THREE.TextureLoader().load(image);map.colorSpace=THREE.SRGBColorSpace;map.anisotropy=4;
+ const map=createSharedTextureLoader().load(image);map.colorSpace=THREE.SRGBColorSpace;map.anisotropy=4;
  const outer=keep(new THREE.MeshPhysicalMaterial({color:design.edge,roughness:clear?.09:.29,metalness:clear?.13:.08,clearcoat:1,iridescence:design.iridescence,transparent:true,opacity:clear?.20:1,depthWrite:!clear,side:THREE.DoubleSide,envMapIntensity:.55}));
  const profile=[new THREE.Vector2(R*.04,-R*.015),new THREE.Vector2(R,-R*.015),new THREE.Vector2(R,R*.015),new THREE.Vector2(R*.04,R*.015)];
  const body=add(new THREE.LatheGeometry(profile,112),outer);body.rotation.x=Math.PI/2;
@@ -72,7 +73,7 @@ function createGlassRecord({image,id,index,radius:R}){
  const wideGlass=['airtight','juliet'].includes(key),borderless=['news','feed-on','show-me-love'].includes(key),artRadius=coloredWax?(key==='over-the-summer'?.58:.64):borderless?1:wideGlass?design.art:.955;
  const artworkImage=key==='airtight'?'assets/airtight-clean.png':image;
  design.signalColor=new THREE.Color(key==='news'?'#e7a0bb':'#cdbcc7');
- const map=new THREE.TextureLoader().load(artworkImage,texture=>{if(key!=='news')design.signalColor.copy(coverColor(texture.image))});map.colorSpace=THREE.SRGBColorSpace;map.anisotropy=8;
+ const map=createSharedTextureLoader().load(artworkImage,texture=>{if(key!=='news')design.signalColor.copy(coverColor(texture.image))});map.colorSpace=THREE.SRGBColorSpace;map.anisotropy=8;
  const inkOpacity=coverOnly?1:.72;
  const resin=keep(new THREE.MeshPhysicalMaterial({color:0xffffff,roughness:.085,metalness:.04,clearcoat:1,clearcoatRoughness:.08,iridescence:.12,transparent:true,opacity:.12,depthWrite:false,side:THREE.DoubleSide,envMapIntensity:.8}));
  const body=add(new THREE.RingGeometry(R*.10,R,128),resin);

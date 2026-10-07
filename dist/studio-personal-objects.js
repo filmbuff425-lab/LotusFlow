@@ -1,3 +1,4 @@
+import {createSharedTextureLoader} from './texture-sources.js';
 import * as THREE from 'three';
 
 // Three reference objects, modelled as solids. Optical parts deliberately use
@@ -9,7 +10,7 @@ export function createStudioPersonalObjects({root,texture}){
  function noise(x,y){const a=Math.floor(x),b=Math.floor(y),u=fract(x),v=fract(y),s=u*u*(3-2*u),t=v*v*(3-2*v);return THREE.MathUtils.lerp(THREE.MathUtils.lerp(hash(a,b),hash(a+1,b),s),THREE.MathUtils.lerp(hash(a,b+1),hash(a+1,b+1),s),t)}
  function map(w,h,draw,data=false){const t=texture?texture(w,h,draw):(()=>{const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);return new THREE.CanvasTexture(c)})();t.colorSpace=data?THREE.NoColorSpace:THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;return t}
  function raster(w,h,shade,data=false){return map(w,h,(g)=>{const image=g.createImageData(w,h);for(let y=0;y<h;y++)for(let x=0;x<w;x++){const rgb=shade(x,y),i=(x+y*w)*4;image.data[i]=rgb[0];image.data[i+1]=rgb[1];image.data[i+2]=rgb[2];image.data[i+3]=255}g.putImageData(image,0,0)},data)}
- const loader=new THREE.TextureLoader();
+ const loader=createSharedTextureLoader();
  const photoMap=(name)=>{const t=loader.load('assets/materials/'+name);t.colorSpace=THREE.SRGBColorSpace;t.minFilter=THREE.LinearMipmapLinearFilter;t.magFilter=THREE.LinearFilter;t.anisotropy=8;return t};
  const leatherMap=photoMap('cognac-aniline-leather-albedo.png');
  const leatherBump=raster(384,256,(x,y)=>{const pores=hash(x*1.7,y*1.3),wrinkle=Math.pow(Math.abs(Math.sin(x*.071+noise(x/34,y/48)*4.1)),22),v=112+pores*27+noise(x/9,y/8)*11-wrinkle*8;return[v,v,v]},true);

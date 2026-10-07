@@ -1,10 +1,10 @@
-import {useLowPowerGraphics,graphicsPixelRatio} from './device-quality.js';
 import {createVisibleFrameLoop} from './visible-frame-loop.js?v=20261007-deploy1';
+import {deviceProfile,handheld} from './device-profile.js';
 import * as THREE from 'three';
 import {OrbitControls} from './vendor/OrbitControls.js';
 import {studioLayout} from './studio-layout.js?v=20261006-lake-surface1';
 import {createSoundcube} from './soundcube.js?v=20261007-mobile3';
-import {warmStudioTextures,warmStudioGeometry} from './studio-prewarm.js?v=20261007-mobile4';
+import {warmStudioTextures,warmStudioGeometry,studioTextureFootprint} from './studio-prewarm.js?v=20261007-mobile3';
 if (!window.lotusSession) await new Promise(resolve => window.addEventListener('lotus-session-ready', resolve, { once: true }));
 const api = window.lotusSession, host = document.getElementById('studio-canvas'), loading = document.getElementById('studio-loading');
 let selected = api.channels[0].id;
@@ -28,18 +28,17 @@ setInterval(()=>{if(studioOnScreen&&!document.hidden)syncControls()},250);
 try { setupStudio(); } catch (error) { console.warn('3D studio unavailable:', error.message); loading.hidden = false; loading.textContent = '3D is unavailable on this device. The mixer controls below still work.'; host.parentElement.classList.add('no-webgl'); document.querySelectorAll('.studio-view-buttons button').forEach(b => b.disabled = true); }
 function setupStudio() {
  const setupStarted=performance.now();
- const lowPower=useLowPowerGraphics();host.dataset.graphicsQuality=lowPower?'mobile':'full';
  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
- const renderer = new THREE.WebGLRenderer({ antialias: !lowPower, alpha: false, powerPreference: lowPower?'default':'high-performance' });
+ const renderer = new THREE.WebGLRenderer({ antialias: !handheld, alpha: false, powerPreference: handheld?'default':'high-performance' });
  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.25)); renderer.setClearColor(0x060608); renderer.outputColorSpace = THREE.SRGBColorSpace;
- renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.00; renderer.shadowMap.enabled = !lowPower; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+ renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.00; renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
  renderer.transmissionResolutionScale=.5;
  const canvas = renderer.domElement; canvas.tabIndex = 0; canvas.setAttribute('aria-label', 'Eight-channel 3D studio. Drag to orbit, use + / − to zoom, drag a metal fader to mix. Arrow keys rotate; plus and minus zoom.'); host.append(canvas);
  const scene = new THREE.Scene(); scene.fog = new THREE.FogExp2(0x07070b, .008);
  const camera = new THREE.PerspectiveCamera(37, 1, 1.25, 480); camera.position.set(58, 40, 80);
  const controls = new OrbitControls(camera, canvas); controls.target.set(0, 6.5, 0); controls.enableDamping = !reduced; controls.dampingFactor = .06; controls.enablePan = true; controls.panSpeed=.7; controls.rotateSpeed=.5; controls.screenSpacePanning=true; controls.enableZoom = false; canvas.style.touchAction="pan-y"; controls.minDistance = 28; controls.maxDistance = 165; controls.enabled = true; controls.minPolarAngle = .02; controls.maxPolarAngle = Math.PI - .02; controls.autoRotateSpeed = .18;
  scene.add(new THREE.HemisphereLight(0xdbe5ff, 0x121b34, .70));
- const softbox = new THREE.DirectionalLight(0xd4e8ff, 1.22); softbox.position.set(-18, 43, 8); softbox.castShadow = true; softbox.shadow.mapSize.set(1024, 1024); Object.assign(softbox.shadow.camera, { left: -44, right: 44, top: 44, bottom: -44, near: .1, far: 95 }); softbox.shadow.normalBias = .08; softbox.shadow.bias = -.0003; scene.add(softbox);
+ const softbox = new THREE.DirectionalLight(0xd4e8ff, 1.22); softbox.position.set(-18, 43, 8); softbox.castShadow = true; softbox.shadow.mapSize.set(handheld?512:1024,handheld?512:1024); Object.assign(softbox.shadow.camera, { left: -44, right: 44, top: 44, bottom: -44, near: .1, far: 95 }); softbox.shadow.normalBias = .08; softbox.shadow.bias = -.0003; scene.add(softbox);
  const fill = new THREE.DirectionalLight(0x7accc7, .55); fill.position.set(9, 7, -3); scene.add(fill);
  const frontBounce = new THREE.DirectionalLight(0xf5eee0, .72); frontBounce.position.set(28,25,35); scene.add(frontBounce);
  const redLight = new THREE.PointLight(0xffb258, 48, 25, 2); redLight.position.set(-7, 6, -5); scene.add(redLight);
@@ -61,14 +60,18 @@ function setupStudio() {
    const parts=await createStudioInterior({scene,root,renderer,api,camera,soundcube,host,touchables,selected:()=>selected});
    phases.build=+(performance.now()-buildAt).toFixed(1);const compileAt=performance.now();
    ({desk,faders,leds,channelButtons,selectionLights,oleds,details,soundSystem,archive,synths,consoleExtension,sessionScreens,backdrop}=parts);
-   if(lowPower)scene.traverse(object=>{for(const material of Array.isArray(object.material)?object.material:[object.material]){if(material?.transmission>0){material.transmission=0;material.transparent=true;material.opacity=Math.min(material.opacity,.45);material.depthWrite=false;material.needsUpdate=true}}});
+   if(new URLSearchParams(location.search).has('perf'))host.dataset.textureFootprint=JSON.stringify(studioTextureFootprint([root,scene.getObjectByName('Studio cosmos')]));
    // Include the hidden sky in shader preparation, then warm geometry uploads
    // offscreen. The first visible reveal keeps the same full-quality renderer.
-   const sky=scene.getObjectByName('Studio cosmos'),wasSkyVisible=sky.visible,wasVisible=root.visible;root.visible=true;sky.visible=true;
+   const sky=scene.getObjectByName('Studio cosmos'),wasSkyVisible=sky.visible,wasVisible=root.visible;
+   // Phones upload only what the opening camera actually renders. Warming all
+   // 450+ textures, hidden models and shader variants at once can evict WebKit's
+   // graphics context before the visitor even enters. Keep every source texel.
+   if(!handheld){root.visible=true;sky.visible=true;
    const compilation=renderer.compileAsync(scene,camera);root.visible=wasVisible;sky.visible=wasSkyVisible;
    await compilation;phases.compile=+(performance.now()-compileAt).toFixed(1);
    const textureAt=performance.now();
-   const textureUploads=await warmStudioTextures(renderer,[root,sky],{maxTextureSize:lowPower?1024:Infinity});
+   const textureUploads=await warmStudioTextures(renderer,[root,sky]);
    phases.textures=+(performance.now()-textureAt).toFixed(1);
    if(new URLSearchParams(location.search).has('perf'))host.dataset.textureUploads=JSON.stringify(textureUploads);
    await new Promise(resolve=>requestAnimationFrame(resolve));
@@ -81,6 +84,8 @@ function setupStudio() {
    root.visible=true;sky.visible=true;
    try{renderer.setRenderTarget(warmTarget);renderer.render(scene,camera)}finally{renderer.setRenderTarget(previousTarget);root.visible=wasVisible;sky.visible=wasSkyVisible;warmTarget.dispose()}
    phases.finalFrame=+(performance.now()-finalAt).toFixed(1);if(new URLSearchParams(location.search).has('perf'))host.dataset.preparationTimings=JSON.stringify(phases);
+   }
+   host.dataset.loadingProfile=handheld?'on-demand':'prewarmed';
    soundcube.setInteriorReady();renderer.shadowMap.needsUpdate=true;host.dataset.warmed='true';host.dataset.roomState='ready';
    host.dataset.preparationMs=(performance.now()-preparingAt).toFixed(0);
    Object.assign(window.lotusStudio,{desk,faders,details});
@@ -92,7 +97,7 @@ function setupStudio() {
  let roomOpen=false,transition=null,entrance=0,openedAt=0;
  // Room presets face their subject squarely. The exterior cube keeps its own orbit.
  const views = {
-  perspective:{position:[0,15.5,92],target:[0,15.5,-6]},
+  perspective:{position:[0,15.5,handheld?116:92],target:[0,15.5,-6]},
   console:{position:[0,18,43],target:[0,7,-2]},
   room:{position:[0,15.5,118],target:[0,15.5,-3]},
   listening:{position:[4,19,26],target:[studioLayout.synths[0],5.9,studioLayout.synths[2]]}
@@ -107,15 +112,15 @@ function setupStudio() {
  }
  let preparingRoom=false;
  let warmTimer=0;
- function warmVisibleStudio(){if(lowPower||warmTimer||interiorTask||!host.dataset.firstFrameMs||document.hidden||!studioOnScreen)return;warmTimer=setTimeout(()=>{warmTimer=0;if(studioOnScreen&&!document.hidden)prepareInterior().catch(error=>console.warn('Studio preparation failed:',error))},120)}
+ function warmVisibleStudio(){if(handheld||warmTimer||interiorTask||!host.dataset.firstFrameMs||document.hidden||!studioOnScreen)return;warmTimer=setTimeout(()=>{warmTimer=0;if(studioOnScreen&&!document.hidden)prepareInterior().catch(error=>console.warn('Studio preparation failed:',error))},120)}
  new IntersectionObserver(([e])=>{if(e.isIntersecting)warmVisibleStudio()},{rootMargin:'100px'}).observe(host);
  let previewTimer=0,previewHover=false;
  function setPreviewHover(on){
   details.soundcube.setHover(on);if(on===previewHover)return;previewHover=on;clearTimeout(previewTimer);
   // Preserve the glass reveal when the visitor deliberately approaches the cube.
-  if(on&&!lowPower&&!matchMedia('(pointer: coarse)').matches&&host.dataset.roomState!=='ready')previewTimer=setTimeout(()=>prepareInterior().catch(error=>{host.dataset.roomState='error';console.warn('Studio preview preparation failed:',error)}),750);
+  if(on&&!handheld&&host.dataset.roomState!=='ready')previewTimer=setTimeout(()=>prepareInterior().catch(error=>{host.dataset.roomState='error';console.warn('Studio preview preparation failed:',error)}),750);
  }
- function frameStudio(behavior='smooth'){window.scrollTo({top:stage.getBoundingClientRect().top+window.scrollY-92,behavior})}
+ function frameStudio(behavior='smooth'){const header=document.querySelector('.header'),offset=header?.getBoundingClientRect().height||92;window.scrollTo({top:stage.getBoundingClientRect().top+window.scrollY-offset,behavior})}
  async function setRoom(open){if(preparingRoom||transition||roomOpen===open)return;if(open){window.lotusStudioMedia?.armEntrance();preparingRoom=true;openButton.disabled=true;openButton.setAttribute('aria-busy','true');if(host.dataset.roomState!=='ready')openButton.textContent='PREPARING STUDIO…';try{await prepareInterior()}catch(error){window.lotusStudioMedia?.cancelEntrance();console.warn('Studio preparation failed:',error);host.dataset.roomState='error';loading.hidden=false;loading.textContent='The room could not load. Refresh to try again.';return}finally{preparingRoom=false;openButton.disabled=false;openButton.removeAttribute('aria-busy');openButton.innerHTML='OPEN STUDIO <span>＋</span>'}}roomOpen=open;window.dispatchEvent(new CustomEvent('lotus-room-change',{detail:open}));frameStudio();controls.enableDamping=false;controls.update();controls.enabled=false;controls.autoRotate=false;cameraMove=null;openButton.disabled=true;closeButton.disabled=true;stage.classList.toggle('is-opening-room',open);strip.inert=true;
   if(!open&&api.audioState.playing)api.togglePlayback();
   transition={at:performance.now(),from:entrance,to:open?1:0,position:camera.position.clone(),target:controls.target.clone(),destination:open?insideView:cubeView};
@@ -131,7 +136,7 @@ function setupStudio() {
  const raycaster = new THREE.Raycaster(), pointer = new THREE.Vector2(); let down = null, faderDrag = null, paramDrag=null, cdVolumeDrag=null, visible = false, last = 0, lastDaw = 0;
  const point = new THREE.Vector3(), dragPlane = new THREE.Plane();
  function hit(e) { const b = canvas.getBoundingClientRect(); pointer.set((e.clientX - b.left) / b.width * 2 - 1, -(e.clientY - b.top) / b.height * 2 + 1); raycaster.setFromCamera(pointer, camera); return raycaster.intersectObjects(touchables, false)[0]?.object; }
- canvas.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY, moved: false }; if(!roomOpen||transition)return; const object = hit(e); if(object?.userData.action==='cd-volume'){window.lotusSfx?.play('slider');cdVolumeDrag={value:window.lotusStudioMedia?.media.volume??.7,x:e.clientX,y:e.clientY};controls.enabled=false;canvas.setPointerCapture(e.pointerId);e.stopImmediatePropagation();e.preventDefault();return;} if(object?.userData.action==='param'){window.lotusSfx?.play('slider');selectChannel(object.userData.channel);const c=api.channels.find(c=>c.id===selected);paramDrag={key:object.userData.key,value:c[object.userData.key],x:e.clientX,y:e.clientY};controls.enabled=false;canvas.setPointerCapture(e.pointerId);e.stopImmediatePropagation();e.preventDefault();return;} if (['fader','bus-fader'].includes(object?.userData.action)) { window.lotusSfx?.play('slider'); if(object.userData.channel)selectChannel(object.userData.channel); const normal = new THREE.Vector3(0, 1, 0).applyQuaternion(desk.quaternion); object.getWorldPosition(point); dragPlane.setFromNormalAndCoplanarPoint(normal, point); faderDrag = object; controls.enabled = false; canvas.setPointerCapture(e.pointerId); e.stopImmediatePropagation(); e.preventDefault(); } }, { capture: true });
+ canvas.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY, moved: false }; if(!roomOpen||transition)return; const object = hit(e); if(object?.userData.action==='cd-volume'){window.lotusSfx?.play('slider');cdVolumeDrag={value:window.lotusStudioMedia?.listeningVolume??.7,x:e.clientX,y:e.clientY};controls.enabled=false;canvas.setPointerCapture(e.pointerId);e.stopImmediatePropagation();e.preventDefault();return;} if(object?.userData.action==='param'){window.lotusSfx?.play('slider');selectChannel(object.userData.channel);const c=api.channels.find(c=>c.id===selected);paramDrag={key:object.userData.key,value:c[object.userData.key],x:e.clientX,y:e.clientY};controls.enabled=false;canvas.setPointerCapture(e.pointerId);e.stopImmediatePropagation();e.preventDefault();return;} if (['fader','bus-fader'].includes(object?.userData.action)) { window.lotusSfx?.play('slider'); if(object.userData.channel)selectChannel(object.userData.channel); const normal = new THREE.Vector3(0, 1, 0).applyQuaternion(desk.quaternion); object.getWorldPosition(point); dragPlane.setFromNormalAndCoplanarPoint(normal, point); faderDrag = object; controls.enabled = false; canvas.setPointerCapture(e.pointerId); e.stopImmediatePropagation(); e.preventDefault(); } }, { capture: true });
  canvas.addEventListener('pointermove', e => { if(down&&Math.hypot(e.clientX-down.x,e.clientY-down.y)>5)down.moved=true; if(cdVolumeDrag){window.lotusStudioMedia?.volume(THREE.MathUtils.clamp(cdVolumeDrag.value+(e.clientX-cdVolumeDrag.x+cdVolumeDrag.y-e.clientY)/180,0,1));e.stopImmediatePropagation();return;} if(paramDrag){const spec=paramSpecs.find(s=>s[0]===paramDrag.key);const delta=paramDrag.key==='pan'?e.clientX-paramDrag.x:paramDrag.y-e.clientY;api.setChannel(selected,{[paramDrag.key]:THREE.MathUtils.clamp(paramDrag.value+delta/160*(spec[3]-spec[2]),spec[2],spec[3])});syncParameters();e.stopImmediatePropagation();return;} if (!faderDrag) return; hit(e); if (raycaster.ray.intersectPlane(dragPlane, point)) { const local = desk.worldToLocal(point.clone()); const volume=THREE.MathUtils.clamp((1.65-local.z)/1.68*100,0,100);if(faderDrag.userData.action==='bus-fader')api.setBus(faderDrag.userData.bus,volume);else api.setChannel(faderDrag.userData.channel,{volume}); syncControls(); } e.stopImmediatePropagation(); }, { capture: true });
  for (const event of ['pointerup', 'pointercancel']) canvas.addEventListener(event, e => { if (!faderDrag&&!paramDrag&&!cdVolumeDrag) return; faderDrag = null;paramDrag=null;cdVolumeDrag=null; controls.enabled = true; down = null; if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId); e.stopImmediatePropagation(); }, { capture: true });
  canvas.addEventListener('pointerup', e => { if (!down || down.moved || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 5) {down=null;return;} down = null; if(!roomOpen&&!transition){const b=canvas.getBoundingClientRect();pointer.set((e.clientX-b.left)/b.width*2-1,-(e.clientY-b.top)/b.height*2+1);raycaster.setFromCamera(pointer,camera);if(raycaster.intersectObjects(details.soundcube.hitTargets,false).length)setRoom(true);return}if(transition||performance.now()-openedAt<600)return; const object = hit(e); if (!object) return; const data = object.userData;window.lotusSfx?.play(data.action==='studio-record'?'case-lift':data.action==='computer'?'glass':data.action==='release'?'case-lift':'tap');if(data.action==='computer'){window.lotusDesktop?.open();return}if(data.action==='studio-record'){details.soundcube.glassRecords.take(data.release,canvas);return}if(data.action==='mv-wall'){details.soundcube.mvWall.open();return}if(data.action==='release'){window.lotusPortfolio.openTrack(data.release,canvas);return}details.press(object); if(data.action==='bus-fader')return; if (data.channel) selectChannel(data.channel); if(data.action==='next-channel'){selectChannel(api.channels[(api.channels.findIndex(c=>c.id===selected)+1)%api.channels.length].id)}
@@ -147,17 +152,19 @@ function setupStudio() {
  document.querySelectorAll('[data-studio-zoom]').forEach(button=>button.addEventListener('click',()=>{if(transition)return;const offset=(cameraMove?.to||camera.position).clone().sub(controls.target);offset.setLength(THREE.MathUtils.clamp(offset.length()*(button.dataset.studioZoom==='in'?.84:1.19),controls.minDistance,controls.maxDistance));moveCamera(controls.target.clone().add(offset),controls.target.clone())}));
  document.getElementById('studio-reset-view').addEventListener('click',()=>{if(transition)return;const view=roomOpen?insideView:cubeView;moveCamera(view.position.clone(),view.target.clone());document.querySelectorAll('[data-camera]').forEach(b=>b.classList.toggle('active',b.dataset.camera==='perspective'))});
  document.getElementById('auto-rotate').addEventListener('click', e => { if(!roomOpen||transition)return; controls.autoRotate = !controls.autoRotate; e.currentTarget.setAttribute('aria-pressed', String(controls.autoRotate)); });
- function resize() { const w = host.clientWidth, h = host.clientHeight; if(!w||!h)return;renderer.setPixelRatio(graphicsPixelRatio(w,h,lowPower));renderer.setSize(w, h); camera.aspect = w / h; camera.fov = w < 600 ? 62 : 37; camera.updateProjectionMatrix(); }
- new ResizeObserver(resize).observe(host); resize(); let frameLoop;new IntersectionObserver(e => { visible = e[0].isIntersecting;frameLoop?.wake(); }, { rootMargin: '160px' }).observe(host);
- canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); visible = false; loading.hidden = false; loading.textContent = 'The 3D view was interrupted. Refresh to restore it; the mixer below still works.'; });
+ function resize() { const w = host.clientWidth, h = host.clientHeight; if(!w||!h)return;renderer.setPixelRatio(Math.min(devicePixelRatio,deviceProfile.pixelRatio,2200/w));renderer.setSize(w, h); camera.aspect = w / h; camera.fov = handheld ? 62 : 37; camera.updateProjectionMatrix();host.dataset.deviceProfile=handheld?'phone':'desktop'; }
+ new ResizeObserver(resize).observe(host); resize(); let frameLoop;new IntersectionObserver(e => { visible = e[0].isIntersecting;frameLoop?.wake(); }, { rootMargin: '0px' }).observe(host);
+ let contextLost=false;
+ canvas.addEventListener('webglcontextlost', e => { e.preventDefault();contextLost=true;visible=false;host.dataset.graphicsState='recovering';loading.hidden=false;loading.textContent='RESTORING STUDIO…'; });
+ canvas.addEventListener('webglcontextrestored',()=>{contextLost=false;visible=studioOnScreen;host.dataset.graphicsState='ready';renderer.shadowMap.needsUpdate=true;loading.hidden=true;frameLoop?.wake()});
  let interactionUntil=0;
  for(const event of ['pointerdown','pointermove','keydown'])canvas.addEventListener(event,()=>{interactionUntil=performance.now()+1200},{passive:true});
  const measure=new URLSearchParams(location.search).has('perf'),perfFrames=[];let perfAt=0,previousFrame=0;
- function animate(now) { if (!visible || document.hidden || document.body.classList.contains('desktop-open')){previousFrame=0;return;} if(now-last<(lowPower?33:(transition||cameraMove||(roomOpen&&(controls.autoRotate||now<interactionUntil))?16:33)))return; const cpuStart=performance.now();if(measure){renderer.info.autoReset=false;renderer.info.reset()}const frameInterval=previousFrame?now-previousFrame:16.7;previousFrame=now;last = now;if(transition){const raw=THREE.MathUtils.clamp((now-transition.at)/5800,0,1),q=raw*raw*raw*(raw*(raw*6-15)+10);entrance=THREE.MathUtils.lerp(transition.from,transition.to,q);travelAround(transition.position,transition.target,transition.destination.position,transition.destination.target,q);details.soundcube.setProgress(entrance);if(q===1)finishRoom()}if(cameraMove){const t=THREE.MathUtils.smoothstep((now-cameraMove.at)/1450,0,1);travelAround(cameraMove.from,cameraMove.fromTarget,cameraMove.to,cameraMove.target,t);if(t===1){cameraMove=null;controls.enabled=true;controls.enableDamping=!reduced}} if(controls.enabled)controls.update();if(roomOpen||transition){details.update(now);soundSystem?.update(now);archive?.update(now);synths?.update(now);if(roomOpen)consoleExtension?.update(now)}else soundcube.update(now);if(backdrop)backdrop.visible = true;
+ function animate(now) { if (contextLost || !visible || document.hidden || document.body.classList.contains('desktop-open')){previousFrame=0;return;} const interval=transition||cameraMove||(roomOpen&&(controls.autoRotate||now<interactionUntil))?1000/60:1000/30;const elapsed=now-last;if(elapsed<interval-.5)return; const cpuStart=performance.now();if(measure){renderer.info.autoReset=false;renderer.info.reset()}const frameInterval=previousFrame?now-previousFrame:16.7;previousFrame=now;last+=interval*Math.max(1,Math.floor((elapsed+.5)/interval));if(transition){const raw=THREE.MathUtils.clamp((now-transition.at)/5800,0,1),q=raw*raw*raw*(raw*(raw*6-15)+10);entrance=THREE.MathUtils.lerp(transition.from,transition.to,q);travelAround(transition.position,transition.target,transition.destination.position,transition.destination.target,q);details.soundcube.setProgress(entrance);if(q===1)finishRoom()}if(cameraMove){const t=THREE.MathUtils.smoothstep((now-cameraMove.at)/1450,0,1);travelAround(cameraMove.from,cameraMove.fromTarget,cameraMove.to,cameraMove.target,t);if(t===1){cameraMove=null;controls.enabled=true;controls.enableDamping=!reduced}} if(controls.enabled)controls.update();if(roomOpen||transition){details.update(now);soundSystem?.update(now);archive?.update(now);synths?.update(now);if(roomOpen)consoleExtension?.update(now)}else soundcube.update(now);if(backdrop)backdrop.visible = true;
   const soloing = api.channels.some(c => c.solo),frameMeters=api.readMeters(now); if(roomOpen)api.channels.forEach((c, i) => { faders[i].position.z += (1.65-c.value/100*1.68-faders[i].position.z)*.28;
    const oled=oleds[i],stamp=`${c.value}/${selected===c.id}/${c.mute}/${c.solo}`;if(oled.last!==stamp){oled.last=stamp;const image=oled.screen.material.map.image,g=image.getContext('2d');image.width=512;image.height=224;g.fillStyle=selected===c.id?'#18252c':'#091318';g.fillRect(0,0,512,224);g.fillStyle=selected===c.id?'#e83324':'#94c3d6';g.fillRect(0,0,512,7);g.font='600 46px Arial';g.fillText(c.name,30,66);g.fillStyle='#e1e8ec';g.font='52px monospace';g.fillText(c.value===0?'−∞':`${(20*Math.log10(Math.pow(c.value/100,1.4))).toFixed(1)} dB`,30,145);g.font='23px monospace';g.fillStyle='#86a1b5';g.fillText(`${c.mute?'MUTED':c.solo?'SOLO':'STEREO'}    CH ${i+1}`,30,198);oled.screen.material.map.needsUpdate=true}
     const enabled = !c.mute && (!soloing || c.solo), level = api.audioState.playing && enabled && !api.audioState.muted ? THREE.MathUtils.clamp((frameMeters.channels[i].peakDb+60)/60,0,1) : 0; leds[i].forEach((led, k) => { const lit = k < level * 16; led.material.color.set(lit ? (k > 13 ? 0xf5ba54 : 0x73d9d2) : 0x17292c); led.material.emissiveIntensity = lit ? 1.7 : .015; }); selectionLights[i].material.emissiveIntensity = c.id === selected ? 3.3 : .6; selectionLights[i].material.color.set(c.id === selected ? 0xb5ecff : 0x407582); channelButtons[i].mute.material.color.set(c.mute ? 0xef4352 : 0xa9bcc4); channelButtons[i].solo.material.color.set(c.solo ? 0xf7c56b : 0xa9bcc4); });
-  if (roomOpen && now - lastDaw >= 1000/30) { sessionScreens.update(now); lastDaw = now; } renderer.render(scene, camera);
+  if (roomOpen && now - lastDaw >= 1000/deviceProfile.screenFPS) { sessionScreens.update(now); lastDaw = now; } renderer.render(scene, camera);
   if(!host.dataset.firstFrameMs){
    host.dataset.firstFrameMs=performance.now().toFixed(0);loading.hidden=true;
    window.dispatchEvent(new Event('lotus-studio-ready'));
@@ -167,6 +174,5 @@ function setupStudio() {
   }
   if(measure){perfFrames.push({ms:frameInterval,cpu:performance.now()-cpuStart,calls:renderer.info.render.calls});if(now-perfAt>1800){const samples=perfFrames.splice(0);const sort=samples.map(s=>s.ms).sort((a,b)=>a-b);host.dataset.performance=JSON.stringify({frames:samples.length,medianMs:+sort[Math.floor(sort.length*.5)].toFixed(1),p95Ms:+sort[Math.floor(sort.length*.95)].toFixed(1),cpuMs:+(samples.reduce((n,s)=>n+s.cpu,0)/samples.length).toFixed(1),drawCalls:Math.round(samples.reduce((n,s)=>n+s.calls,0)/samples.length)});perfAt=now}}
  }
- host.dataset.setupMs=(performance.now()-setupStarted).toFixed(0);host.dataset.roomState='waiting';camera.position.copy(cubeView.position);controls.target.copy(cubeView.target);controls.update();camera.lookAt(controls.target);finishRoom();frameLoop=createVisibleFrameLoop({update:animate,active:()=>visible&&!document.hidden&&!document.body.classList.contains('desktop-open'),onPause:()=>previousFrame=0,watchBodyClasses:true});frameLoop.wake(); window.lotusStudio = { renderer, camera, controls, selectChannel, scene, desk, faders, touchables, details };
+ host.dataset.setupMs=(performance.now()-setupStarted).toFixed(0);host.dataset.roomState='waiting';camera.position.copy(cubeView.position);controls.target.copy(cubeView.target);controls.update();camera.lookAt(controls.target);finishRoom();frameLoop=createVisibleFrameLoop({update:animate,active:()=>!contextLost&&visible&&!document.hidden&&!document.body.classList.contains('desktop-open')&&!document.body.classList.contains('prologue-open'),onPause:()=>previousFrame=0,watchBodyClasses:true});frameLoop.wake(); window.lotusStudio = { renderer, camera, controls, selectChannel, scene, desk, faders, touchables, details };
 }
-

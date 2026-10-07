@@ -1,3 +1,4 @@
+import {createSharedTextureLoader} from './texture-sources.js';
 import * as THREE from 'three';
 import {createSpiritService} from './studio-spirits.js?v=20261006-lake-surface1';
 
@@ -16,7 +17,7 @@ export function createCuratedObjects(texture){
  const gold=new THREE.MeshStandardMaterial({color:0xbda36a,metalness:.85,roughness:.32});
  const glass=new THREE.MeshPhysicalMaterial({color:0xd5e7e1,transparent:true,opacity:.24,depthWrite:false,roughness:.08,clearcoat:1,side:THREE.DoubleSide,forceSinglePass:true});
  const rough=texture(256,256,(c,w,h)=>{c.fillStyle='#aab0aa';c.fillRect(0,0,w,h);for(let i=0;i<5000;i++){c.fillStyle=i%2?'#ffffff16':'#00000012';c.fillRect((i*73.17)%w,(i*19.61)%h,1,1)}});
- const loader=new THREE.TextureLoader(),maps=new Map();
+ const loader=createSharedTextureLoader(),maps=new Map();
  const cover=id=>{const t=window.lotusCatalog.find(a=>a.id===id)||window.lotusCatalog[0];if(!maps.has(id)){const map=loader.load(t.image);map.colorSpace=THREE.SRGBColorSpace;map.anisotropy=8;maps.set(id,new THREE.MeshStandardMaterial({map,roughness:.77,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}))}return maps.get(id)};
  function records(parent,x,y,z,{vinyl=false,count=12,angle=0}={}){
   const g=make(vinyl?'Collected vinyl jackets in a clear holder':'Collected slim jewel cases',parent,x,y,z,1,angle),h=vinyl?2.8:1.65,d=vinyl?2.6:1.5,pitch=vinyl?.13:.125,w=count*pitch;
