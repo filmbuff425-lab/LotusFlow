@@ -1,0 +1,26 @@
+import * as THREE from 'three';
+import {createReferenceCoffeeCup} from './studio-coffee-cup.js?v=20261006-lake-surface1';
+export function createSculpturalEspresso({parent,texture}){
+ const machine=new THREE.Group();machine.name='Porous stone and polished steel espresso machine';parent.add(machine);
+ const add=(g,m,p,x=0,y=0,z=0)=>{const o=new THREE.Mesh(g,m);o.position.set(x,y,z);o.castShadow=o.receiveShadow=true;p.add(o);return o};
+ const box=(p,w,h,d,x,y,z,m,r=.07)=>{r=Math.min(r,w*.45,h*.45);const bevel=Math.min(.03,w*.15,h*.15,d*.15);const s=new THREE.Shape();s.moveTo(-w/2+r,-h/2);s.lineTo(w/2-r,-h/2);s.quadraticCurveTo(w/2,-h/2,w/2,-h/2+r);s.lineTo(w/2,h/2-r);s.quadraticCurveTo(w/2,h/2,w/2-r,h/2);s.lineTo(-w/2+r,h/2);s.quadraticCurveTo(-w/2,h/2,-w/2,h/2-r);s.lineTo(-w/2,-h/2+r);s.quadraticCurveTo(-w/2,-h/2,-w/2+r,-h/2);const g=new THREE.ExtrudeGeometry(s,{depth:d-bevel*2,bevelEnabled:true,bevelSize:bevel,bevelThickness:bevel,bevelSegments:2,curveSegments:8});g.center();const uv=g.attributes.uv,pos=g.attributes.position,n=g.attributes.normal;for(let i=0;i<uv.count;i++){const side=Math.abs(n.getX(i))>.6;uv.setXY(i,(side?pos.getZ(i):pos.getX(i))/2+.5,(Math.abs(n.getY(i))>.6?pos.getZ(i):pos.getY(i))/2+.5)}return add(g,m,p,x,y,z)};
+ const cyl=(p,r,h,x,y,z,m,rb=r)=>add(new THREE.CylinderGeometry(r,rb,h,40),m,p,x,y,z);
+ const tube=(p,pts,r,m)=>add(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts.map(v=>new THREE.Vector3(...v))),28,r,8,false),m,p);
+ const stoneMap=new THREE.TextureLoader().load('assets/materials/porous-stone-albedo.png');stoneMap.colorSpace=THREE.SRGBColorSpace;stoneMap.wrapS=stoneMap.wrapT=THREE.RepeatWrapping;stoneMap.anisotropy=8;
+ const stone=new THREE.MeshStandardMaterial({color:0xb0b3af,map:stoneMap,bumpMap:stoneMap,bumpScale:.028,roughness:.91});
+ const chrome=new THREE.MeshPhysicalMaterial({color:0xe4e5df,metalness:1,roughness:.13,clearcoat:.12}),brushed=new THREE.MeshStandardMaterial({color:0xaeb2af,metalness:.91,roughness:.28}),black=new THREE.MeshStandardMaterial({color:0x121313,roughness:.47,metalness:.05}),coffee=new THREE.MeshPhysicalMaterial({color:0x653b19,roughness:.23,clearcoat:.7});
+ box(machine,3.75,.47,2.40,0,.255,0,stone,.16);box(machine,1.58,.96,1.98,1.02,.89,-.08,stone,.12);box(machine,1.91,.67,1.82,-.86,.86,.15,stone,.10);box(machine,1.88,.62,.06,-.86,.88,1.078,chrome,.065);
+ for(const x of[-1.62,-.15])cyl(machine,.09,.08,x,.48,.72,black);
+ box(machine,1.87,.055,1.70,-.86,1.227,.13,black,.055);for(let i=0;i<19;i++)box(machine,.045,.035,1.60,-1.73+i*.096,1.267,.13,chrome,.01);
+ createReferenceCoffeeCup({parent:machine,texture,x:-.82,y:1.285,z:.52,scale:.66,saucer:false});
+ box(machine,.60,2.70,.66,-.44,2.59,-.72,chrome,.04);box(machine,1.60,.92,1.50,-.75,3.66,-.04,stone,.10);box(machine,1.52,.88,1.48,1.04,3.66,-.04,stone,.11);box(machine,1.45,1.13,1.19,-.43,4.69,-.28,chrome,.03);
+ const finial=add(new THREE.SphereGeometry(.28,24,16),brushed,machine,-.43,5.48,-.28);finial.scale.y=1.22;
+ cyl(machine,.50,.23,-.77,3.08,.19,chrome);cyl(machine,.46,.18,-.77,2.88,.19,chrome);cyl(machine,.41,.10,-.77,2.745,.19,black);
+ const portafilter=new THREE.Group();portafilter.position.set(-.81,2.91,.40);portafilter.rotation.y=-.46;machine.add(portafilter);const collar=cyl(portafilter,.13,.22,0,0,.15,chrome);collar.rotation.x=Math.PI/2;const grip=add(new THREE.CapsuleGeometry(.135,.78,6,24),black,portafilter,0,0,.64);grip.rotation.x=Math.PI/2;
+ tube(machine,[[-.77,2.77,.30],[-.77,2.62,.40],[-.96,2.56,.49]],.048,chrome);tube(machine,[[-.77,2.70,.39],[-.59,2.60,.49]],.044,chrome);
+ const rockGeo=new THREE.IcosahedronGeometry(.79,4),pos=rockGeo.attributes.position,colors=[];for(let i=0;i<pos.count;i++){const x=pos.getX(i),y=pos.getY(i),z=pos.getZ(i),n=Math.sin(x*7.1+y*5.3+z*4.9)*Math.cos(z*8-y*3),k=.93+.11*n;pos.setXYZ(i,x*k,y*k,z*k);const c=new THREE.Color().setRGB(.21+.075*n,.095+.034*n,.037+.013*n);colors.push(c.r,c.g,c.b)}rockGeo.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));rockGeo.computeVertexNormals();const rock=add(rockGeo,new THREE.MeshStandardMaterial({vertexColors:true,map:stoneMap,bumpMap:stoneMap,bumpScale:.036,roughness:.94}),machine,1.00,2.27,-.13);rock.scale.set(.96,1.18,.95);
+ tube(machine,[[-1.52,3.70,.15],[-1.87,3.61,.43],[-1.96,2.52,.65],[-1.75,2.37,.71]],.035,chrome);const steamTip=cyl(machine,.07,.16,-1.76,2.36,.71,black);steamTip.rotation.z=.35;tube(machine,[[1.47,3.74,.68],[1.65,3.69,1.20],[.62,3.66,1.28]],.03,black);
+ const pressure=texture(256,256,(g,w,h)=>{g.fillStyle='#dddcd3';g.beginPath();g.arc(128,128,123,0,Math.PI*2);g.fill();g.strokeStyle='#343637';g.lineWidth=3;for(let i=0;i<31;i++){const a=Math.PI*(.7+i/30*1.6),r=i%5?104:96;g.beginPath();g.moveTo(128+Math.cos(a)*r,128+Math.sin(a)*r);g.lineTo(128+Math.cos(a)*113,128+Math.sin(a)*113);g.stroke()}g.fillStyle='#343637';g.font='19px Arial';g.textAlign='center';g.fillText('BAR',128,178);g.lineWidth=5;g.beginPath();g.moveTo(128,132);g.lineTo(81,66);g.stroke()});
+ const gauge=cyl(machine,.255,.11,1.0,.89,.97,chrome);gauge.rotation.x=Math.PI/2;add(new THREE.CircleGeometry(.218,48),new THREE.MeshBasicMaterial({map:pressure}),machine,1.0,.89,1.033);const power=cyl(machine,.105,.07,-1.48,.88,1.125,black);power.rotation.x=Math.PI/2;const tiny=cyl(machine,.032,.014,-1.10,.78,1.118,brushed);tiny.rotation.x=Math.PI/2;
+ return machine;
+}

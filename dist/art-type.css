@@ -1,0 +1,30 @@
+/* Same round-dot face and axes used by the original studio title. */
+@font-face{font-family:LotusDotDisplay;src:url('assets/fonts/doto-variable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap}
+@font-face{font-family:LotusPrintedHan;src:url('assets/fonts/lotus-printed-han.woff2') format('woff2');font-weight:700;font-display:swap}
+.art-display{font-family:LotusDotDisplay,monospace!important;font-weight:850!important;font-variation-settings:'ROND' 100!important;font-stretch:normal!important;letter-spacing:.025em!important;font-synthesis:none;font-feature-settings:'liga' 1,'kern' 1;line-height:1.18;text-wrap:balance}
+.art-display :is(em,span,.elastic-letter){font-family:inherit!important;font-weight:inherit!important;font-variation-settings:inherit!important;font-style:normal!important;letter-spacing:inherit!important}
+.art-display[data-art-script=latin]{text-transform:uppercase;filter:none;line-height:1.18}
+.art-display[data-art-script=han]{font-family:LotusPrintedHan,"PingFang SC",sans-serif!important;font-weight:700!important;font-variation-settings:normal!important;letter-spacing:.02em!important;line-height:1.22;filter:none;color:#f4eeeb;text-shadow:none}
+.cinema .studio-home #studio-title.art-display{font-size:clamp(24px,2.6vw,36px);line-height:1.18;letter-spacing:.025em!important;filter:drop-shadow(0 0 7px #fff0f538) drop-shadow(0 0 19px #b3425030)}
+.cinema #about-title.art-display{font-size:clamp(40px,4.4vw,68px);line-height:1.18;color:rgba(244,238,235,.64);text-shadow:0 0 12px #f4eeeb17;filter:drop-shadow(0 0 7px #f7e8e820)}
+.cinema #about-title.art-display>span{color:rgba(244,238,235,.64)}
+.cinema #about-title.art-display em{color:rgba(220,97,81,.62);text-shadow:0 0 14px #cb44351f}
+.shop-heading h1.art-display{font-size:clamp(48px,5.5vw,79px);line-height:1.18;letter-spacing:.025em!important;max-width:12.5em}
+.shop-heading h1.art-display[data-art-script=han]{font-size:clamp(50px,6.5vw,86px);line-height:1.20;letter-spacing:.035em!important}
+.portfolio-heading h1.art-display{line-height:1.18}
+.gate-title.art-display{letter-spacing:.025em!important}
+.gate-title.art-display[data-art-script=han]{font-size:clamp(88px,12vw,160px);line-height:1.20}
+html:lang(zh-CN) :is(.about-copy p,.artist-bio p,.collaborator-file p,.project-intro,.contribution-grid p){font-family:LotusInterface,"PingFang SC","Microsoft YaHei",sans-serif;font-weight:400;line-height:1.85;letter-spacing:.018em}
+.art-display[data-art-size=label]{font-family:LotusInterface,"PingFang SC",Arial,sans-serif!important;font-weight:500!important;letter-spacing:.06em!important;filter:none!important;text-transform:none!important;text-shadow:none!important;-webkit-text-stroke:0;-webkit-text-fill-color:currentColor}
+@media(max-width:750px){.cinema .studio-home #studio-title.art-display{font-size:clamp(21px,4.9vw,30px)}.cinema #about-title.art-display{font-size:clamp(32px,7vw,51px)}.shop-heading h1.art-display{font-size:clamp(43px,10.5vw,64px)}.shop-heading h1.art-display[data-art-script=han]{font-size:clamp(45px,11.5vw,70px)}.gate-title.art-display[data-art-script=han]{font-size:clamp(73px,17vw,110px)}}
+/* Keep the home line below the header across the layered legacy layouts. */
+.cinema .studio.studio-home{padding-top:86px!important}
+.cinema .studio-home .studio-heading{position:absolute!important;z-index:3;top:42px!important;left:0!important;right:0!important;margin:0!important;padding:0 14px!important;border:0!important;text-align:center!important;pointer-events:none}
+.cinema .studio-home .studio-heading #studio-title{display:block!important;width:100%!important;margin:0!important;font-size:clamp(20px,2.2vw,30px)!important;white-space:nowrap;text-align:center!important;line-height:1.18!important}
+.cinema .studio-home #studio-title>span,.cinema .studio-home #studio-title em{display:inline!important;font-size:1em!important;line-height:inherit!important;margin:0!important}
+.cinema .studio-home:is(.room-is-open,.is-opening-room) .studio-heading{opacity:0!important;visibility:hidden}
+.cinema .studio-home #studio-title,.cinema .studio-home #studio-title :is(span,em,.elastic-letter){color:transparent!important;-webkit-text-fill-color:transparent;background:linear-gradient(105deg,#fff4e5 2%,#f3d4cb 31%,#e89b91 63%,#cf7169 92%);background-clip:text;-webkit-background-clip:text}
+.cinema .studio-home #studio-title{filter:drop-shadow(0 0 5px #f7e7de38) drop-shadow(0 0 16px #d66b5b28)!important}
+.cinema .studio-home #studio-title :is(span,em,.elastic-letter){background:none}
+.artist-gate .gate-title,#film-prologue .prologue-title{display:none!important}
+@media(max-width:700px){.cinema .studio.studio-home{padding-top:78px!important}.cinema .studio-home .studio-heading{top:36px!important}.cinema .studio-home .studio-heading #studio-title{font-size:clamp(12px,3.5vw,20px)!important}}

@@ -1,0 +1,41 @@
+/* A custom poster, with broad and condensed lettering and offset ink layers. */
+.cinema #contact{background:transparent;color:#e8c84c;padding-top:34px;padding-bottom:44px;isolation:isolate}
+.cinema #contact .contact-top{color:#e8c84c;font-size:9px;letter-spacing:.07em;border-bottom:1px solid #e8c84c30;padding-bottom:19px}
+.cinema #contact .noise-poster-copy{position:absolute;right:8%;top:17%;max-width:23ch;margin:0;color:#e8c84c;font-size:clamp(14px,1.45vw,21px);font-weight:650;line-height:1.35;z-index:1;pointer-events:none}
+.cinema #contact #noise-title{display:block;position:relative;width:100%;max-width:1300px;margin:29px auto 0;line-height:0;letter-spacing:0;cursor:pointer;outline-offset:8px;touch-action:manipulation}
+.noise-poster-art{display:block;width:100%;height:auto;overflow:visible}
+.noise-letter{transform-box:fill-box;transform-origin:center;will-change:transform}
+.cinema #contact .noise-invitation{margin:12px 0 0;color:#e8c84c;font-size:9px;letter-spacing:.075em}
+.cinema #contact .contact-bottom{position:relative;margin:26px 0 0;align-items:center;justify-content:flex-end;gap:28px;padding-top:24px;border-top:1px solid #e8c84c30}
+.cinema #contact .contact-bottom p{color:#e8c84c;font-size:15px;line-height:1.6;margin:0;max-width:26ch;font-weight:550}
+.cinema #contact .business-contact{display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+.cinema #contact .solid-button{background:#e8c84c;color:#080808;padding:17px 24px;font-size:11px}
+.cinema #contact .solid-button:hover{background:#f4db70}
+.cinema #contact .business-email{color:#e8c84c;border-color:#e8c84c60;font-size:12px}
+.cinema #contact #noise-title:focus-visible{outline:2px solid #e8c84c}
+@media(max-width:750px){.cinema #contact{padding:28px 6% 34px}.cinema #contact .contact-top{font-size:7px;align-items:flex-start;gap:16px}.cinema #contact .contact-top span:last-child{text-align:right}.cinema #contact .noise-poster-copy{font-size:clamp(7px,1.7vw,12px);top:22%;right:8%;max-width:23ch}.cinema #contact #noise-title{margin-top:25px}.cinema #contact .contact-bottom{align-items:flex-start;flex-direction:column;gap:18px;margin-top:22px}.cinema #contact .contact-bottom p{font-size:12px}.cinema #contact .business-contact{gap:15px}.cinema #contact .solid-button{font-size:10px;padding:14px 18px}.cinema #contact .business-email{font-size:10px}.cinema #contact .noise-invitation{font-size:7px;letter-spacing:.045em}}
+@media(prefers-reduced-motion:reduce){.noise-letter{will-change:auto;transform:none!important}}
+
+/* The hand-drawn strokes are reconstructed from independent moving points. */
+.noise-poster-zh,.noise-poster-zh-kicker{display:none}
+html:lang(zh-CN) .noise-poster-en{display:none}
+html:lang(zh-CN) .noise-poster-zh{display:block}
+html:lang(zh-CN) .noise-poster-zh-kicker{display:block;margin:0 0 14px 2%;font:500 clamp(18px,2.4vw,30px)/1.4 LotusInterface,Arial,sans-serif;letter-spacing:.12em;color:#e8c84c}
+html:lang(zh-CN) .cinema #contact .noise-poster-copy{position:static;margin:20px 0 0;max-width:none;font-size:14px}
+html:lang(zh-CN) .cinema #contact #noise-title{margin-top:22px}
+@media(max-width:750px){html:lang(zh-CN) .cinema #contact .noise-poster-copy{font-size:12px}}
+.noise-particle-type{width:100%;aspect-ratio:1000/580;height:auto;touch-action:pan-y}
+.noise-particle-fallback{font:700 clamp(130px,35vw,460px)/1.1 LotusPrintedHan,sans-serif;color:#f4f1eb;letter-spacing:.06em}
+.cinema.cosmic-archive :is(#work,#contact,footer){background:transparent}
+.cinema.cosmic-archive{background:#090a0b}
+/* One transparent canvas, with no rectangular grain veil over the cosmos. */
+.cinema #contact,.cinema #contact #noise-title,.noise-poster-art{background:transparent!important;backdrop-filter:none!important;box-shadow:none!important}
+html:lang(zh-CN) .cinema #contact #noise-title{max-width:900px;margin:30px auto 0}
+html:lang(zh-CN) .noise-particle-type{width:86%;margin:0 auto}
+html:lang(zh-CN) .noise-poster-zh-kicker{font-size:clamp(21px,2.6vw,34px);margin:0 0 12px 7%;color:#f0d46b;letter-spacing:.09em}
+html:lang(zh-CN) .cinema #contact .noise-poster-copy{font-size:16px;line-height:1.85;max-width:46ch;margin:18px 0 0;color:#f0d46b}
+.cinema #contact .contact-top{font-size:11px;color:#ebd16e}
+.cinema #contact .noise-invitation{font-size:11px;line-height:1.8;color:#ebd16e}
+@media(max-width:750px){html:lang(zh-CN) .noise-particle-type{width:90%}html:lang(zh-CN) .noise-poster-zh-kicker{margin-left:5%;font-size:23px}html:lang(zh-CN) .cinema #contact .noise-poster-copy{font-size:14px}.cinema #contact .contact-top{font-size:9px}.cinema #contact .noise-invitation{font-size:10px}}
+.cinema #contact{position:relative;scroll-margin-top:92px}
+@media(min-width:751px){html:lang(zh-CN) .cinema #contact .noise-poster-copy{position:absolute;top:100px;right:9%;margin:0;max-width:27ch;font-size:15px}.cinema #contact .business-contact{flex-direction:row;align-items:center}}

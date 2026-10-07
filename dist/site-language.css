@@ -1,0 +1,138 @@
+/* Shared palette, typography and transition rhythm across the universe and its archive. */
+@font-face{font-family:LotusInterface;src:url('assets/fonts/bricolage-grotesque-variable.woff2');font-weight:200 800;font-display:swap}
+:root{--lotus-ink:#090706;--lotus-red:#d8311e;--lotus-paper:#f1e6d5;--lotus-ease:cubic-bezier(.16,1,.3,1)}
+html::after{content:'';position:fixed;inset:0;z-index:10000;background:#090706;opacity:0;pointer-events:none;transition:opacity .58s cubic-bezier(.4,0,.2,1)}html.page-departing::after{opacity:1;pointer-events:auto}
+@view-transition{navigation:auto}::view-transition-group(root){animation-duration:.9s;animation-timing-function:var(--lotus-ease)}::view-transition-old(root){animation:.5s both page-out}::view-transition-new(root){animation:.9s both page-in}@keyframes page-out{to{opacity:0;transform:translateY(-10px)}}@keyframes page-in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+body:has(.archive-header){background:#090a0b;color:var(--lotus-paper);font-family:LotusInterface,Arial,sans-serif}
+body:has(.archive-header) .archive-header{height:92px;background:#090706f2;border-bottom:1px solid #612b212e;backdrop-filter:blur(12px)}.archive-header .archive-brand{width:84px}.archive-header nav{gap:0}.archive-header nav a{font-size:11px;color:#c0b7aa;padding:14px 18px;border-left:1px solid #43271f;transition:background .4s,color .4s}.archive-header nav a[aria-current],body:has(.record-shop) .archive-header nav a[aria-current]{background:#bf2918;color:#fff0da}.archive-header nav a:hover{color:#fff2dd;background:#6c23152a}.archive-header .edition{font-size:9px;color:#9e7969}
+body:has(.archive-header) .archive-hero{background:transparent}.archive-hero h1,.release-heading h1,.contribution>h2,.collaborator-file h3,.next-release strong{font-family:LotusInterface,Arial,sans-serif;font-weight:650;letter-spacing:-.055em}.archive-hero h1 em,.shop-heading h1>span{color:#d8311e}
+body:has(.record-shop) .record-library{background:linear-gradient(140deg,#1b1511a1,#09070640);border-color:#a68b6429}.shelf-scroll{background:linear-gradient(0deg,#0000 20px,#0504039c 22px,transparent 82%);border-bottom-color:#5e4c39;box-shadow:0 2px 0 #ac8d5c55,0 9px 14px #0006}.record-shop~footer{background:transparent}.project-links a,.source-links a{color:#d1bfb0}.contribution{background:#110c09;color:#f1e6d5;border-block:1px solid #b07c4726}.contribution .project-intro,.contribution-grid p{color:#baaa98}.contribution-grid article{border-color:#74503a66}.next-release{background:#34130c}.people-shortcuts a:hover{background:#7f2619}
+/* The knife cover is an artist chapter in the same universe, not a separate full-screen identity. */
+.cinema #about[data-artist-locked=true]{background:#090706;min-height:700px;height:calc(100svh - 82px);padding:0}
+.artist-gate{inset:34px 4%;width:92%;height:calc(100% - 68px);background:#080808;color:#eee8df;border:1px solid #ac332744}
+.artist-gate canvas{opacity:1;filter:none}
+.artist-gate::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,#07070712,transparent 45%,#05050528);box-shadow:inset 0 0 55px #0003}
+.gate-edition{left:5%;top:7%;z-index:1;font-size:12px;letter-spacing:.15em}.gate-title{right:5%;bottom:21%;z-index:1;font:650 clamp(68px,9vw,142px)/.91 LotusInterface,Arial,sans-serif;letter-spacing:-.065em}.gate-subtitle{position:absolute;right:5%;bottom:12%;z-index:1;font:11px var(--pixel-font,monospace);letter-spacing:.1em}.gate-action{left:5%;bottom:12%;z-index:1;font-size:12px}.gate-action b{transition:transform .8s var(--lotus-ease)}
+#film-prologue .prologue-title{font-family:LotusInterface,Arial,sans-serif;font-weight:650;letter-spacing:-.06em}#film-prologue .prologue-edition,#film-prologue .prologue-instruction{font-size:12px}
+/* Lift, follow-through and settling form one continuous shelf gesture. */
+.shelf-scroll{padding-top:62px}.cd-spine{transition:transform 1.05s var(--lotus-ease),box-shadow .9s,opacity .6s;transform:translateY(calc(var(--neighbor-lift,0) * -1px)) rotate(calc(var(--neighbor-roll,0) * 1deg))}.cd-spine:nth-child(4n){transform:translateY(calc(var(--neighbor-lift,0) * -1px)) rotate(-.7deg)}.cd-spine:hover,.cd-spine:focus-visible{transform:translateY(-33px) rotate(-3deg);box-shadow:inset 0 0 0 1px #eee7,0 22px 25px #0009}.cd-spine[aria-expanded=true]{transform:translateY(-27px)}.cd-spine.taken{opacity:.16;transform:translateY(0)}.record-inspector{transition:grid-template-rows 1.2s var(--lotus-ease),opacity .8s}.case-lid{transition:transform 1.65s cubic-bezier(.25,.72,.17,1)}.inspector-copy,.case-edition{transition:opacity .95s,transform 1.25s var(--lotus-ease)}.case-unfolded .inspector-copy,.case-unfolded .case-edition{transition-delay:.36s}.disc-sheen{transition:transform .7s var(--lotus-ease)}
+@media(max-width:750px){body:has(.archive-header) .archive-header{height:auto;min-height:78px;gap:20px;padding:14px 4%}.archive-header .archive-brand{width:61px}.archive-header nav a{font-size:9px;padding:9px 10px}.archive-header nav{gap:0}.cinema #about[data-artist-locked=true]{min-height:580px}.artist-gate{inset:24px 4%;height:calc(100% - 48px)}.gate-title{font-size:76px;bottom:28%}.gate-subtitle{font-size:8px;bottom:21%}.gate-edition,.gate-action{font-size:9px}}
+@media(prefers-reduced-motion:reduce){html::after,.cd-spine,.record-inspector,.case-lid,.inspector-copy,.case-edition{transition:none!important}::view-transition-group(root),::view-transition-old(root),::view-transition-new(root){animation-duration:0s!important}}
+
+#film-prologue .poster-half canvas{filter:none}
+body:has(.archive-header) .archive-header nav a[aria-current]{color:#fff0da!important}
+
+/* One universe: dotted wayfinding, warm red space and restrained game geometry. */
+@font-face{font-family:LotusDoto;src:url('assets/fonts/doto-variable.ttf');font-weight:100 900;font-display:swap}
+.site-space{position:absolute;inset:0;width:100%;pointer-events:none;z-index:-2}
+body.cosmic-archive{isolation:isolate;background:#090706;color:var(--lotus-paper)}
+.site-space.archive-space{position:fixed;z-index:-1}
+body.cosmic-archive::before{display:none}
+body.embedded{background:transparent}body.embedded::before{display:none}
+body:has(#case-stage){font-family:LotusInterface,Arial,sans-serif;color:var(--lotus-paper)}
+body:has(#case-stage) :is(.eyebrow,.credit-heading,.tabs button){font-family:LotusDoto,monospace;font-weight:800;color:#c6aa93}
+body:has(#case-stage) .tabs button[aria-selected=true]{color:#fff0d9;border-color:#d8311e}
+body:has(#case-stage) :is(.credits,.artist-bio){color:#c4b7a6}
+body:has(#case-stage) #toggle-case{background:#21110866;border-color:#9c69453d;color:#f1e6d5}
+body:has(#case-stage) #toggle-case span{color:#d85b36}
+.cinema .about.artist-poster{background:#0c0909}
+.cinema .about.artist-poster::before{z-index:-2;opacity:.055}
+.cinema .about-visual{isolation:isolate}
+.portrait-memory{position:absolute;top:0;left:0;width:100%;pointer-events:none;z-index:-1;isolation:isolate}
+.portrait-depth{position:absolute;inset:0;display:block;border:1px solid #dc421b66;background:linear-gradient(180deg,#d3311420 33px,transparent 34px),repeating-linear-gradient(0deg,transparent 0 3px,#d04a2010 3px 4px);transform:translate(calc(var(--depth)*-24px),calc(var(--depth)*-17px));opacity:calc(.64 - var(--depth)*.12);box-shadow:0 0 24px #c52a1010}
+.portrait-depth::before{content:none}
+.portrait-echo{position:absolute;inset:0;display:block;width:100%;height:100%;opacity:0;image-rendering:pixelated;pointer-events:none;will-change:opacity,transform}
+.cinema .artist-stage,.cinema .artist-stage.is-dragging{background:linear-gradient(145deg,#200e09ed,#0c0908f7);border-color:#e2462380;box-shadow:0 0 0 1px #180905,0 14px 38px #0007,0 0 46px #c12e1020;backdrop-filter:none}
+.cinema .artist-stage.is-dragging{border-color:#f08751;box-shadow:0 14px 38px #0007,0 0 35px #da361a42}
+.cinema .artist-stage::after{content:'';position:absolute;inset:69px 0 70px;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 3px,#ff8b3810 3px 4px);opacity:.65}
+.cinema .artist-window-bar{background:#a92e1b;color:#ffead6;box-shadow:inset 0 1px #f19a5950}
+.cinema .artist-chapter,.cinema .artist-hint{font-family:LotusDoto,monospace;font-weight:750;font-variation-settings:'ROND' 100}
+.cinema .artist-chapter{font-size:12px;letter-spacing:.06em;color:#c5a184}
+.cinema .about-copy{background:none}
+.cinema .profile-tabs button{font-family:LotusDoto,monospace;font-weight:800;font-size:13px}
+
+.cosmic-archive :is(.shop-kicker,.portfolio-heading .eyebrow,.library-label h2,.library-label>span,.inspector-meta,.credit-stamp>span,.directory-title>span,.archive-contact>span,.archive-paths a>span,.eyebrow){font-family:LotusDoto,'Courier New',monospace;font-weight:800;font-variation-settings:'ROND' 100;letter-spacing:.07em;font-size:12px;color:#c2997c}
+.cosmic-archive :is(.shop-heading h1,.portfolio-heading h1,.release-heading h1,.contribution>h2,.professional-intro h2,.directory-title h2,.inspector-copy h2,.roster-identity h2,.film-caption h2,.edition h1){font-family:LotusInterface,Arial,sans-serif;font-weight:650;letter-spacing:-.055em}
+.cosmic-archive :is(.shop-heading h1,.portfolio-heading h1){font-size:clamp(44px,5.8vw,84px);line-height:.99;max-width:900px}
+.cosmic-archive .shop-heading{align-items:center;padding-block:48px 38px}
+.cosmic-archive .shop-heading h1{max-width:none;font-size:clamp(42px,4.8vw,68px)}
+.cosmic-archive :is(.shop-intro,.professional-intro p:not(.shop-kicker),.portfolio-heading>p:last-child){font-size:16px;line-height:1.8;color:#bdafa0}
+.cosmic-archive .shop-intro{min-width:210px}
+.cosmic-archive .contribution{background:#100b08b8}
+.cosmic-archive .next-release{background:#31120ba8;border:1px solid #a14b2826}
+.cosmic-archive .credit-row{background:linear-gradient(90deg,#09070650,transparent);transition:background .4s,border-color .4s}
+.cosmic-archive .credit-row:hover{background:#57201430;border-color:#ab492b70}
+.cosmic-archive :is(.inspector-copy,.film-caption,.roster-toolbar){text-shadow:0 2px 15px #090706}
+.cosmic-archive .roster-toolbar input{background:#160f0abf;border-color:#8e674240}
+.cosmic-archive :is(.project-links a,.source-links a,.artist-socials a){color:#d4bda6}
+/* A single physical shelf: smoked jewel cases between warm, worn wood rails. */
+/* Slim clear cases on a plain, worn metal listening shelf. */
+body:has(.record-shop) .record-library{position:relative;padding:20px 24px 8px;border:0;background:transparent;box-shadow:none}
+.record-library::before,.record-library::after{display:none}
+.record-library .library-label{padding:0 0 12px;border-bottom:1px solid #ffffff16}
+.record-library .library-label h2{padding:0;background:none;border:0;color:#cec9bf;font-size:11px;box-shadow:none}
+.record-library .library-label>span{font-size:10px;color:#8d9396}
+.record-library .shelf-scroll{position:relative;padding:48px 24px 10px;background:linear-gradient(180deg,#ffffff04,transparent 32%,#11141790 93%,#191c20);border-bottom:8px solid #303438;box-shadow:0 1px #8d949966,0 3px 0 #111416,0 9px 12px #0009}
+.record-library .spine-rack{gap:1px;height:198px;padding-inline:18px;justify-content:center}
+.record-library .spine-rack::before,.record-library .spine-rack::after{content:'';flex:none;width:5px;height:190px;background:linear-gradient(90deg,#25292c,#878d9080,#15191d);border-top:1px solid #9996;box-shadow:2px 1px 3px #0008}
+.record-library .cd-spine{width:22px;height:192px;background:linear-gradient(90deg,#090b0d55,transparent 18%,transparent 80%,#0006),var(--spine-cover) var(--crop,50%) center/auto 192px;color:#f2eee5;border-radius:1px;box-shadow:inset 1px 0 #c7d2d95c,inset -1px 0 #e0e6e555,1px 0 2px #0009;filter:saturate(.8)}
+.record-library .cd-spine:nth-child(3n){width:20px;height:193px}.record-library .cd-spine:nth-child(5n){width:23px}.record-library .cd-spine:nth-child(7n){height:191px}
+.record-library .spine-title{font-family:Arial,sans-serif;font-size:10px;font-weight:500;line-height:1.15;text-shadow:0 1px 2px #000a;margin-top:16px;max-height:136px;letter-spacing:.02em}
+.record-library .spine-top{display:none}.record-library .spine-number{bottom:10px;font-size:7px;color:#ecebe3b0}
+.record-library .spine-glass{border-block:1px solid #d6dfde66;background:linear-gradient(90deg,#e4ebed36,transparent 8%,#ffffff3d 12%,transparent 18%,transparent 86%,#e7eff148 96%),linear-gradient(var(--glint,172deg),#ffffff18,transparent 24%,transparent 58%,#ffffff26 60%,transparent 64%)}
+.record-library .cd-spine:hover,.record-library .cd-spine:focus-visible{box-shadow:inset 1px 0 #d4e0e7aa,inset -1px 0 #d6e1e7aa,2px 12px 14px #0008}
+.record-library .library-caption{padding-top:17px;color:#9c9c97;font-size:9px;letter-spacing:.06em}
+@media(max-width:750px){.cosmic-archive .shop-heading{padding-block:40px 32px;display:block}.cosmic-archive :is(.shop-heading h1,.portfolio-heading h1){font-size:clamp(42px,8.5vw,64px)}.cosmic-archive .shop-intro{font-size:14px;margin-top:20px}.cosmic-archive :is(.shop-kicker,.portfolio-heading .eyebrow){font-size:10px}.cinema .artist-chapter{font-size:9px}.portrait-depth{transform:translate(calc(var(--depth)*-13px),calc(var(--depth)*-12px))}body:has(.record-shop) .record-library{padding:16px 10px 12px;border-inline-width:0}.record-library .library-label h2{font-size:10px}.record-library .library-label>span{font-size:8px}.record-library .shelf-scroll{padding-top:42px}.cosmic-archive .professional-intro p:not(.shop-kicker){font-size:15px}}
+@media(prefers-reduced-motion:reduce){.portrait-echo{display:none}.portrait-depth{opacity:.18}.site-space{will-change:auto}}
+
+/* A concise professional identity; the portrait memory is the only spatial decoration. */
+.cinema .records-menu>summary[aria-current]{background:#bd2313;color:#fff4e8}
+.cinema #about-title{font-size:clamp(44px,4.6vw,68px);line-height:1}
+.cinema #about-title>span{font:650 .83em/1.1 LotusInterface,Arial,sans-serif;letter-spacing:-.035em}
+.cinema #about-title em{font:650 1em/.99 LotusInterface,Arial,sans-serif;letter-spacing:-.04em;margin-top:7px}
+.cinema .profile-tabs{gap:0}.cinema .profile-tabs button{font-size:11px;padding-inline:13px}
+.cinema .profile-panel p{font-size:16px;line-height:1.8}.cinema .profile-panel p.bio-lead{font-size:20px;line-height:1.65}
+#replay-opening.file-link{background:transparent;border:0;border-bottom:1px solid #963c263d;padding:10px 0;margin-top:4px}
+.cinema .gate-title{font-size:clamp(52px,7.8vw,118px)}
+.business-contact{display:flex;flex-direction:column;gap:15px;align-items:flex-start}.business-email{font-size:13px;color:#c7b5a5}
+.archive-header .records-menu{position:relative}.archive-header .records-menu>summary{list-style:none;cursor:pointer;font:11px monospace;padding:14px 18px;border-left:1px solid #43271f;color:#c0b7aa}
+.records-menu>summary::-webkit-details-marker{display:none}
+.archive-header .records-menu>summary[aria-current],.archive-header .records-menu[open]>summary{background:#bf2918;color:#fff0da}
+.archive-header .records-menu>div{position:absolute;top:100%;right:0;z-index:30;width:220px;padding:5px;background:#0c0909;border:1px solid #923d28;box-shadow:0 14px 35px #0008}
+.archive-header .records-menu>div>a{display:block;border:0;padding:14px 12px}
+.additional-credits{margin:70px 0 30px;padding-top:40px;border-top:1px solid #7958403d}.additional-credits h2{font:650 clamp(30px,3vw,46px)/1.15 LotusInterface,sans-serif;letter-spacing:-.04em;margin:0 0 25px}
+.additional-credit-list article{display:grid;grid-template-columns:1fr 1fr;gap:30px;padding:20px 0;border-bottom:1px solid #73503a44}.additional-credit-list h3{font-size:18px;font-weight:550;margin:0 0 7px}.additional-credit-list p{font-size:14px;line-height:1.65;color:#bdaa97;margin:0}
+@media(max-width:700px){.cinema .header nav{display:flex;justify-content:flex-end;gap:0;flex:1}.cinema .header nav>a,.cinema .records-menu>summary{padding:12px 7px;font-size:10px}.cinema .records-menu>div{left:auto;right:0;width:205px}.cinema #about-title{font-size:clamp(43px,10vw,63px)}.cinema .gate-title{font-size:clamp(42px,10vw,72px)}.cinema .profile-tabs button{font-size:10px;padding:12px 10px}.cinema .profile-panel p{font-size:16px}.cinema .profile-panel p.bio-lead{font-size:19px}.archive-header nav{flex-wrap:nowrap}.archive-header .records-menu>summary{font-size:9px;padding:9px 10px}.additional-credit-list article{grid-template-columns:1fr;gap:12px}.additional-credits{margin-top:50px}}
+@media(max-width:390px){.cinema .header nav>a,.cinema .records-menu>summary{padding-inline:5px;font-size:9px}.archive-header nav a,.archive-header .records-menu>summary{padding-inline:7px;font-size:8px}}
+
+.cinema .about.artist-poster{align-items:start}.cinema .about.artist-poster .about-visual{align-self:start;margin-top:70px}
+@media(max-width:700px){.cinema .about.artist-poster .about-visual{margin-top:45px}}
+
+@media(max-width:700px){.record-library .spine-rack{justify-content:start}.record-library .shelf-scroll{padding-inline:4px}.record-library .cd-spine{width:21px}.record-library .library-label>span{font-size:8px}}
+
+.collection-hover-sound{margin-left:auto;background:transparent;border:0;color:#b7bebc;font:9px monospace;letter-spacing:.04em;padding:0 0 0 8px;cursor:pointer}.collection-hover-sound:hover{color:#fff}.collection-hover-sound:focus-visible{outline:1px solid #cfdadc;outline-offset:5px}
+/* Backgrounds stay quiet: colour belongs to the records and the Lotus mark. */
+.cinema .red-opening,.cinema .work.vinyl-mode,.cinema .studio-stage{background:#090a0b}
+.cinema .artist-stage{background:transparent}.cinema .artist-watermark{display:none}
+.release-dialog{background:#101113}.next-release{background:#151719}
+
+/* Artist-supplied photographs share the existing draggable Identity window. */
+.cinema .artist-stage .artist-photo-panel{height:calc(100% - 69px);background:#0b080a;position:relative;z-index:2}
+.artist-photo-panel figure{height:calc(100% - 38px);margin:0;overflow:hidden}
+.artist-photo-panel img{width:100%;height:100%;object-fit:contain;display:block}
+.artist-photo-controls{display:flex;align-items:center;justify-content:space-between;height:38px;padding:0 12px;border-top:1px solid #ffffff20;color:#fff;font:10px var(--mono,monospace)}
+.artist-photo-controls button{border:0;background:none;color:#fff;padding:8px 12px;font-size:16px;cursor:pointer}
+.artist-photo-controls button:hover{color:#ef6648}.artist-photo-controls button:focus-visible{outline:1px solid #ef6648}
+.cinema .artist-stage[data-portrait-view=photos]::before,.cinema .artist-stage[data-portrait-view=photos]::after{display:none}
+
+.artist-gate :is(.gate-edition,.gate-action){color:#d9bf58}
+.artist-gate .gate-title{color:#eee8df}
+.artist-gate:focus-visible{outline-color:#d9bf58}
+#film-prologue{color:#eee8df!important}
+#film-prologue :is(.prologue-edition,.prologue-instruction,.prologue-enter){color:#d9bf58}
+#film-prologue .prologue-enter{border-bottom-color:#d9bf5860}
+#film-prologue.blade-near .prologue-instruction{color:#f2dc81}
+
+.artist-wardrobe #artist-smile{display:inline-flex;gap:7px;align-items:center;font:inherit;font-size:9px;color:#eadbbc;text-decoration:none;border-bottom:1px solid #eadbbc40;padding:8px 0;transition:color .25s}
+.artist-wardrobe #artist-smile:hover{color:#f4d664}
+#film-prologue .cut-sound-toggle{color:#d9bf58;border-color:#d9bf5845}

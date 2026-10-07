@@ -1,0 +1,5 @@
+Photographic PBR textures, CC0, Poly Haven / Jenelle van Heerden.
+Natural Walnut Veneer — https://polyhaven.com/a/natural_walnut_veneer
+2K albedo, 1K OpenGL normal and roughness. Independent board cuts and darker
+Prophet / warmer Moog satin finishes are applied by the renderer.
+License: https://polyhaven.com/license

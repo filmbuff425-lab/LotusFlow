@@ -1,0 +1,363 @@
+[
+  {
+    "id": "news",
+    "audio": "/assets/music/previews/news-highlight.mp3",
+    "start": 69.0,
+    "duration": 22,
+    "sourceDuration": 195.06,
+    "peak": 0.8,
+    "rms": 0.2561,
+    "kind": "full",
+    "source": "/assets/music/news-20261006.mp3",
+    "headers": {},
+    "gain": 0.56109
+  },
+  {
+    "id": "bridge",
+    "audio": "/assets/music/previews/bridge-highlight.mp3",
+    "start": 85.0,
+    "duration": 22,
+    "sourceDuration": 192.69,
+    "peak": 0.8,
+    "rms": 0.214,
+    "kind": "full",
+    "source": "/assets/music/bridge-20261006.mp3",
+    "headers": {},
+    "gain": 0.48748
+  },
+  {
+    "id": "juliet",
+    "audio": "/assets/music/previews/juliet-highlight.mp3",
+    "start": 149.0,
+    "duration": 22,
+    "sourceDuration": 239.37,
+    "peak": 0.8,
+    "rms": 0.2666,
+    "kind": "full",
+    "source": "/assets/music/juliet-20261006.mp3",
+    "headers": {},
+    "gain": 0.52704
+  },
+  {
+    "id": "flow",
+    "audio": "/assets/music/previews/flow-highlight.mp3",
+    "start": 124.0,
+    "duration": 22,
+    "sourceDuration": 173.64,
+    "peak": 0.8,
+    "rms": 0.2769,
+    "kind": "full",
+    "source": "/assets/music/flow-20261006.mp3",
+    "headers": {},
+    "gain": 0.52053
+  },
+  {
+    "id": "feed-on",
+    "audio": "/assets/music/previews/feed-on-highlight.mp3",
+    "start": 51.0,
+    "duration": 22,
+    "sourceDuration": 168.67,
+    "peak": 0.8,
+    "rms": 0.2254,
+    "kind": "full",
+    "source": "/assets/music/feed-on-20261006.mp3",
+    "headers": {},
+    "gain": 0.61209
+  },
+  {
+    "id": "show-me-love",
+    "audio": "/assets/music/previews/show-me-love-highlight.mp3",
+    "start": 56.0,
+    "duration": 22,
+    "sourceDuration": 180.37,
+    "peak": 0.6756,
+    "rms": 0.2513,
+    "kind": "full",
+    "source": "/assets/music/show-me-love-20261006.mp3",
+    "headers": {}
+  },
+  {
+    "id": "summer",
+    "audio": "/assets/music/previews/summer-highlight.mp3",
+    "start": 1.3,
+    "duration": 22,
+    "sourceDuration": 29.98,
+    "peak": 0.8,
+    "rms": 0.2654,
+    "kind": "preview",
+    "source": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/17/19/0e/17190e7c-803e-4d04-f1f4-04e513784eb7/mzaf_15294410980449356783.plus.aac.p.m4a",
+    "headers": {
+      "Content-Type": "audio/x-m4p",
+      "Access-Control-Allow-Origin": "*"
+    },
+    "gain": 0.59795
+  },
+  {
+    "id": "adult",
+    "audio": "/assets/music/previews/adult-highlight.mp3",
+    "start": 157.0,
+    "duration": 22,
+    "sourceDuration": 226.64,
+    "peak": 0.8,
+    "rms": 0.2392,
+    "kind": "full",
+    "source": "/assets/music/adult-20261006.mp3",
+    "headers": {},
+    "gain": 0.48951
+  },
+  {
+    "id": "lov",
+    "audio": "/assets/music/previews/lov-highlight.mp3",
+    "start": 115.0,
+    "duration": 22,
+    "sourceDuration": 168.95,
+    "peak": 0.8,
+    "rms": 0.276,
+    "kind": "full",
+    "source": "/assets/music/lov-20261006.mp3",
+    "headers": {},
+    "gain": 0.55379
+  },
+  {
+    "id": "airtight",
+    "audio": "/assets/music/previews/airtight-highlight.mp3",
+    "start": 146.0,
+    "duration": 22,
+    "sourceDuration": 220.1,
+    "peak": 0.8,
+    "rms": 0.2602,
+    "kind": "full",
+    "source": "/assets/music/airtight-20261006.mp3",
+    "headers": {},
+    "gain": 0.76401
+  },
+  {
+    "id": "im-falling",
+    "audio": "/assets/music/previews/im-falling-highlight.mp3",
+    "start": 1.3,
+    "duration": 22,
+    "sourceDuration": 29.98,
+    "peak": 0.8,
+    "rms": 0.1866,
+    "kind": "preview",
+    "source": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d5/16/e9/d516e950-e4fb-84bb-b834-9cc6ff5454e5/mzaf_10148721423420803929.plus.aac.p.m4a",
+    "headers": {
+      "Content-Type": "audio/x-m4p",
+      "Access-Control-Allow-Origin": "*"
+    },
+    "gain": 0.57849
+  },
+  {
+    "id": "right-here",
+    "audio": "/assets/music/previews/right-here-highlight.mp3",
+    "start": 47,
+    "duration": 22,
+    "sourceDuration": 202.12,
+    "peak": 0.8,
+    "rms": 0.1923,
+    "kind": "full",
+    "source": "/assets/music/right-here-20261006.mp3",
+    "headers": {},
+    "gain": 0.53026
+  },
+  {
+    "id": "pick-a-side",
+    "audio": "/assets/music/previews/pick-a-side-highlight.mp3",
+    "start": 1.3,
+    "duration": 22,
+    "sourceDuration": 29.98,
+    "peak": 0.8,
+    "rms": 0.2507,
+    "kind": "preview",
+    "source": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/0a/6a/c6/0a6ac6db-a30f-9018-76f2-7f81e054f8f7/mzaf_15008461192230502161.plus.aac.p.m4a",
+    "headers": {
+      "Content-Type": "audio/x-m4p",
+      "Access-Control-Allow-Origin": "*"
+    },
+    "gain": 0.53887
+  },
+  {
+    "id": "midsummer-heat",
+    "audio": "/assets/music/previews/midsummer-heat-highlight.mp3",
+    "start": 1.3,
+    "duration": 22,
+    "sourceDuration": 29.98,
+    "peak": 0.8,
+    "rms": 0.2452,
+    "kind": "preview",
+    "source": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/67/2e/d0/672ed020-0e1c-3713-33b8-7bbd8eb43437/mzaf_11222339279171577559.plus.aac.p.m4a",
+    "headers": {
+      "Content-Type": "audio/x-m4p",
+      "Access-Control-Allow-Origin": "*"
+    },
+    "gain": 0.53415
+  },
+  {
+    "id": "endlessly",
+    "audio": "/assets/music/previews/endlessly-highlight.mp3",
+    "start": 1.3,
+    "duration": 22,
+    "sourceDuration": 29.98,
+    "peak": 0.8,
+    "rms": 0.2084,
+    "kind": "preview",
+    "source": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/33/b2/cd/33b2cd26-175b-50d2-2fd4-c6c02e88afed/mzaf_2057077728672195990.plus.aac.p.m4a",
+    "headers": {
+      "Content-Type": "audio/x-m4p",
+      "Access-Control-Allow-Origin": "*"
+    },
+    "gain": 0.61092
+  },
+  {
+    "id": "red-flag-101",
+    "audio": "/assets/music/previews/red-flag-101-highlight.mp3",
+    "start": 39,
+    "duration": 22,
+    "sourceDuration": 138.94,
+    "peak": 0.8,
+    "rms": 0.2334,
+    "kind": "full",
+    "source": "/assets/music/red-flag-101-20261006.mp3",
+    "headers": {},
+    "gain": 0.5833
+  },
+  {
+    "id": "rendezvous",
+    "audio": "/assets/music/previews/rendezvous-highlight.mp3",
+    "start": 1.3,
+    "duration": 22,
+    "sourceDuration": 29.98,
+    "peak": 0.8,
+    "rms": 0.1935,
+    "kind": "preview",
+    "source": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/f6/e3/da/f6e3da0f-44f8-0041-f4ea-bcb98f013c8d/mzaf_17088106581238926563.plus.aac.p.m4a",
+    "headers": {
+      "Content-Type": "audio/x-m4p",
+      "Access-Control-Allow-Origin": "*"
+    },
+    "gain": 0.5484
+  },
+  {
+    "id": "jellyfish",
+    "audio": "/assets/music/previews/jellyfish-highlight.mp3",
+    "start": 117,
+    "duration": 22,
+    "sourceDuration": 168.28,
+    "peak": 0.8,
+    "rms": 0.2566,
+    "kind": "full",
+    "source": "/assets/music/jellyfish-20261006.mp3",
+    "headers": {},
+    "gain": 0.47045
+  },
+  {
+    "id": "mirror",
+    "audio": "/assets/music/previews/mirror-highlight.mp3",
+    "start": 133,
+    "duration": 22,
+    "sourceDuration": 182.47,
+    "peak": 0.8,
+    "rms": 0.3273,
+    "kind": "full",
+    "source": "/assets/music/mirror-20261006.mp3",
+    "headers": {},
+    "gain": 0.56653
+  },
+  {
+    "id": "say-it-to-me",
+    "audio": "/assets/music/previews/say-it-to-me-highlight.mp3",
+    "start": 194,
+    "duration": 22,
+    "sourceDuration": 271.31,
+    "peak": 0.8,
+    "rms": 0.2344,
+    "kind": "full",
+    "source": "/assets/music/say-it-to-me-20261006.mp3",
+    "headers": {},
+    "gain": 0.56058
+  },
+  {
+    "id": "train-to-nowhere",
+    "audio": "/assets/music/previews/train-to-nowhere-highlight.mp3",
+    "start": 1.3,
+    "duration": 22,
+    "sourceDuration": 29.95,
+    "peak": 0.8,
+    "rms": 0.2873,
+    "kind": "preview",
+    "source": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/e7/04/1e/e7041ed4-6aac-6df8-d9de-3d680a6f465f/mzaf_2352502938743601007.plus.aac.p.m4a",
+    "headers": {
+      "Content-Type": "audio/x-m4p",
+      "Access-Control-Allow-Origin": "*"
+    },
+    "gain": 0.55093
+  },
+  {
+    "id": "still-miss-you",
+    "audio": "/assets/music/previews/still-miss-you-highlight.mp3",
+    "start": 1.3,
+    "duration": 22,
+    "sourceDuration": 29.98,
+    "peak": 0.8,
+    "rms": 0.1634,
+    "kind": "preview",
+    "source": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/78/b5/01/78b5018f-20d0-b509-06e8-1a6c2155c3d4/mzaf_12930162025845530046.plus.aac.p.m4a",
+    "headers": {
+      "Content-Type": "audio/x-m4p",
+      "Access-Control-Allow-Origin": "*"
+    },
+    "gain": 0.62112
+  },
+  {
+    "id": "im-fine",
+    "audio": "/assets/music/previews/im-fine-highlight.mp3",
+    "start": 127,
+    "duration": 22,
+    "sourceDuration": 178.06,
+    "peak": 0.8,
+    "rms": 0.3157,
+    "kind": "full",
+    "source": "/assets/music/im-fine-20261006.mp3",
+    "headers": {},
+    "gain": 0.56899
+  },
+  {
+    "id": "wya",
+    "audio": "/assets/music/previews/wya-highlight.mp3",
+    "start": 61,
+    "duration": 22,
+    "sourceDuration": 164.31,
+    "peak": 0.8,
+    "rms": 0.2391,
+    "kind": "full",
+    "source": "/assets/music/wya-20261006.mp3",
+    "headers": {},
+    "gain": 0.5685
+  },
+  {
+    "id": "cassette",
+    "audio": "/assets/music/previews/cassette-highlight.mp3",
+    "start": 79,
+    "duration": 22,
+    "sourceDuration": 163.89,
+    "peak": 0.8,
+    "rms": 0.262,
+    "kind": "full",
+    "source": "/assets/music/cassette-20261006.mp3",
+    "headers": {},
+    "gain": 0.61326
+  },
+  {
+    "id": "unnamed-relationship",
+    "audio": "/assets/music/previews/unnamed-relationship-highlight.mp3",
+    "start": 63,
+    "duration": 22,
+    "sourceDuration": 219.35,
+    "peak": 0.8,
+    "rms": 0.2491,
+    "kind": "full",
+    "source": "/assets/music/unnamed-relationship-20261006.mp3",
+    "headers": {},
+    "gain": 0.59715
+  }
+]

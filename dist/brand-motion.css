@@ -1,0 +1,15 @@
+/* The living planet is the small brand mark, with room for its atmosphere. */
+.header .wordmark.brand-planet{position:relative;width:132px;height:76px;isolation:isolate}
+.brand-motion{position:relative;display:block;width:156px;height:112px;flex:none;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.header .brand-motion{position:absolute;left:-12px;top:50%;height:96px;transform:translateY(-50%)}
+.brand-motion canvas{position:absolute;inset:0;display:block;width:100%;height:100%;opacity:0;transition:opacity .6s ease;touch-action:pan-y}
+.brand-motion img{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:108px;height:72px;transition:opacity .4s ease;pointer-events:none}
+.brand-motion.is-ready canvas{opacity:1}
+.brand-motion.is-ready img{opacity:0}
+.brand-planet:focus-visible{outline:1px solid #b7ceff;outline-offset:5px;border-radius:8px}
+footer .brand-planet{display:block;width:156px;height:112px}
+@media(max-width:600px){
+ .header .wordmark.brand-planet{width:90px;height:64px}
+ .header .brand-motion{width:114px;height:96px;left:-12px}
+}
+@media(prefers-reduced-motion:reduce){.brand-motion canvas,.brand-motion img{transition:none}}

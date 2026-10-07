@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#050505"><title>Lotus Flow · 参考合成预览</title>
+  <link rel="stylesheet" href="study.css?v=reference2">
+</head>
+<body>
+  <main id="study" data-phase="loading">
+    <div id="visual"><canvas id="world" aria-label="Lotus Flow 黑白宇宙翻转预览"></canvas>
+      <video id="footage" src="reference-motion.mp4" preload="auto" playsinline muted aria-hidden="true"></video>
+      <button id="launch" disabled aria-label="点击开启宇宙翻转"><span class="target" aria-hidden="true"></span><span class="launch-label">CLICK TO OPEN</span></button>
+      <p id="error" role="alert" hidden>视频未能载入。<a href="reference-motion.mp4">打开视频</a></p>
+    </div>
+    <header><span>LOTUS FLOW</span></header>
+    <footer>
+      <div class="preview-caption"><span>参考视频 × 原版像素 Logo</span><span id="phase" role="status">正在载入</span></div>
+      <div class="playback"><button id="replay" disabled>播放 ↗</button><input id="timeline" aria-label="暂停查看转场中的任意画面" type="range" min="0" max="2070" step="10" value="0" disabled><span id="time">00.00</span></div>
+      <div class="bottom-row"><div class="moments" role="group" aria-label="查看关键画面"><button data-time="1.18" disabled>01 开启前</button><button data-time="1.7" disabled>02 展开</button><button data-time="3.2" disabled>03 落场</button></div><a id="continue" href="../?intro=0#home" hidden>进入主页 ↗</a><span class="note">参考素材合成 · 仅用于确认视觉</span></div>
+    </footer>
+  </main>
+  <script type="module" src="study.js?v=reference2"></script>
+</body>
+</html>

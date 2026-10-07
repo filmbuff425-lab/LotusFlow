@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#000000"><title>Lotus Flow · 光面动态预览</title>
+  <link rel="stylesheet" href="visual.css?v=unfold2">
+</head>
+<body>
+  <main id="stage" aria-label="Lotus Flow 开场动态预览" data-state="loading">
+    <canvas id="artwork" aria-hidden="true"></canvas>
+    <button id="unfold" aria-label="点击天体，翻开光面" disabled><span class="invitation">CLICK TO UNFOLD</span></button>
+    <section id="identity" aria-label="Lotus Flow" aria-hidden="true">
+      <canvas id="brand" role="img" aria-label="Lotus Flow 原版像素 Logo"></canvas>
+      <p>Expression over impression.</p>
+    </section>
+    <nav id="finish" aria-label="预览操作" hidden>
+      <button id="replay">再看一次</button>
+      <a href="../?view=universe#home">进入主页 <span aria-hidden="true">↗</span></a>
+    </nav>
+    <p id="loading" role="status">正在载入</p>
+    <p class="caption"><span>LOTUS FLOW / 开场动态预览</span><span>光面</span></p>
+  </main>
+  <script type="module" src="visual.js?v=unfold2"></script>
+</body>
+</html>

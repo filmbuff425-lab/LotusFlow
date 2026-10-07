@@ -1,0 +1,15 @@
+/* One small language control across Studio and every archive page. */
+.site-language-switch{display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:18px;padding-left:17px;border-left:1px solid #ffffff28;color:#ffffff54;font:500 10px/1.2 LotusInterface,Arial,sans-serif;letter-spacing:.03em}
+.site-language-switch button{min-width:27px;min-height:32px;padding:6px 3px;border:0;background:transparent;color:#ffffff75;font:inherit;cursor:pointer;transition:color .25s}
+.site-language-switch button[aria-pressed=true]{color:#fff}.site-language-switch button:hover{color:#fff}.site-language-switch button:focus-visible{outline:1px solid #fff;outline-offset:2px}
+.archive-header .site-language-switch{margin-left:auto}
+html:lang(zh-CN) body{font-family:LotusInterface,"PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif}
+html:lang(zh-CN) :is(.mono,.eyebrow,.profile-tabs button,.shop-kicker,.library-label,.studio-hint,.studio-corner,.studio-view-buttons button,.library-caption,.inspector-meta,.recognition-kind,.recognition-eyebrow){font-family:LotusDoto,LotusInterface,"PingFang SC","Microsoft YaHei",sans-serif}
+html:lang(zh-CN) :is(.about-copy p,.contribution p,.collaborator-file p){line-height:1.9}
+html:lang(zh-CN) :is(.shop-heading h1,.portfolio-heading h1,.contact h2,.gate-title){letter-spacing:.02em}
+html:lang(zh-CN) .studio-heading,html:lang(zh-CN) #about-title{letter-spacing:inherit}
+html:lang(zh-CN) :is(.artist-gate .gate-title,#film-prologue .prologue-title){display:none}
+@media(max-width:750px){.site-language-switch{gap:1px;margin-left:7px;padding-left:6px;font-size:9px}.site-language-switch button{min-width:23px}.archive-header .site-language-switch{margin-left:0}.cinema .header{gap:5px}.cinema .header .brand-planet{flex-shrink:0}.archive-header{gap:8px!important}.archive-header nav{margin-left:auto}.archive-header .edition{display:none}}
+@media(max-width:390px){.cinema .header nav>a,.cinema .records-menu>summary{padding-inline:4px!important;font-size:9px!important}.site-language-switch{margin-left:2px;padding-left:3px}.archive-header nav a,.archive-header .records-menu>summary{padding-inline:5px!important}}
+
+html:lang(zh-CN) .watching-videos .studio-hint::after{content:"拖动环视 · 右键拖动平移 · + / − 缩放"}
