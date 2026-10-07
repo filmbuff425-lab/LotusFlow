@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {createReferenceObjects} from './studio-reference-objects.js?v=20261006-lake-surface1';
+import {createReferenceObjects} from './studio-reference-objects.js?v=20261007-mobile3';
 
 // Clear glass display with polished sheet edges and fine steel corner posts.
 export function createReferenceShelf({ root, texture }) {

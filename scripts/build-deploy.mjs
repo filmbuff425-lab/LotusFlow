@@ -1,0 +1,47 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import {fileURLToPath,pathToFileURL} from 'node:url';
+import {createHash} from 'node:crypto';
+const {transform}=await import(process.env.LOTUS_ESBUILD_PATH?pathToFileURL(process.env.LOTUS_ESBUILD_PATH).href:'esbuild');
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const input=path.join(root,'dist'),output=path.join(root,'deploy');
+const revision='20261007-deploy1';
+// These older encodes are unreferenced. Current recordings stay byte-for-byte intact.
+const omitted=new Set(['assets/mv/airtight.mp4','assets/mv/feed-on.mp4','assets/mv/flow.mp4','assets/mv/juliet.mp4','assets/mv/show-me-love.mp4','assets/mv/show-me-love-20261006.mp4']);
+const studies=['_bar-study.html','design-review/','entry-study/','entry-visual/','home-demos/'];
+const sourceText=[];
+async function collect(directory){for(const entry of await fs.readdir(directory,{withFileTypes:true})){const file=path.join(directory,entry.name);if(entry.isDirectory())await collect(file);else if(/\.(js|html|css|json)$/.test(file))sourceText.push(await fs.readFile(file,'utf8'))}}
+await collect(input);
+const combined=sourceText.join('\n');
+for(const relative of omitted)if(combined.includes(path.basename(relative)))throw new Error(`Cannot omit referenced media: ${relative}`);
+await fs.rm(output,{recursive:true,force:true});await fs.mkdir(output,{recursive:true});
+let originalText=0,publishedText=0,omittedBytes=0,copied=0;
+const integrity=[];
+async function publish(directory){
+ for(const entry of await fs.readdir(directory,{withFileTypes:true})){
+  const from=path.join(directory,entry.name),relative=path.relative(input,from).split(path.sep).join('/');
+  if(entry.name==='.DS_Store'||omitted.has(relative)||studies.some(study=>relative===study||relative.startsWith(study))){if(entry.isFile())omittedBytes+=(await fs.stat(from)).size;continue}
+  if(entry.isDirectory()){await publish(from);continue}
+  const to=path.join(output,relative);await fs.mkdir(path.dirname(to),{recursive:true});const bytes=await fs.readFile(from);
+  if(/\.(html|js|css)$/.test(relative)){
+   let text=bytes.toString('utf8').replace(/([?&](?:v|rev)=)2026[\w-]+/g,`$1${revision}`);
+   if(relative==='site-motion.js')text=text.replace(/20261007-layout7/g,revision);
+   if(/\.(js|css)$/.test(relative)){
+    const result=await transform(text,{loader:relative.endsWith('.css')?'css':'js',minify:true,target:relative.endsWith('.css')?['safari16.4','chrome110']:['es2022'],legalComments:'inline'});
+    text=result.code;originalText+=bytes.length;publishedText+=Buffer.byteLength(text);
+   }
+   // Preloads and direct imports use one URL, so Three is downloaded once.
+   if(relative.endsWith('.js'))text=text.replace(/(["'])(\.{1,2}\/(?:vendor\/)?three\.(?:module|core)\.js)\1/g,`$1$2?v=${revision}$1`);
+   if(relative.endsWith('.html'))text=text.replace(/(["'])((?:\.\/)?vendor\/three\.(?:module|core)\.js)\1/g,`$1$2?v=${revision}$1`);
+   await fs.writeFile(to,text);
+  }else{
+   await fs.writeFile(to,bytes);integrity.push({path:relative,sha256:createHash('sha256').update(bytes).digest('hex')});
+  }
+  copied++;
+ }
+}
+await publish(input);
+const report={revision,copied,omittedFiles:[...omitted,...studies],omittedPayloadMiB:+(omittedBytes/1048576).toFixed(2),scriptStyleMiBBefore:+(originalText/1048576).toFixed(2),scriptStyleMiBAfter:+(publishedText/1048576).toFixed(2),preservedAssetCount:integrity.length};
+await fs.writeFile(path.join(output,'deployment.json'),JSON.stringify(report));
+await fs.mkdir(path.join(root,'outputs'),{recursive:true});await fs.writeFile(path.join(root,'outputs/deployment-integrity.json'),JSON.stringify({report,integrity},null,2));
+console.log(JSON.stringify(report,null,2));

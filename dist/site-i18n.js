@@ -22,7 +22,7 @@
    if(/^.+ 完整歌曲$/.test(s))return s.replace(/ 完整歌曲$/,' full track');
    return value;
   }
-  if((m=s.match(/^([←↗↙↑↓＋×▶Ⅱ⌘♫▷≋]+\s*)?(.*?)(\s*[↗↙↑↓＋×]+|\.)?$/))&&dictionary[m[2]])return (m[1]||'')+dictionary[m[2]].zh+(m[3]||'');
+  if((m=s.match(/^([←↗↙↑↓＋×▶︎Ⅱ⌘♫▷≋]+\s*)?(.*?)(\s*[↗↙↑↓＋×]+|\.)?$/))&&dictionary[m[2]])return (m[1]||'')+dictionary[m[2]].zh+(m[3]||'');
   if((m=s.match(/^(\d{2}\s*(?:\/\s*)?)(.+)$/))&&(dictionary[m[2]]||dictionary[m[2].toUpperCase()]))return m[1]+(dictionary[m[2]]||dictionary[m[2].toUpperCase()]).zh;
   if((m=s.match(/^(.+) — CD Case \/ Lotus Flow$/)))return m[1]+' — CD 唱片盒 / Lotus Flow';
   if((m=s.match(/^(\d+) (RELEASES|RECORDS|ARTISTS & COLLABORATORS|FILES?|FOUND)(.*)$/)))return `${m[1]} ${({'RELEASES':'张作品','RECORDS':'张唱片','ARTISTS & COLLABORATORS':'位合作艺人','FILE':'位艺人','FILES':'位艺人','FOUND':'个结果'})[m[2]]}${m[3]}`;

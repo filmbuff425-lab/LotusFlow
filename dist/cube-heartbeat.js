@@ -14,7 +14,7 @@ export async function armHeartbeat(){
  arming=(async()=>{try{heart.volume=0;await heart.play();heart.pause();heart.currentTime=0;armed=true;label()}catch{toggle.dataset.audioState='needs-gesture';toggle.textContent='HEARTBEAT / RETRY';toggle.setAttribute('aria-pressed','false')}finally{arming=null}})();return arming;
 }
 function stop(){clearInterval(fade);fade=0;if(heart.paused)return;if(document.hidden){heart.pause();return}fade=setInterval(()=>{heart.volume*=.5;if(heart.volume<.006){heart.pause();clearInterval(fade);fade=0}},40)}
-const musicPlaying=()=>window.lotusSession?.audioState?.playing||[...document.querySelectorAll('audio:not([data-ambient]):not([data-heartbeat]),video')].some(el=>!el.paused&&!el.muted&&el.volume>.01);
+const musicPlaying=()=>window.lotusSession?.audioState?.playing||window.lotusIdentityAudio?.playing||[...document.querySelectorAll('audio:not([data-ambient]):not([data-heartbeat]),video')].some(el=>!el.paused&&!el.muted&&el.volume>.01);
 async function play(){
  if(!armed||muted||!visible||inside||document.hidden||musicPlaying())return;
  clearInterval(fade);fade=0;heart.currentTime=0;heart.volume=.34;

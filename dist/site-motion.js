@@ -1,12 +1,13 @@
-import './interaction-sound.js?v=20261006-lake-surface1';
+import './interaction-sound.js?v=20261007-mobile3';
+import './media-transitions.js?v=20261007-mobile3';
 import './site-atmosphere.js?v=20261006-lake-surface1';
 import './music-cursor.js?v=20261006-lake-surface1';
-import './portfolio-entrances.js?v=20261006-lake-surface1';
+import './portfolio-entrances.js?v=20261007-layout7';
 // Same-origin navigation retains a calm visual bridge, including browsers without cross-document transitions.
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let leaving=false;
 // Prefetch the current revision so a warmed older page cannot restore outdated copy or navigation.
-const pageURL=href=>{const url=new URL(href,location.href);if(url.origin===location.origin){url.searchParams.set('rev','20261006-lake-surface1');if(!url.searchParams.has('lang'))url.searchParams.set('lang',document.documentElement.lang.startsWith('zh')?'zh':'en')};return url};
+const pageURL=href=>{const url=new URL(href,location.href);if(url.origin===location.origin){url.searchParams.set('rev','20261007-layout7');if(!url.searchParams.has('lang'))url.searchParams.set('lang',document.documentElement.lang.startsWith('zh')?'zh':'en')};return url};
 const preload=href=>{const url=pageURL(href).href;if(document.querySelector(`link[data-page-prefetch="${CSS.escape(url)}"]`))return;const l=document.createElement('link');l.rel='prefetch';l.href=url;l.dataset.pagePrefetch=url;document.head.append(l)};
 function navigate(href,{origin=null}={}){const url=pageURL(href);if(leaving)return;leaving=true;
  if(/\/(collaborators|films)\/?$/.test(url.pathname)&&!/\/(collaborators|films)\/?$/.test(location.pathname)){

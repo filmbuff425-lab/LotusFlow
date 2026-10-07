@@ -171,5 +171,5 @@ tracks.forEach(t=>Object.assign(t,window.lotusMedia[t.id],{image:'/'+(window.lot
 tracks.forEach(t=>{if(t.audio?.startsWith('assets/'))t.audio='/'+t.audio;t.detailUrl='/works/'+t.id+'.html'});
 window.lotusCatalog=tracks;
 // One film library drives the wall screen, desktop player and film archive.
-window.lotusFilms=["flow", "feed-on", "juliet", "show-me-love", "airtight", "right-here", "jellyfish", "mirror", "im-fine", "wya"].map(id=>tracks.find(t=>t.id===id)).filter(t=>t?.video).map(t=>({...t,src:t.video.src,kind:t.video.kind,cover:t.image}));
+window.lotusFilms=["flow", "feed-on", "juliet", "show-me-love", "airtight", "right-here", "jellyfish", "mirror", "im-fine", "wya", "say-it-to-me"].map(id=>tracks.find(t=>t.id===id)).filter(t=>t?.video).map(t=>({...t,src:t.video.src,kind:t.video.kind,cover:t.image}));
 })();

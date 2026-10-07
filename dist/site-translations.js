@@ -3080,3 +3080,10 @@ Object.assign(window.LotusTranslations,{
 Object.assign(window.LotusTranslations,{
  "FULL BODY / HEAD · DRAG THE WINDOW":{en:"FULL BODY / HEAD · DRAG THE WINDOW",zh:"全身 / 头像 · 拖动窗口"}
 });
+
+Object.assign(window.LotusTranslations,{
+ "PLAY STUDIO OPENING":{en:"PLAY STUDIO OPENING",zh:"播放开场音乐"},
+ "STUDIO OPENING / mirror (instrumental)":{en:"STUDIO OPENING / mirror (instrumental)",zh:"开场音乐 / mirror（伴奏）"},
+ "Press PLAY STUDIO OPENING to listen.":{en:"Press PLAY STUDIO OPENING to listen.",zh:"点击「播放开场音乐」即可聆听。"},
+ "The studio opening could not load. Try again.":{en:"The studio opening could not load. Try again.",zh:"开场音乐暂未加载，请重试。"}
+});

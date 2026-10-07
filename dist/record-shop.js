@@ -1,5 +1,5 @@
-import {loadHook,previewEnded,cancelHook} from './preview-hooks.js?v=20261006-lake-surface1';
-import {createMusicSignal} from './music-signal.js';
+import {loadHook,previewEnded,cancelHook} from './preview-hooks.js?v=20261007-mobile3';
+import {createMusicSignal} from './music-signal.js?v=20261007-mobile3';
 import {drawerReflection} from './pressing-profiles.js?v=20261006-lake-surface1';
 import {mountShelfObjects} from './record-shelf-objects.js?v=20261006-lake-surface1';
 import {mountRecognition} from './recognition.js?v=20261006-lake-surface1';

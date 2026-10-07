@@ -11,6 +11,7 @@ function environment({failFetch=0,failPlay=0}={}){
  const stage=element('section'),body=element('body');
  const document={...listeners(),body,hidden:false,createElement:element,querySelector(s){return s==='#studio-stage'?stage:null},querySelectorAll(s){return s.includes('audio')?nodes.filter(e=>['AUDIO','VIDEO'].includes(e.tagName)&&(!s.includes('not([data-ambient])')||!e.dataset.ambient)&&(!s.includes('not([data-heartbeat])')||!e.dataset.heartbeat)):[]}};
  const window={...listeners(),lotusSession:{audioState:{playing:false}}};
+ window.dispatchEvent=e=>{for(const fn of window.handlers.get(e.type)||[])fn(e);return true};
  let intersection;
  function node(){return {connect(next){return next},disconnect(){},gain:{value:0,setValueAtTime(v){this.value=v},setTargetAtTime(v){this.value=v},exponentialRampToValueAtTime(v){this.value=v}},frequency:{value:0,setValueAtTime(){},exponentialRampToValueAtTime(){}},pan:{value:0},threshold:{},knee:{},ratio:{}}}
  class AudioContext{
@@ -30,7 +31,7 @@ function environment({failFetch=0,failPlay=0}={}){
  }
  window.AudioContext=AudioContext;
  const storage={getItem(){return null},setItem(){}};
- const context={window,document,URL,URLSearchParams,location:{search:"",origin:"http://localhost"},Float32Array,console,localStorage:storage,sessionStorage:storage,performance:{now:()=>1000},MutationObserver:class{observe(){}},IntersectionObserver:class{constructor(fn){intersection=fn}observe(){}},fetch:async()=>{if(failFetch-->0)return{ok:false};return{ok:true,arrayBuffer:async()=>new ArrayBuffer(8)}},setInterval(fn){intervals.push(fn);return intervals.length},clearInterval(){},setTimeout(){},innerWidth:1000,addEventListener:window.addEventListener.bind(window)};
+ const context={window,document,URL,URLSearchParams,CustomEvent:class{constructor(type,options){this.type=type;this.detail=options.detail}},location:{search:"",origin:"http://localhost"},Float32Array,console,localStorage:storage,sessionStorage:storage,performance:{now:()=>1000},MutationObserver:class{observe(){}},IntersectionObserver:class{constructor(fn){intersection=fn}observe(){}},fetch:async()=>{if(failFetch-->0)return{ok:false};return{ok:true,arrayBuffer:async()=>new ArrayBuffer(8)}},setInterval(fn){intervals.push(fn);return intervals.length},clearInterval(){},setTimeout(){},innerWidth:1000,addEventListener:window.addEventListener.bind(window)};
  vm.createContext(context);
  return{nodes,contexts,sources,intervals,order,document,window,context,stage,visible(v){intersection([{isIntersecting:v}])},load(file){let code=fs.readFileSync('dist/'+file,'utf8');if(file==='interaction-sound.js'){vm.runInContext(fs.readFileSync('dist/water-surface.js','utf8').replace('export function','function'),context);code=code.replace(/^import .*?;\n/gm,'')}code=code.replaceAll('import.meta.url',JSON.stringify('http://localhost/'+file)).replaceAll('export async function','async function').replaceAll('export function','function');vm.runInContext(code,context)},call(code){return vm.runInContext(code,context)}};
 }
@@ -79,7 +80,11 @@ const companion=a.document.createElement('audio');companion.dataset.heartbeat='t
 const foreground=a.document.createElement('video');foreground.paused=false;
 for(let i=0;i<160;i++)a.intervals[0]();assert.ok(ambient.volume<.017,'Music ducks the ambience instead of stopping its loop');
 foreground.muted=true;for(let i=0;i<160;i++)a.intervals[0]();subtleBed();
+a.window.lotusIdentityAudio={playing:true};for(let i=0;i<160;i++)a.intervals[0]();assert.ok(ambient.volume<.017,'Identity score also ducks the ambient bed');
+a.window.lotusIdentityAudio.playing=false;
+let scoreEnabled=true;a.window.addEventListener('lotus-effects-change',e=>{scoreEnabled=e.detail});
 await sound.emit('click');for(let i=0;i<160;i++)a.intervals[0]();assert.equal(ambient.paused,true);assert.equal(sound.textContent,'SOUND / OFF');
+assert.equal(scoreEnabled,false,'The global sound switch tells the Identity score to stop');
 await sound.emit('click');assert.equal(ambient.paused,false);assert.equal(sound.textContent,'SOUND / ON');
 a.document.hidden=true;await a.document.emit('visibilitychange');assert.equal(ambient.paused,true);assert.equal(a.contexts[0].state,'suspended');
 a.document.hidden=false;await a.document.emit('visibilitychange');await flush();assert.equal(ambient.paused,false);assert.equal(a.contexts[0].state,'running');

@@ -1,9 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "buildCommand": null,
-  "installCommand": null,
-  "outputDirectory": "dist",
+  "buildCommand": "npm run build",
+  "installCommand": "npm ci",
+  "outputDirectory": "deploy",
   "headers": [
     {
       "source": "/assets/(.*)",
@@ -13,6 +13,14 @@
           "value": "public, max-age=86400, stale-while-revalidate=604800"
         }
       ]
+    },
+    {
+      "source": "/(.*)\\.(js|css)",
+      "headers": [{"key":"Cache-Control","value":"public, max-age=86400, stale-while-revalidate=604800"}]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [{"key":"X-Lotus-Release","value":"20261007-deploy1"}]
     }
   ]
 }

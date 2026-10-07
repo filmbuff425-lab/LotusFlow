@@ -21,10 +21,12 @@ const dynamic=new THREE.Group();dynamic.userData.dynamic=true;root.add(dynamic);
 const custom=add();custom.material.onBeforeCompile=()=>{};
 const extra=add();extra.geometry=geometry.clone();extra.geometry.setAttribute('uv1',extra.geometry.attributes.uv.clone());
 const another=add(root,new THREE.MeshStandardMaterial({color:0xff0000}));
+const sharedTexture=new THREE.Texture();sharedTexture.source.toJSON=()=>{throw new Error('Batching must never encode or serialize the texture image')};
+for(let i=0;i<3;i++)add(root,new THREE.MeshStandardMaterial({map:sharedTexture,roughness:.5}));
 const result=batchStudio(root,[interactive]);root.updateMatrixWorld(true);
 const batch=root.children.find(o=>o.name==='Static studio batch');
 assert.ok(batch,'Distinct material instances with identical optical properties merge');
-assert.equal(result.before-result.after,5);
+assert.equal(result.before-result.after,7);
 const after=vertices(batch);assert.equal(after.length,before.length);
 for(const point of after){const i=before.findIndex(candidate=>point.every((v,axis)=>Math.abs(v-candidate[axis])<1e-5));assert.ok(i>=0,'World-space vertices match within Float32 precision');before.splice(i,1);}
 assert.equal(batch.material.roughness,.48);assert.equal(batch.material.metalness,.12);

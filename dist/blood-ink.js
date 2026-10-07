@@ -1,6 +1,9 @@
 // Restore the original wet, granular trace; keep the approved fast spray clock.
 import {timing} from './cut-timing.js?v=20261006-lake-surface1';
+import {createInkFlow} from './identity-ink-flow.js?v=20261007-mobile3';
 const canvas=document.querySelector('.blood-field'),ctx=canvas.getContext('2d'),host=document.querySelector('#about');
+const liquid=createInkFlow(),flow=liquid.svg;flow.classList.add('blood-flow');host.append(flow);
+let onScreen=false;new IntersectionObserver(([entry])=>{onScreen=entry.isIntersecting;host.classList.toggle('blood-awake',onScreen&&!document.hidden)}).observe(host);document.addEventListener('visibilitychange',()=>host.classList.toggle('blood-awake',onScreen&&!document.hidden));
 let flight,air,lastTime=-1,width=1400,height=900,seed=1973;
 const random=()=>{seed=seed*16807%2147483647;return(seed-1)/2147483646};
 const clamp=x=>Math.max(0,Math.min(1,x));
@@ -12,6 +15,9 @@ const core=Array.from({length:91},(_,i)=>({u:i/90,v:Math.sin(i*.58)*2.1+(random(
 function size(){
  width=host.clientWidth;height=host.clientHeight;const dpr=Math.min(devicePixelRatio,1.5);
  for(const c of [canvas,flight]){if(!c)continue;c.width=Math.round(width*dpr);c.height=Math.round(height*dpr);c.getContext('2d').setTransform(dpr,0,0,dpr,0,0)}
+ const spine=core.slice().reverse().map((p,i)=>{const q=coordinates(p.u,p.v);return `${i?'L':'M'} ${q.x} ${q.y}`}).join(' ');
+ const falls=[.18,.29,.42,.54,.65,.77,.86].map((u,i)=>({...coordinates(u,0),length:22+(i*17%39),width:1.2+(i%3)*.55}));
+ liquid.update({width,height,spine,thickness:7,falls});
 }
 function coordinates(u,v){const sceneHeight=Math.min(height,innerHeight);const y0=width<650?Math.min(sceneHeight*.76,630):sceneHeight*.81;return{x:width*(-.04+u*.66),y:y0-u*(width<650?125:sceneHeight*.19)+v*(width<650?.7:1)}}
 function paint(p,t,small=false){

@@ -44,7 +44,7 @@ export function createStudioCDPlayer({root,texture,touchables}){
  function key(x,y,command,text){const o=box(deck,.49,.35,.13,x,y,.395,edge.clone());o.userData={action:'cd-control',command,label:text,dynamic:true};touchables.push(o);keys.push(o);return o}
  for(let i=0;i<3;i++){key(-.98+i*.66,-2.86,'disc-'+(i+1),'CD / DISC '+(i+1));label(String(i+1),-.98+i*.66,-2.56,.25,.14,deck,'#b7b9b5',46)}
  for(const [x,command,text] of [[-.98,'previous','PREVIOUS TRACK'],[-.32,'next','NEXT TRACK'],[.34,'stop','STOP']])key(x,-3.38,command,'CD / '+text);
- label('Ⅰ◀',-.98,-3.68,.30,.16);label('▶Ⅰ',-.32,-3.68,.30,.16);label('■',.34,-3.68,.20,.14);
+ label('Ⅰ◀︎',-.98,-3.68,.30,.16);label('▶︎Ⅰ',-.32,-3.68,.30,.16);label('■',.34,-3.68,.20,.14);
  const playTarget=circle(deck,1.82,0,-.13,.39,new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));playTarget.castShadow=false;playTarget.userData={action:'cd-control',command:'toggle',label:'CD / PLAY · PAUSE',dynamic:true};touchables.push(playTarget);
  const knob=new THREE.Group();knob.position.set(1.96,-3.02,.39);knob.userData.dynamic=true;deck.add(knob);
  const volume=cylinder(knob,.44,.22,0,0,.10,silver);volume.userData={action:'cd-volume',label:'CD / DRAG TO CHANGE VOLUME',dynamic:true};touchables.push(volume);

@@ -193,7 +193,11 @@ Object.assign(window.lotusMedia, Object.fromEntries(Object.entries({
   "say-it-to-me": {
     "audio": "assets/music/say-it-to-me-20261006.mp3",
     "audioKind": "full",
-    "cover": "assets/releases/say-it-to-me-20261006.jpg"
+    "cover": "assets/releases/say-it-to-me-20261006.jpg",
+    "video": {
+      "src": "/assets/mv/say-it-to-me-ikigai-live-20261007.mp4",
+      "kind": "LIVE PERFORMANCE"
+    }
   },
   "adult": {
     "audio": "assets/music/adult-20261006.mp3",

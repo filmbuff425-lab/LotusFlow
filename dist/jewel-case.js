@@ -1,7 +1,7 @@
-import {loadHook} from './preview-hooks.js?v=20261006-lake-surface1';
+import {loadHook} from './preview-hooks.js?v=20261007-mobile3';
 import * as THREE from 'three';
 import {collaboratorFiles,artistPortrait,artistSocials} from './collaborators.js?v=20261006-lake-surface1';
-import {createMusicSignal} from './music-signal.js';
+import {createMusicSignal} from './music-signal.js?v=20261007-mobile3';
 import {batchMeshes,discReflection,coverColor,createLidSignal} from './jewel-surface.js?v=20261006-lake-surface1';
 import {mountRecognition} from './recognition.js?v=20261006-lake-surface1';
 const host=document.querySelector('#case-stage'),experience=document.querySelector('#experience'),toggle=document.querySelector('#toggle-case'),hint=document.querySelector('#case-hint'),info=document.querySelector('#record-info'),audio=document.querySelector('#case-audio');

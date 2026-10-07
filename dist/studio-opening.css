@@ -1,0 +1,31 @@
+#studio-opening-retry{margin-top:12px;border:1px solid #d6be7155;border-radius:8px;background:#181211;color:#ead792;padding:12px 18px;font:inherit;font-size:12px;cursor:pointer}
+.artist-gate .gate-seam-light{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;opacity:.92;transition:opacity .8s;overflow:hidden}
+.gate-seam-light path{fill:none;stroke:url(#identity-seam-glow)}
+.gate-seam-light .seam-aura{stroke-width:18;filter:blur(6px);opacity:.38;animation:identity-seam-breathe 7s ease-in-out infinite;animation-play-state:paused}
+.gate-seam-light .seam-core{stroke-width:2.2;opacity:.7;filter:drop-shadow(0 0 4px #eed4b4);animation:identity-seam-breathe 7s ease-in-out infinite;animation-play-state:paused}
+.gate-seam-light .seam-glimmer{stroke:#fff4de;stroke-width:2.3;stroke-dasharray:38 1100;stroke-dashoffset:1100;opacity:0;filter:drop-shadow(0 0 6px #f2d6b1);animation:identity-seam-glimmer 9s ease-in-out infinite;animation-play-state:paused}
+.gate-seam-light .seam-trace{stroke:#ef4327;stroke-width:8;stroke-dasharray:81 77 14 145 29 193;opacity:.26;filter:blur(1px);animation:identity-wet-flow 16s linear infinite;animation-play-state:paused}
+.artist-gate.seam-awake .gate-seam-light path{animation-play-state:running}
+.artist-gate:is(:hover,:focus-visible) .gate-seam-light{opacity:1}
+@keyframes identity-seam-breathe{0%,100%{opacity:.3}38%{opacity:.9}65%{opacity:.48}}
+@keyframes identity-seam-glimmer{0%,22%{stroke-dashoffset:1100;opacity:0}32%{opacity:.5}64%{opacity:.82}80%,100%{stroke-dashoffset:0;opacity:0}}
+@keyframes identity-wet-flow{from{stroke-dashoffset:0}to{stroke-dashoffset:-1000}}
+.identity-score-toggle{position:absolute;left:8%;top:18%;z-index:3;padding:11px 16px;border:1px solid #ead46b9c;border-radius:5px;background:#ead46b12;color:#f6dc71;font:12px var(--pixel-font,monospace);letter-spacing:.04em;cursor:pointer;box-shadow:0 0 14px #dfbe3612;transition:background .25s,box-shadow .25s}
+.identity-score-toggle:hover,.identity-score-toggle:focus-visible{background:#ead46b24;box-shadow:0 0 20px #dfbe3624;outline:1px solid #f6dc71;outline-offset:4px}
+.cinema #about[data-artist-locked=true]>.identity-score-toggle{visibility:visible}
+#about[data-artist-locked=false]>.identity-score-toggle{display:none}
+.blood-flow{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;opacity:0}
+.identity-liquid{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:hidden;opacity:.85}
+.identity-liquid path{fill:none;stroke-linecap:round;animation-play-state:paused!important}
+.identity-liquid .ink-aura{opacity:.24;filter:blur(2.4px);animation:ink-inner-light 8s ease-in-out infinite}
+.identity-liquid .ink-current{opacity:.63;stroke-dasharray:28 116 8 191;filter:drop-shadow(0 0 4px #ed27217a);animation:ink-downstream 17s linear infinite}
+.identity-liquid .ink-current-fine{stroke-dasharray:9 170 34 251;opacity:.55;animation-duration:23s}
+.identity-liquid .ink-drip{opacity:.7;stroke-dasharray:14 105;filter:drop-shadow(0 0 3px #ef2b2266);animation:ink-falling 8.5s linear infinite}
+.artist-gate>.identity-liquid{z-index:1}
+.artist-gate.seam-awake .identity-liquid path,#film-prologue[open] .identity-liquid path,.ink-arrived.blood-awake>.identity-liquid path{animation-play-state:running!important}
+.ink-arrived.blood-awake .blood-flow{opacity:.88}
+@keyframes ink-downstream{from{stroke-dashoffset:0}to{stroke-dashoffset:-343}}
+@keyframes ink-falling{0%{stroke-dashoffset:120;opacity:0}20%{opacity:.7}70%{opacity:.5}100%{stroke-dashoffset:-119;opacity:0}}
+@keyframes ink-inner-light{0%,100%{opacity:.18}45%{opacity:.36}70%{opacity:.23}}
+@media(prefers-reduced-motion:reduce){.gate-seam-light path,.blood-flow path{animation:none!important}.gate-seam-light .seam-core{opacity:.7}.gate-seam-light .seam-aura{opacity:.3}}
+@media(prefers-reduced-motion:reduce){.identity-liquid path{animation:none!important}.identity-liquid .ink-current{stroke-dasharray:none;opacity:.28}.identity-liquid .ink-drip{opacity:.25}}

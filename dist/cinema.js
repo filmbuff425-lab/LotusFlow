@@ -1,8 +1,8 @@
 import './navigation.js?v=20261006-lake-surface1';
 import './retro-interface.js?v=20261006-lake-surface1';
-import {initReleasePlayer} from './release-player.js?v=20261006-lake-surface1';
+import {initReleasePlayer} from './release-player.js?v=20261007-mobile3';
 import {initArtist} from './artist-character.js?v=20261006-lake-surface1';
-import {initStudioPlayer} from './studio-player.js?v=20261006-lake-surface1';
+import {initStudioPlayer} from './studio-player.js?v=20261007-mobile3';
 document.documentElement.dataset.cinemaPhase='loading';
 if(!window.lotusPortfolio)await new Promise(resolve=>window.addEventListener('lotus-portfolio-ready',resolve,{once:true}));
 initReleasePlayer(window.lotusPortfolio);document.documentElement.dataset.cinemaPhase='release-ready';
@@ -19,4 +19,4 @@ document.querySelector('.artist-gate').addEventListener('click',()=>{if(portrait
 
 import './scroll-scenes.js?v=20261006-lake-surface1';
 
-import './record-portal.js?v=20261006-lake-surface1';
+import './record-portal.js?v=20261007-mobile3';

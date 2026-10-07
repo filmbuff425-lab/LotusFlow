@@ -5,7 +5,7 @@ let pending=null,ready=false;
 function prepare(){
  if(ready||pending)return pending;
  host.dataset.sceneState='loading';
- pending=import('./vinyl-room.js?v=20261006-lake-surface1').then(()=>{ready=true;host.dataset.sceneState='ready';observer.disconnect()}).catch(error=>{
+ pending=import('./vinyl-room.js?v=20261007-mobile3').then(()=>{ready=true;host.dataset.sceneState='ready';observer.disconnect()}).catch(error=>{
   pending=null;host.dataset.sceneState='error';console.warn('Record archive unavailable:',error);
   document.getElementById('vinyl-loading').textContent='The record view could not load. Choose Grid or List to browse.';
  });return pending;

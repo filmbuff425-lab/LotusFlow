@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 // A deep field of distant stars; the logo occasionally resolves out of sparse starlight.
 export function createCosmos({scene,camera}){
- const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,group=new THREE.Group();group.visible=false;scene.add(group);
+ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,group=new THREE.Group();group.name='Studio cosmos';group.visible=false;scene.add(group);
  const rnd=n=>{const v=Math.sin(n*127.1+47.7)*43758.5453;return v-Math.floor(v)};
- const orbitPhoto=new THREE.TextureLoader().load('assets/studio-earth-rim-web.webp');orbitPhoto.colorSpace=THREE.SRGBColorSpace;orbitPhoto.anisotropy=4;
+ const orbitPhoto=new THREE.TextureLoader().load('assets/studio-earth-rim.png');orbitPhoto.colorSpace=THREE.SRGBColorSpace;orbitPhoto.anisotropy=8;
  const uniforms={time:{value:0},reveal:{value:0},orbitPhoto:{value:orbitPhoto}};
  // Camera-centred opaque sky renders before the room. It cannot intersect the room
  // or expose a low-poly silhouette when the camera crosses its old world-space edge.

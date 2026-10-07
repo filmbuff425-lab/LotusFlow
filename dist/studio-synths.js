@@ -4,7 +4,7 @@ import {studioLayout} from './studio-layout.js?v=20261006-lake-surface1';
 // Control coordinates follow the Sequential front-panel photograph and the
 // Moog Subsequent 37 product photographs, rather than a generic knob grid.
 export function createStudioSynths({root,texture,touchables,loadTexture=path=>new THREE.TextureLoader().load(path)}) {
- const rig=new THREE.Group();rig.name='Moog Subsequent 37 / Sequential Prophet-6';rig.position.set(...studioLayout.synths);rig.rotation.y=studioLayout.synthRotation;root.add(rig);
+ const rig=new THREE.Group();rig.name='Moog Subsequent 37 / Sequential Prophet-6';rig.position.set(...studioLayout.synths);rig.rotation.y=studioLayout.synthRotation;rig.scale.setScalar(.765);root.add(rig);
  const keys=[],controls=[],geometries=new Map();
  const cached=(id,make)=>{if(!geometries.has(id))geometries.set(id,make());return geometries.get(id)};
  const mat=(color,roughness=.5,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});

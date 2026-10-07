@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import {updateHeartbeat} from './cube-heartbeat.js?v=20261007-performance1';
+import {updateHeartbeat} from './cube-heartbeat.js?v=20261007-mobile3';
 import {studioLayout} from './studio-layout.js?v=20261006-lake-surface1';
-import {createCosmos} from './studio-cosmos.js?v=20261007-performance1';
+import {createCosmos} from './studio-cosmos.js?v=20261007-mobile3';
 
 export function createSoundcube({scene,root,texture,camera,renderer}){
  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -53,7 +53,7 @@ export function createSoundcube({scene,root,texture,camera,renderer}){
   const oldHeight=Math.max(innerWidth<=700?460:540,innerHeight-(innerWidth<=700?255:290));
   const closedScale=.34*.93*Math.min(1,oldHeight/(renderer.domElement.clientHeight||oldHeight));
   const scale=(closedScale+(1-closedScale)*p)*(1+.034*beat*closed*(1-hoverSmooth*.75));
-  pointer.lerp(pointerTarget,ease);hoverSmooth+=(hover-hoverSmooth)*ease;
+  pointer.lerp(pointerTarget,ease);hoverSmooth+=((interiorReady?hover:0)-hoverSmooth)*ease;
   const yaw=Math.sin(t*.18)*.20,tilt=Math.sin(t*.15+1)*.055,roll=Math.sin(t*.13)*.018;
   root.scale.setScalar(scale);root.rotation.set(closed*tilt,closed*yaw,closed*roll);root.position.set(closed*Math.sin(t*.21)*.28,closed*(1.05+Math.sin(t*.42)*.68)+p*Math.sin(t*.32)*.16,closed*Math.sin(t*.19)*.20);root.visible=interiorReady&&(p>0||hoverSmooth>.12);
   glassGroup.rotation.copy(root.rotation);glassGroup.scale.copy(root.scale);glassGroup.position.copy(center).multiplyScalar(scale).applyEuler(root.rotation).add(root.position);glassGroup.visible=p<1;

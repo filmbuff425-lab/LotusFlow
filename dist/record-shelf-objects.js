@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {createReferenceObjects} from './studio-reference-objects.js?v=20261006-lake-surface1';
+import {createReferenceObjects} from './studio-reference-objects.js?v=20261007-mobile3';
 
 // All three shelf objects are actual volumes, with a shared studio reflection rig.
 export function mountShelfObjects(host){

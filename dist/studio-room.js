@@ -6,7 +6,7 @@ import {createStudioLamps} from './studio-lights.js?v=20261006-lake-surface1';
 import {createReferenceMarginata} from './studio-reference-plants.js?v=20261006-lake-surface1';
 import {createGlazing} from './studio-glass.js?v=20261006-lake-surface1';
 import {studioLayout} from './studio-layout.js?v=20261006-lake-surface1';
-import {createReferenceObjects} from './studio-reference-objects.js?v=20261006-lake-surface1';
+import {createReferenceObjects} from './studio-reference-objects.js?v=20261007-mobile3';
 
 export function createRecordingRoom({root,renderer,texture,camera,scene}){
  const room=new THREE.Group();root.add(room);const architecture=new THREE.Group();architecture.scale.set(...studioLayout.architectureScale);room.add(architecture);const back=new THREE.Group(),left=new THREE.Group(),ceiling=new THREE.Group();architecture.add(back,left,ceiling);

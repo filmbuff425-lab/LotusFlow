@@ -22,7 +22,7 @@ async function startBed(){if(!enabled||document.hidden||bedStarting||!ambience.p
 function init(){if(context)return context;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;context=new AC();master=context.createGain();master.gain.value=.43;compressor=context.createDynamicsCompressor();compressor.threshold.value=-18;compressor.knee.value=18;compressor.ratio.value=3;master.connect(compressor).connect(context.destination);context.addEventListener('statechange',()=>{unlocked=context.state==='running';if(unlocked)activated=true;button.dataset.audioState=context.state;label()});return context}
 async function arm(){const starting=startBed();try{if(!init()){await starting;return}const resuming=context.resume();await resuming;unlocked=context.state==='running';button.dataset.audioState=context.state;if(unlocked){try{sessionStorage.setItem('lotus-audio-unlocked','true')}catch{}}await starting;label()}catch{await starting;label()}}
 function busy(){
- if(window.lotusSession?.audioState?.playing)return true;
+ if(window.lotusSession?.audioState?.playing||window.lotusIdentityAudio?.playing)return true;
  const audible=doc=>[...doc.querySelectorAll('audio:not([data-ambient]):not([data-heartbeat]),video')].some(el=>!el.paused&&!el.muted&&el.volume>.01);
  if(audible(document))return true;
  for(const frame of document.querySelectorAll('iframe'))try{if(frame.contentDocument&&audible(frame.contentDocument))return true}catch{}
@@ -87,7 +87,8 @@ async function playWater({x=0,value=.5,motion=.5,gesture=true}={}){
  try{if(!gesture&&(!enabled||context?.state!=='running'))return false;if(!init())return false;if(gesture)await context.resume();unlocked=context.state==='running';return play('water',{x,value,motion,performanceAction:gesture})}catch{return false}
 }
 window.lotusSfx={play,playPercussion,playWater,arm,get enabled(){return enabled}};
-button.addEventListener('click',async()=>{if(enabled&&activated&&!ambience.paused)enabled=false;else enabled=true;try{localStorage.setItem('lotus-effects',enabled?'on':'off')}catch{}label();blendBed();if(enabled){await arm();play('glass')}});
+window.dispatchEvent(new CustomEvent('lotus-effects-change',{detail:enabled}));
+button.addEventListener('click',async()=>{if(enabled&&activated&&!ambience.paused)enabled=false;else enabled=true;try{localStorage.setItem('lotus-effects',enabled?'on':'off')}catch{}window.dispatchEvent(new CustomEvent('lotus-effects-change',{detail:enabled}));label();blendBed();if(enabled){await arm();play('glass')}});
 document.addEventListener('pointerdown',e=>{if(e.target!==button)arm()},{passive:true,capture:true});document.addEventListener('keydown',e=>{if(e.target!==button&&(e.key==='Enter'||e.key===' '))arm()},{capture:true});
 const position=el=>{const b=el.getBoundingClientRect();return{x:(b.left+b.width/2-innerWidth/2)/innerWidth}};
 function cue(el){if(el.matches('.record-portal'))return 'portal';if(el.matches('#open-studio,#close-studio'))return null;if(el.matches('.cd-spine,[data-pick-studio-record],.record-choice'))return 'case-lift';if(el.matches('.inspector-close,[data-close],.dialog-close'))return 'case-close';if(el.matches('[data-camera],[data-studio-zoom],#studio-reset-view'))return 'move';if(el.matches('[aria-pressed],input[type=checkbox]'))return 'toggle';if(el.matches('a[href^="#"]'))return 'move';return 'tap'}

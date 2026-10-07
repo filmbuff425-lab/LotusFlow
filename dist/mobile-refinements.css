@@ -1,0 +1,75 @@
+/* Apple should render control symbols as the site's monochrome typography. */
+html{font-variant-emoji:text}
+.skip{position:fixed!important}
+/* Give the centered studio line its own row below the corner metadata. */
+.cinema .studio-home .studio-heading{top:82px!important}
+.cinema .studio-home .studio-entry{bottom:110px;gap:14px}
+.cinema .studio-home .studio-entry p{margin:0;line-height:1.5}
+.cinema #about[data-artist-locked=true]{height:clamp(480px,68svh,640px);min-height:0}
+.cinema #about[data-artist-locked=true] .artist-gate{inset:26px 4%;height:calc(100% - 52px)}
+.identity-score-toggle{font-size:10px;padding:9px 13px;min-height:36px}
+.work-destinations a{font-size:10.5px;gap:9px}
+.work-destinations .entrance-symbol{width:26px;height:26px}
+.archive-paths>a.visual-entrance{grid-template-columns:34px minmax(0,1fr);column-gap:13px;font-size:clamp(18px,1.9vw,24px);padding:22px 30px 22px 0}
+.archive-paths .entrance-symbol{width:30px;height:30px}
+.cosmic-archive .archive-paths>a.visual-entrance>span{font-size:9px;margin-bottom:6px}
+.archive-paths>a.visual-entrance>b{font-size:17px;bottom:23px}
+@media(max-width:700px){
+ html{scroll-padding-top:128px}
+ .cinema .header,body:has(.archive-header) .archive-header{display:grid;grid-template-columns:72px minmax(0,1fr);grid-template-rows:44px 44px;height:112px;min-height:112px;padding:8px 12px;gap:8px 12px}
+ .cinema .header .wordmark.brand-planet,.archive-header .archive-brand{grid-column:1;grid-row:1;width:72px;height:44px;margin:0;align-self:center}
+ .cinema .header .brand-motion{left:0;width:72px;height:44px}
+ .cinema .header .brand-motion img,.archive-header .archive-brand img{width:72px;height:44px;object-fit:contain}
+ .cinema .header nav,.archive-header nav{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));grid-column:1/3;grid-row:2;width:100%;margin:0;gap:0;align-items:stretch}
+ .cinema .header nav>a,.cinema .header nav>.records-menu>summary,.archive-header nav>a,.archive-header nav>.records-menu>summary{display:flex!important;align-items:center;justify-content:center;width:100%;height:44px;min-height:44px;padding:8px 6px!important;font-size:12px!important;line-height:1.2;letter-spacing:.01em;white-space:nowrap;border-left:1px solid #43271f}
+ .cinema .header nav>a:first-child,.archive-header nav>a:first-child{border-left:0}
+ .cinema .header nav>.records-menu,.archive-header nav>.records-menu{min-width:0;height:44px}
+ .header .site-language-switch,.archive-header .site-language-switch{grid-column:2;grid-row:1;justify-self:end;align-self:center;height:44px;margin:0;padding:0;min-height:44px;border:0;gap:5px}
+ .header .site-language-switch button,.archive-header .site-language-switch button{font-size:11px;min-width:36px;min-height:44px;padding:8px}
+ .cinema .studio.studio-home{padding-top:112px!important}
+ .cinema .studio-home .studio-stage{height:calc(100svh - 112px)}
+ .cinema .studio-home .studio-heading{top:76px!important}
+ .cinema .studio-home .studio-corner{top:24px;left:16px}
+ .cinema .studio-home .studio-orbit-tools{left:16px;bottom:24px;gap:6px}
+ .cinema .studio-home .studio-orbit-tools button{min-height:40px;font-size:10px;padding:8px 12px}
+ .cinema .studio-home .studio-orbit-tools [data-studio-zoom]{width:40px;font-size:18px;padding:7px}
+ .cinema .studio-home .is-room-open .studio-orbit-tools{bottom:112px}
+ .cinema #about[data-artist-locked=true]{height:clamp(400px,62svh,520px)}
+ .cinema #about[data-artist-locked=true] .artist-gate{inset:20px 4%;height:calc(100% - 40px)}
+ .cinema .work.vinyl-mode .vinyl-room{height:clamp(300px,43svh,390px);margin:20px 0 24px;overflow:visible}
+ .cinema .work.vinyl-mode #vinyl-viewport{inset:0 calc((100% - 100vw)/2);width:100vw;height:100%;overflow:hidden}
+ .cinema .vinyl-caption{grid-template-columns:32px minmax(0,1fr) 88px;gap:10px;padding:16px 0}
+ .cinema .vinyl-caption strong{font-size:clamp(21px,6.4vw,28px)}
+ .cinema #vinyl-credit{font-size:8px;line-height:1.6;max-width:none}
+ .cinema .vinyl-navigation{gap:6px}
+ .cinema .vinyl-navigation button{width:40px;height:44px;font-size:23px}
+ .cinema .glass-record-info{top:auto;bottom:8px;left:6%;max-width:72%;width:auto;padding:6px 10px;border-radius:6px}
+ .cinema .glass-record-info .info-kicker,.cinema .glass-record-info dl{display:none}
+ .cinema .glass-record-info h3{font-size:18px;margin:0}
+ .cinema .glass-record-info .info-artist{font-size:10px;margin:2px 0}
+ .cinema .work-controls{gap:10px;align-items:center}
+ .cinema .filters{flex-wrap:wrap;gap:5px}
+ .cinema .filters button,.cinema .view-switch button,.cinema .hover-sound{font-size:9px;min-height:36px;padding:7px 9px}
+ .cinema .particle-directory>a.record-portal{height:280px}
+ .cinema .archive-more{justify-content:center;flex-wrap:wrap;gap:25px;margin-top:8px}
+ .cinema .archive-more a{font-size:10.5px;min-height:44px}
+ .archive-paths>a.visual-entrance{font-size:19px;padding-block:18px}
+ .archive-paths>a.visual-entrance>b{bottom:19px}
+ .cinema .about.artist-poster{padding:140px 7% 55px;gap:30px}
+ .cinema .profile-panel p{font-size:14px;line-height:1.9}
+ .cinema .profile-panel p.bio-lead{font-size:16px;line-height:1.8}
+ html:lang(zh-CN) .cinema .profile-panel p{font-size:16px;line-height:1.95}
+ .cinema .release-dialog{width:94vw;max-width:94vw;max-height:86svh;padding:85px 20px 28px}
+ .release-dialog .release-copy h2{font-size:clamp(28px,8.5vw,42px)}
+ .release-dialog .release-artist,.release-dialog .release-credit p{font-size:14px;line-height:1.8}
+ .jewel-release iframe{height:920px}
+ .archive-hero h1,.release-heading h1{font-size:clamp(34px,10.5vw,52px);overflow-wrap:anywhere}
+ .release-art{width:72%}
+ .film-caption{gap:22px}
+ .film-caption h2{font-size:clamp(26px,8.8vw,42px)}
+ .interaction-sound-toggle{max-width:calc(100vw - 32px);font-size:9px;min-height:36px}
+}
+@media(max-width:360px){
+ .cinema .header,body:has(.archive-header) .archive-header{padding-inline:10px}
+ .cinema .header nav>a,.cinema .header nav>.records-menu>summary,.archive-header nav>a,.archive-header nav>.records-menu>summary{font-size:11px!important}
+}

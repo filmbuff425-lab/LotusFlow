@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import {createReferenceTerrarium} from './studio-reference-plants.js?v=20261006-lake-surface1';
 import {studioLayout} from './studio-layout.js?v=20261006-lake-surface1';
 import {createWhiskyOnIce} from './studio-spirits.js?v=20261006-lake-surface1';
 import {createCuratedObjects} from './studio-curated-objects.js?v=20261006-lake-surface1';
@@ -7,7 +6,7 @@ import {createRecordingMic} from './studio-recording-mic.js?v=20261006-lake-surf
 import {createSculpturalEspresso} from './studio-espresso.js?v=20261006-lake-surface1';
 import {createReferenceCoffeeCup} from './studio-coffee-cup.js?v=20261006-lake-surface1';
 import {createConsoleObjects} from './studio-console-objects.js?v=20261006-lake-surface1';
-import {createReferenceObjects} from './studio-reference-objects.js?v=20261006-lake-surface1';
+import {createReferenceObjects} from './studio-reference-objects.js?v=20261007-mobile3';
 
 export function createStudioHospitality({root,texture}){
  const group=new THREE.Group();group.name='Left wall modular glass console, circular coffee table and recording microphone';root.add(group);
@@ -32,7 +31,6 @@ export function createStudioHospitality({root,texture}){
  cyl(table,3.25,.17,0,2.62,0,glass);for(const y of[2.539,2.701]){const r=add(new THREE.TorusGeometry(3.24,.014,6,96),edge,table,0,y,0);r.rotation.x=Math.PI/2;}
  lathe(table,[[1.26,.09],[1.27,2.525],[1.18,2.525],[1.18,.09]],glass);for(const y of[.09,2.525]){const r=add(new THREE.TorusGeometry(1.23,.018,6,64),edge,table,0,y,0);r.rotation.x=Math.PI/2;}
  cyl(table,1.34,.035,0,.065,0,chrome);createWhiskyOnIce({parent:table,texture,x:.85,y:2.715,z:.28,scale:1.38});const book=box(table,1.8,.12,1.4,-1.2,2.77,-.23,paper);book.rotation.y=-.13;box(book,1.82,.019,1.42,0,.07,0,dark);
- const terrarium=createReferenceTerrarium(texture);terrarium.position.set(-.35,2.715,-1.75);table.add(terrarium);
  // Two low tiers, six open bays. Long axis follows the left wall and vinyl display.
  const cabinet=new THREE.Group();cabinet.name='Low modular glass television console along the left wall';cabinet.position.set(studioLayout.mediaConsoleX,0,2.0);cabinet.rotation.y=Math.PI/2;group.add(cabinet);
  const span=4.8,levels=[.30,3.72,7.14],xs=Array.from({length:7},(_,i)=>-14.4+i*span);
@@ -53,5 +51,5 @@ export function createStudioHospitality({root,texture}){
  collection.luxury(cabinet,-2.4,.37,.0);
  collection.records(cabinet,7.2,.37,-.10,{count:8,angle:.04});
  const mic=createRecordingMic({parent:group,texture});
- return{group,table,cabinet,mic,machine,radio,lamp,terrarium};
+ return{group,table,cabinet,mic,machine,radio,lamp};
 }

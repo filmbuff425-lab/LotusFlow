@@ -5,12 +5,12 @@ if(link&&canvas){
  let w=1,h=1,visible=false,hover=false,gather=0,last=0,frame=0,opened=0,mx=0,my=0;
  const resize=()=>{w=link.clientWidth;h=link.clientHeight;const d=Math.min(devicePixelRatio,1.5);canvas.width=w*d;canvas.height=h*d;ctx.setTransform(d,0,0,d,0,0);if(reduced)draw(0)};
  new ResizeObserver(resize).observe(link);
- new IntersectionObserver(([e])=>{visible=e.isIntersecting;if(visible&&!frame)frame=requestAnimationFrame(draw)}).observe(link);
+ new IntersectionObserver(([e])=>{visible=e.isIntersecting;link.dataset.portalVisible=String(visible);if(visible&&!frame)frame=requestAnimationFrame(draw)}).observe(link);
  const active=value=>{hover=value;link.dataset.particleState=value?'gathering':'drifting';if(visible&&!frame)frame=requestAnimationFrame(draw)};
  link.addEventListener('pointerenter',()=>active(true));link.addEventListener('pointerleave',()=>{mx=my=0;active(false)});link.addEventListener('focus',()=>active(true));link.addEventListener('blur',()=>active(false));
  link.addEventListener('pointermove',e=>{const b=link.getBoundingClientRect();mx=(e.clientX-b.left-w/2)*.06;my=(e.clientY-b.top-h*.43)*.04});
  link.addEventListener('click',e=>{if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||reduced)return;e.preventDefault();if(opened)return;opened=performance.now();link.classList.add('is-entering');link.dataset.particleState='opening';window.lotusPageTransition?.preload(link.href);const b=link.getBoundingClientRect();if(window.lotusPageTransition)window.lotusPageTransition.navigate(link.href,{origin:{x:b.left+b.width/2,y:b.top+b.height*.42}});else location.assign(link.href)});
- function draw(now){frame=0;if(!visible&&!reduced)return;const dt=Math.min(.05,(now-last)*.001||.016);last=now;gather+=(Number(hover)-gather)*(1-Math.exp(-dt*3.8));const t=reduced?0:now*.001,exit=opened?Math.min(1,(now-opened)/1000):0;
+ function draw(now){frame=0;if(!visible&&!reduced)return;if(!reduced&&now-last<(hover||opened?16:33)){frame=requestAnimationFrame(draw);return}const dt=Math.min(.05,(now-last)*.001||.016);last=now;gather+=(Number(hover)-gather)*(1-Math.exp(-dt*3.8));const t=reduced?0:now*.001,exit=opened?Math.min(1,(now-opened)/1000):0;
   ctx.clearRect(0,0,w,h);const r=Math.min(w*.22,119),cx=w/2+mx,cy=h*.42+my;
   const glow=ctx.createRadialGradient(cx,cy,0,cx,cy,r*1.9);glow.addColorStop(0,'rgba(186,44,13,.10)');glow.addColorStop(.45,'rgba(186,44,13,.035)');glow.addColorStop(1,'rgba(186,44,13,0)');ctx.fillStyle=glow;ctx.fillRect(0,0,w,h);
   ctx.globalCompositeOperation='lighter';

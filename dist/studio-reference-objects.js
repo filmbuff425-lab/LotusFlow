@@ -1,3 +1,4 @@
+import {clayGeometry} from './studio-clay.js?v=20261007-mobile3';
 import * as THREE from 'three';
 
 // Small, fully volumetric shelf objects based on the supplied ceramic, wood,
@@ -23,21 +24,7 @@ export function createReferenceObjects(texture){
  const make=(name,parent,x,y,z,scale=1,angle=0)=>{const g=new THREE.Group();g.name=name;g.position.set(x,y,z);g.scale.setScalar(scale);g.rotation.y=angle;parent.add(g);return g};
  // Smoothly fused clay instead of visible intersecting spheres. A tetrahedral
  // surface uses the field gradient for continuous normals across every facet.
- function clay(parent,parts,mat,k=.085){
-  const field=(x,y,z)=>{let d=1e3;for(const [cx,cy,cz,rx,ry,rz]of parts){const a=Math.hypot((x-cx)/rx,(y-cy)/ry,(z-cz)/rz),b=Math.hypot((x-cx)/(rx*rx),(y-cy)/(ry*ry),(z-cz)/(rz*rz));const e=a<.00001?-Math.min(rx,ry,rz):a*(a-1)/Math.max(.0001,b),h=Math.max(k-Math.abs(d-e),0)/k;d=Math.min(d,e)-h*h*k*.25}return d};
-  const lo=[Infinity,Infinity,Infinity],hi=[-Infinity,-Infinity,-Infinity];for(const p of parts)for(let a=0;a<3;a++){lo[a]=Math.min(lo[a],p[a]-p[a+3]-k);hi[a]=Math.max(hi[a],p[a]+p[a+3]+k)}
-  const n=32,step=hi.map((v,a)=>(v-lo[a])/n),stride=n+1,idx=(x,y,z)=>x+stride*(y+stride*z),values=new Float32Array(stride**3);
-  for(let z=0;z<=n;z++)for(let y=0;y<=n;y++)for(let x=0;x<=n;x++)values[idx(x,y,z)]=field(lo[0]+x*step[0],lo[1]+y*step[1],lo[2]+z*step[2]);
-  const offsets=[[0,0,0],[1,0,0],[1,1,0],[0,1,0],[0,0,1],[1,0,1],[1,1,1],[0,1,1]],tetra=[[0,5,1,6],[0,1,2,6],[0,2,3,6],[0,3,7,6],[0,7,4,6],[0,4,5,6]],pos=[],norm=[],uv=[];
-  const gradient=v=>{const e=.002;return new THREE.Vector3(field(v[0]+e,v[1],v[2])-field(v[0]-e,v[1],v[2]),field(v[0],v[1]+e,v[2])-field(v[0],v[1]-e,v[2]),field(v[0],v[1],v[2]+e)-field(v[0],v[1],v[2]-e)).normalize()};
-  function triangle(a,b,c){let ga=gradient(a),gb=gradient(b),gc=gradient(c);const av=new THREE.Vector3(...a),bv=new THREE.Vector3(...b),cv=new THREE.Vector3(...c);if(bv.sub(av).cross(cv.sub(av)).dot(ga)<0){[b,c]=[c,b];[gb,gc]=[gc,gb]}for(const [v,g]of[[a,ga],[b,gb],[c,gc]]){pos.push(...v);norm.push(g.x,g.y,g.z);uv.push(.5+Math.atan2(v[0],v[2])/Math.PI/2,(v[1]-lo[1])/(hi[1]-lo[1]))}}
-  for(let z=0;z<n;z++)for(let y=0;y<n;y++)for(let x=0;x<n;x++){
-   const vv=offsets.map(o=>values[idx(x+o[0],y+o[1],z+o[2])]);if(vv.every(v=>v>=0)||vv.every(v=>v<0))continue;
-   const pp=offsets.map(o=>[lo[0]+(x+o[0])*step[0],lo[1]+(y+o[1])*step[1],lo[2]+(z+o[2])*step[2]]);
-   for(const t of tetra){const inside=t.filter(i=>vv[i]<0),outside=t.filter(i=>vv[i]>=0);if(!inside.length||!outside.length)continue;const cut=(a,b)=>{const q=vv[a]/(vv[a]-vv[b]);return pp[a].map((v,j)=>v+(pp[b][j]-v)*q)};if(inside.length===1||inside.length===3){const one=inside.length===1?inside[0]:outside[0],others=inside.length===1?outside:inside;triangle(...others.map(i=>cut(one,i)))}else{const a=cut(inside[0],outside[0]),b=cut(inside[0],outside[1]),c=cut(inside[1],outside[0]),d=cut(inside[1],outside[1]);triangle(a,b,c);triangle(b,d,c)}}
-  }
-  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setAttribute('normal',new THREE.Float32BufferAttribute(norm,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));return add(parent,geo,mat);
- }
+ function clay(parent,parts,mat,k=.085){return add(parent,clayGeometry(parts,k),mat)}
  function writing(p,lines,x,y,z,w,h,color='#151515',curve=0){
   const map=texture(512,256,g=>{g.fillStyle=color;g.font='bold 70px Arial';g.textAlign='center';g.textBaseline='middle';lines.forEach((line,i)=>{g.save();g.translate(256,128+(i-(lines.length-1)/2)*76);g.rotate(Math.sin(i*2+1)*.024);g.fillText(line,0,0,480);g.restore()})});
   const geo=new THREE.PlaneGeometry(w,h,24,12),a=geo.attributes.position;for(let i=0;i<a.count;i++){const xx=a.getX(i),yy=a.getY(i);a.setZ(i,typeof curve==='function'?Math.sqrt(Math.max(.001,curve(y+yy)**2-xx**2))-z+.006:-curve*(xx/w*2)**2);}

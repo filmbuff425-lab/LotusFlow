@@ -1,0 +1,7 @@
+{
+  "name": "lotus-flow-portfolio",
+  "private": true,
+  "type": "module",
+  "scripts": {"build": "node scripts/build-deploy.mjs"},
+  "devDependencies": {"esbuild": "0.28.2"}
+}

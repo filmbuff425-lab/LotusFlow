@@ -1,20 +1,25 @@
+import {prepareStudioClay,clayStats} from './studio-clay.js?v=20261007-mobile3';
 import * as THREE from 'three';
-import {createStudioSynths} from './studio-synths.js?v=20261006-lake-surface1';
+import {createStudioSynths} from './studio-synths.js?v=20261007-mobile3';
 import {studioLayout} from './studio-layout.js?v=20261006-lake-surface1';
-import {createReferenceShelf} from './studio-reference-shelf.js?v=20261006-lake-surface1';
+import {createReferenceShelf} from './studio-reference-shelf.js?v=20261007-mobile3';
 import {createSculpturalSpeakers} from './studio-sculptural-speakers.js?v=20261006-lake-surface1';
 import {createStudioPersonalObjects} from './studio-personal-objects.js?v=20261007-performance1';
-import {createStudioHospitality} from './studio-hospitality.js?v=20261006-lake-surface1';
-import {batchStudio} from './studio-batch.js?v=20261007-performance1';
+import {createStudioHospitality} from './studio-hospitality.js?v=20261007-mobile3';
+import {batchStudio} from './studio-batch.js?v=20261007-mobile3';
 import {createLivedInStudio} from './studio-lived-in.js?v=20261007-performance1';
-import { createSessionScreens } from './studio-session-screens.js?v=20261006-lake-surface1';
+import { createSessionScreens } from './studio-session-screens.js?v=20261007-mobile3';
 import { createConsoleExtension } from './studio-console.js?v=20261006-lake-surface1';
 import { createStudioDetails } from './studio-details.js?v=20261006-lake-surface1';
-import {createRecordingRoom} from './studio-room.js?v=20261006-lake-surface1';
+import {createRecordingRoom} from './studio-room.js?v=20261007-mobile3';
 
 // Yield between model families so the cube, heartbeat and navigation keep responding.
 const yieldToPage=()=>new Promise(resolve=>setTimeout(resolve,0));
 export async function createStudioInterior({scene,root,renderer,api,camera,soundcube,host,touchables,selected}) {
+ await prepareStudioClay();
+ const measured=new URLSearchParams(location.search).has('perf'),stages={};let phaseAt=performance.now();
+ const stage=label=>{if(measured)stages[label]=+(performance.now()-phaseAt).toFixed(1)};
+ async function nextStage(label){stage(label);await yieldToPage();phaseAt=performance.now()}
  const mat = (color, metalness = 0, roughness = .5) => new THREE.MeshStandardMaterial({ color, metalness, roughness });
  const carbon = mat(0x101115, .45, .34), black = mat(0x050507, .1, .5), silver = mat(0xadb5bc, .85, .25), rubber = mat(0x080909, 0, .92), panel = mat(0x212329, .7, .33), soft = mat(0x16171a, 0, 1), white = mat(0xf4f4ec, .1, .55);
  const cyan = new THREE.MeshStandardMaterial({ color: 0x84dcff, emissive: 0x39bdf3, emissiveIntensity: 2.5 });
@@ -54,7 +59,7 @@ export async function createStudioInterior({scene,root,renderer,api,camera,sound
  }
  rack(-7.7, -7.3, 6.1, 3); rack(7.7, -7.3, 6.1, 3);
 
- await yieldToPage();
+ await nextStage('desk');
  // Eight individually functional channels in an angled, anodized control surface.
  const desk = new THREE.Group(); desk.position.set(0, 3.42, .25); desk.rotation.x = .105; root.add(desk);
  // Level feet support the tilted chassis without crossing the tabletop.
@@ -89,7 +94,7 @@ export async function createStudioInterior({scene,root,renderer,api,camera,sound
  const playButton = bevel(.64, .07, .30, .02, 5.16, .305, 1.7, green.clone(), desk); playButton.userData.action = 'play'; touchables.push(playButton); topText('PLAY', 5.16, .349, 1.7, .51, .18, '#102318', desk, 41);
  const stopButton = bevel(.64, .07, .30, .02, 4.26, .305, 1.7, white, desk); stopButton.userData.action = 'stop'; touchables.push(stopButton); topText('STOP', 4.26, .349, 1.7, .51, .18, '#17202a', desk, 41);
  for (let i = 0; i < 12; i++) { const jack = cyl(.058, .09, -5.4 + i * .56, -.03, -2.28, black, desk); jack.rotation.x = Math.PI / 2; const ring = new THREE.Mesh(new THREE.TorusGeometry(.07, .016, 8, 18), silver); ring.position.set(jack.position.x, -.03, -2.335); desk.add(ring); }
- await yieldToPage();
+ await nextStage('channels');
  // The display shows an original arrangement view, driven by this demo's eight channels.
  const display = new THREE.Group(); display.position.set(-6.35,10.25,-7.4); display.rotation.y=.06; root.add(display);
  // Continuous edge-to-edge display glass; only a hairline silver chassis is exposed.
@@ -117,26 +122,26 @@ export async function createStudioInterior({scene,root,renderer,api,camera,sound
  const consoleExtension=createConsoleExtension({desk,texture,api,touchables,dawTexture,mixerTexture});
  const sessionScreens=createSessionScreens({api,arrange:dawCanvas,mix:mixerCanvas,dawTexture,mixerTexture,selected});sessionScreens.update(0);
  soundcube.attachRoom(createRecordingRoom({root,renderer,texture,camera,scene}));
- await yieldToPage();
+ await nextStage('displaysRoom');
  const details=createStudioDetails({scene,root,renderer,api,touchables,texture,topText,selected,camera,soundcube});
  createLivedInStudio(root);
- await yieldToPage();
+ await nextStage('details');
  const personal=createStudioPersonalObjects({root,texture});personal.lounge.position.set(...studioLayout.lounge);personal.lounge.scale.set(...studioLayout.loungeScale);personal.lounge.rotation.y=studioLayout.loungeRotation;personal.chair.rotation.y=-.16;personal.cup.position.set(6.0,2.83,5.45);
- await yieldToPage();
+ await nextStage('personal');
  const archive=createReferenceShelf({root,texture});archive.group.position.set(...studioLayout.shelf);// Archive shelf is decorative; no camera or release hotspot.
- await yieldToPage();
+ await nextStage('archive');
  const soundSystem=createSculpturalSpeakers({root,texture});soundSystem.rack.position.set(-27,0,-20);
  for(const speaker of soundSystem.speakers){const target=new THREE.Mesh(new THREE.CylinderGeometry(2.30,2.30,12.8,16),new THREE.MeshBasicMaterial({visible:false}));target.position.y=6.4;target.userData={action:'play',label:'SCULPTURAL SOUND SYSTEM / PLAY & PAUSE'};speaker.add(target);touchables.push(target)}
- host.dataset.roomObjects="electric-guitar,kill-bill-poster,pixel-logo-water-glass,leather-roller-chair,cowhide-lounge,glass-camera-shelf,leica-film-camera,vinyl,lit-scented-candle,wool-sofa-throw,frosted-white-speakers,round-glass-coffee-table,left-wall-modular-glass-console,stone-espresso-machine,recording-microphone,amplifier-rack,lyric-notebook,moog-subsequent-37,prophet-6,two-tier-synth-stand,silver-h100,smartphone,festival-keepsakes,richard-hennessy,macallan-18,cut-crystal-whisky-cups,headphone-stand,rear-cable-tray,dracaena-marginata,moss-glass-terrarium";
+ host.dataset.roomObjects="electric-guitar,kill-bill-poster,pixel-logo-water-glass,leather-roller-chair,cowhide-lounge,glass-camera-shelf,leica-film-camera,vinyl,lit-scented-candle,wool-sofa-throw,frosted-white-speakers,round-glass-coffee-table,left-wall-modular-glass-console,stone-espresso-machine,recording-microphone,amplifier-rack,lyric-notebook,moog-subsequent-37,prophet-6,two-tier-synth-stand,silver-h100,smartphone,festival-keepsakes,richard-hennessy,macallan-18,cut-crystal-whisky-cups,headphone-stand,rear-cable-tray,dracaena-marginata";
  host.dataset.referenceObjects=JSON.stringify({chair:personal.bounds.chair,cup:personal.bounds.cup,lounge:personal.bounds.lounge,loungePosition:studioLayout.lounge,loungeRotation:studioLayout.loungeRotation,loungeScale:studioLayout.loungeScale,coffeeTable:studioLayout.coffeeTable,synthPosition:studioLayout.synths,synthRotation:studioLayout.synthRotation,shelf:studioLayout.shelf,room:studioLayout.shell});
- await yieldToPage();
- const hospitality=createStudioHospitality({root,texture});hospitality.table.position.set(...studioLayout.coffeeTable);host.dataset.rearPlant=JSON.stringify(root.userData.rearPlant);host.dataset.terrarium=JSON.stringify({reference:"IMG_4835",position:hospitality.terrarium.position.toArray(),table:studioLayout.coffeeTable});
+ await nextStage('speakers');
+ const hospitality=createStudioHospitality({root,texture});hospitality.table.position.set(...studioLayout.coffeeTable);host.dataset.rearPlant=JSON.stringify(root.userData.rearPlant);
  const synths=createStudioSynths({root,texture,touchables});host.dataset.synthBounds=JSON.stringify(synths.bounds);
  // Ordinary room glazing stays lightweight. Only the two frosted speaker solids
  // use the shared half-resolution transmission pass; keep their optical depth.
  scene.traverse(o=>{if(o.isMesh){for(const m of Array.isArray(o.material)?o.material:[o.material]){if(m.transmission>0&&!m.userData.preserveTransmission){if(m.opacity>.6)m.opacity=.24;m.transmission=0;m.depthWrite=false;m.needsUpdate=true}if(m.transparent&&m.side===THREE.DoubleSide&&o.geometry.type==='PlaneGeometry')m.forceSinglePass=true}}});
- await yieldToPage();
- const batching=batchStudio(root,touchables);host.dataset.staticMeshes=JSON.stringify(batching);
+ await nextStage('hospitalitySynths');
+ const batching=batchStudio(root,touchables);host.dataset.staticMeshes=JSON.stringify(batching);stage('batch');if(measured){host.dataset.modelTimings=JSON.stringify(stages);host.dataset.sculptureGeometry=JSON.stringify(clayStats())}
  renderer.shadowMap.autoUpdate=false;renderer.shadowMap.needsUpdate=true;
  const backdrop=details.room;touchables.push(...details.soundcube.recordTargets);
  return {desk,faders,leds,channelButtons,selectionLights,oleds,details,soundSystem,archive,synths,consoleExtension,sessionScreens,backdrop};

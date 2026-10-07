@@ -6,7 +6,9 @@ export function batchStudio(root,interactive){
   if(materialKeys.has(material))return materialKeys.get(material);
   // UUIDs separate otherwise identical static hardware into thousands of draw calls.
   // All optical parameters and texture identities remain part of the key.
-  const data=material.toJSON();for(const key of ['metadata','uuid','name','textures','images'])delete data[key];
+  // Keys need texture identity, never canvas PNG encoding or embedded image data.
+  const textures={};for(const value of Object.values(material))if(value?.isTexture)textures[value.uuid]={uuid:value.uuid};
+  const data=material.toJSON({textures,images:{}});for(const key of ['metadata','uuid','name','textures','images'])delete data[key];
   const key=JSON.stringify(data);materialKeys.set(material,key);return key;
  }
  function visit(object,blocked=false){

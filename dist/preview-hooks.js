@@ -7,6 +7,7 @@ export function loadHook(audio,track,{full=false}={}){
  const cue=clip?0:Number(track.previewStart)||0;
  audio.src=clip?track.previewAudio:track.audio;
  audio.dataset.previewTrack=track.id;
+ audio.dataset.highlightActive=String(!full);
  audio.dataset.previewMode=clip?'highlight':'full';
  audio.dataset.sourceStart=String(Number(track.previewStart)||0);
  audio.dataset.previewStart=String(cue);

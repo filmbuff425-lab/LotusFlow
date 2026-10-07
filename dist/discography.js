@@ -1,4 +1,4 @@
-import {createMusicSignal} from './music-signal.js';
+import {createMusicSignal} from './music-signal.js?v=20261007-mobile3';
 const buttons=[...document.querySelectorAll('[data-role]')];
 function filter(role){if(!['all','production','writing','artist'].includes(role))role='all';let count=0;document.querySelectorAll('.release-card').forEach(card=>{card.hidden=role!=='all'&&!card.dataset.categories.split(' ').includes(role);if(!card.hidden)count++});buttons.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.role===role)));document.querySelector('#result-count').textContent=`${count} RELEASES`;const url=new URL(location.href);role==='all'?url.searchParams.delete('role'):url.searchParams.set('role',role);history.replaceState(null,'',url)}
 if(buttons.length){buttons.forEach(b=>b.addEventListener('click',()=>filter(b.dataset.role)));document.querySelectorAll('[data-role-link]').forEach(a=>a.addEventListener('click',()=>filter(a.dataset.roleLink)));filter(new URL(location.href).searchParams.get('role')||'all')}
