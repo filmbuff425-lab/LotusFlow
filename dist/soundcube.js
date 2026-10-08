@@ -3,11 +3,11 @@ import {updateHeartbeat} from './cube-heartbeat.js?v=20261007-mobile3';
 import {studioLayout} from './studio-layout.js?v=20261006-lake-surface1';
 import {createCosmos} from './studio-cosmos.js?v=20261007-mobile3';
 
-export function createSoundcube({scene,root,texture,camera,renderer}){
+export function createSoundcube({scene,root,texture,camera,renderer,onBlueReveal=()=>{}}){
  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
  scene.background=new THREE.Color(0x16070b);scene.fog=null;
  const pointer=new THREE.Vector2(4,4),pointerTarget=new THREE.Vector2(4,4);
- let cosmos=null,roomScene=null,interiorReady=false;
+ let cosmos=null,roomScene=null,interiorReady=false,blueVisible=false;
  function attachRoom(room){roomScene=room;cosmos??=createCosmos({scene,camera})}
  const rnd=n=>{const q=Math.sin(n*127.1+41.1)*43758.5453;return q-Math.floor(q)};
  const grainUniforms={time:{value:0},open:{value:0}};
@@ -58,6 +58,10 @@ export function createSoundcube({scene,root,texture,camera,renderer}){
   root.scale.setScalar(scale);root.rotation.set(closed*tilt,closed*yaw,closed*roll);root.position.set(closed*Math.sin(t*.21)*.28,closed*(1.05+Math.sin(t*.42)*.68)+p*Math.sin(t*.32)*.16,closed*Math.sin(t*.19)*.20);root.visible=interiorReady&&(p>0||hoverSmooth>.12);
   glassGroup.rotation.copy(root.rotation);glassGroup.scale.copy(root.scale);glassGroup.position.copy(center).multiplyScalar(scale).applyEuler(root.rotation).add(root.position);glassGroup.visible=p<1;
   const reveal=THREE.MathUtils.smoothstep(p,.48,.98);cosmos?.setReveal(THREE.MathUtils.smoothstep(p,.22,.82));grainUniforms.open.value=THREE.MathUtils.smoothstep(p,0,.8);
+  // Cue the downbeat from the same visibility change that paints the blue sky.
+  const nextBlueVisible=cosmos?.group.visible||false;
+  if(nextBlueVisible&&!blueVisible)onBlueReveal();
+  blueVisible=nextBlueVisible;
   uniforms.beat.value=beat;uniforms.time.value=t;uniforms.hover.value=Math.max(hoverSmooth,THREE.MathUtils.smoothstep(p,0,.2));uniforms.opacity.value=1-reveal;frost.depthWrite=p<.49&&hoverSmooth<.025;edgeMaterial.opacity=(.13+beat*.65+hoverSmooth*.26)*(1-reveal);edgeMaterial.color.set(hoverSmooth>.5?0xf0c7b7:0xff3845);
   pulseGlow.position.copy(glassGroup.position).addScaledVector(camera.getWorldDirection(away),10*scale);pulseGlow.quaternion.copy(camera.quaternion);pulseGlow.scale.set(135*scale,112*scale,1);pulseUniforms.beat.value=beat;pulseUniforms.alpha.value=(1-reveal)*(1-hoverSmooth*.65);pulseGlow.visible=p<.98;
   updateDrops(dt,reveal);
