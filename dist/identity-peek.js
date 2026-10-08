@@ -1,4 +1,4 @@
-import {fittedScar} from './identity-gesture.js';
+import {fittedScar,posterCover,posterBleed} from './identity-gesture.js';
 
 // Reuse the opening's two existing poster canvases. The gap is only light;
 // the profile stays covered and inert until the actual cut.
@@ -48,14 +48,19 @@ export function createIdentityPeek({gate,canvases,liquids}){
   }
   const w=gate.clientWidth,h=gate.clientHeight;if(!w||!h)return;
   const scar=fittedScar(innerWidth,innerHeight,w,h),dx=scar.bottom-scar.top,length=Math.hypot(dx,h),distance=innerWidth<=700?4.5:6;
-  panels[0].style.clipPath=`polygon(0 0,${scar.top}px 0,${scar.bottom}px 100%,0 100%)`;
-  panels[1].style.clipPath=`polygon(${scar.top}px 0,100% 0,100% 100%,${scar.bottom}px 100%)`;
+  const cover=posterCover(innerWidth,innerHeight,w,h),pad=cover.bleed;
+  const top=scar.top-dx/h*pad+pad,bottom=scar.bottom+dx/h*pad+pad;
+  panels.forEach((panel,i)=>{
+   panel.style.inset=`${-pad}px`;panel.style.clipPath=i?`polygon(${top}px 0,100% 0,100% 100%,${bottom}px 100%)`:`polygon(0 0,${top}px 0,${bottom}px 100%,0 100%)`;
+   Object.assign(canvases[i].style,{position:'absolute',inset:'auto',left:`${cover.imageLeft}px`,top:`${cover.imageTop}px`,width:`${cover.imageWidth}px`,height:`${cover.imageHeight}px`,maxWidth:'none',objectFit:'fill'});
+   Object.assign(liquids[i].style,{inset:'auto',left:`${cover.imageLeft+pad}px`,top:`${cover.imageTop+pad}px`,width:`${innerWidth*cover.scale}px`,height:`${innerHeight*cover.scale}px`});
+  });
   gate.style.setProperty('--peek-x',`${h/length*distance}px`);gate.style.setProperty('--peek-y',`${-dx/length*distance}px`);
   slit(scar,w,h);
   scatter(scar,w,h);
  }
  function mount(){phase='gate';gate.prepend(glow);gate.append(spill);glow.classList.remove('identity-carried-slit');glow.style.opacity='';spill.classList.remove('identity-carried-light','identity-arrived-light');spill.removeAttribute('style');lightSize='';canvases.forEach((canvas,i)=>panels[i].append(canvas,liquids[i]));gate.classList.add('has-peek-panels');gate.dataset.swipeCue='light-between-halves';size()}
- function close(){entryLight=Math.max(.4,Number(getComputedStyle(spill).opacity)||0);const movement=new DOMMatrixReadOnly(getComputedStyle(panels[0]).transform);entryDistance=Math.max(2.8,Math.hypot(movement.m41,movement.m42));canvases.forEach((canvas,i)=>homes[i].append(canvas,liquids[i]));gate.classList.remove('has-peek-panels')}
+ function close(){entryLight=Math.max(.4,Number(getComputedStyle(spill).opacity)||0);const movement=new DOMMatrixReadOnly(getComputedStyle(panels[0]).transform);entryDistance=Math.max(2.8,Math.hypot(movement.m41,movement.m42));canvases.forEach((canvas,i)=>{homes[i].append(canvas,liquids[i]);Object.assign(canvas.style,{position:'absolute',inset:'auto',left:`${-posterBleed}px`,top:`${-posterBleed}px`,width:`${innerWidth+posterBleed*2}px`,height:`${innerHeight+posterBleed*2}px`});liquids[i].removeAttribute('style')});gate.classList.remove('has-peek-panels')}
  function carry(target){phase='opening';destination=target;target.prepend(glow);target.append(spill);glow.classList.add('identity-carried-slit');spill.classList.remove('identity-arrived-light');spill.classList.add('identity-carried-light');spill.style.height='100%';spill.style.opacity=String(entryLight);size();window.lotusSfx?.play('seam-air')}
  function cut(time,{contact,duration}){
   const p=Math.max(0,Math.min(1,(time-contact)/(duration-contact))),warm=Math.min(1,time/contact),light=entryLight+(.85-entryLight)*warm;

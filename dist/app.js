@@ -10,10 +10,11 @@ document.getElementById('mixer-channels').innerHTML=channels.map((c,i)=>`<div cl
 
 const audioState={playing:false,muted:false,context:null,master:null,gains:[],step:0,nextTime:0,timer:null,startTime:0,elapsed:0,voices:new Set(),noise:null};
 function notify(message){const el=document.getElementById('notification');el.textContent=message;el.classList.add('visible');clearTimeout(notify.timer);notify.timer=setTimeout(()=>el.classList.remove('visible'),4500)}
+let synthEnginePromise;
 function initAudio(){
  const AudioCtx=window.AudioContext||window.webkitAudioContext;
  if(!AudioCtx)throw new Error('Your browser does not support this audio demo. Please use a browser with Web Audio support.');
- const ctx=new AudioCtx();audioState.context=ctx;const master=ctx.createGain();master.gain.value=audioState.muted?0:.42;
+ const ctx=new AudioCtx();audioState.context=ctx;synthEnginePromise=null;const master=ctx.createGain();master.gain.value=audioState.muted?0:.42;
  const limiter=ctx.createDynamicsCompressor();limiter.threshold.value=-16;limiter.knee.value=18;limiter.ratio.value=5;
  master.connect(limiter).connect(ctx.destination);audioState.master=master;
  audioState.engine=window.createLotusSignalEngine(ctx,channels,master,limiter);audioState.gains=audioState.engine.gains;audioState.inputs=audioState.engine.inputs;
@@ -80,12 +81,15 @@ if(document.modelContext?.registerTool){const lifecycle=new AbortController();co
 tracks.forEach(t=>{const art=document.querySelector(`[data-id="${t.id}"] .track-art`);art.innerHTML=t.image?`<img src="${t.image}" alt="" loading="lazy" width="600" height="600">`:`<span class="art-type">${t.title}</span>`});
 function setPortfolioView(view){list.classList.toggle('gallery',view==='gallery');list.hidden=view==='vinyl';document.getElementById('work').classList.toggle('vinyl-mode',view==='vinyl');document.getElementById('vinyl-room').hidden=view!=='vinyl';document.getElementById('vinyl-caption').hidden=view!=='vinyl';document.querySelectorAll('[data-view]').forEach(v=>{v.classList.toggle('active',v.dataset.view===view);v.setAttribute('aria-pressed',String(v.dataset.view===view))});window.dispatchEvent(new CustomEvent('lotus-view-change',{detail:view}))}
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setPortfolioView(b.dataset.view)));
-async function playNote(note){try{if(!audioState.context)initAudio();await audioState.context.resume();tone(midi(note),audioState.context.currentTime+.01,1.05,4,.22,'triangle');tone(midi(note+12),audioState.context.currentTime+.014,.7,4,.045)}catch(error){notify(error.message||'Audio is unavailable.')}}
+async function playNote(note,instrument){try{if(!audioState.context)initAudio();await audioState.context.resume();if(instrument){const engine=await(synthEnginePromise??=import('./synth-voices.js').then(({createSynthVoices})=>createSynthVoices(audioState.context,audioState.inputs[4])));return engine.noteOn(note,instrument)}tone(midi(note),audioState.context.currentTime+.01,1.05,4,.22,'triangle');tone(midi(note+12),audioState.context.currentTime+.014,.7,4,.045)}catch(error){notify(error.message||'Audio is unavailable.')}}
+function releaseNote(voice){Promise.resolve(voice).then(note=>note?.release())}
+function stopSynths(){synthEnginePromise?.then(engine=>engine.stop())}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stopSynths()});window.addEventListener('lotus-room-change',e=>{if(!e.detail)stopSynths()});window.addEventListener('pagehide',stopSynths);
 const silentMeter=()=>({rms:0,peak:0,peakDb:-Infinity,rmsDb:-Infinity,vu:0});
 const silentFrame={channels:channels.map(silentMeter),buses:Array.from({length:6},silentMeter),master:[silentMeter(),silentMeter()]};
 function readMeters(now){return audioState.engine?audioState.engine.read(now):silentFrame}
 function setBus(id,value){if(!audioState.context)initAudio();audioState.engine.setBus(id,value)}
-window.lotusSession={channels,audioState,setChannel,togglePlayback,pausePlayback,playNote,readMeters,setBus,progression,melody};
+window.lotusSession={channels,audioState,setChannel,togglePlayback,pausePlayback,playNote,releaseNote,readMeters,setBus,progression,melody};
 window.dispatchEvent(new Event('lotus-session-ready'));
 const visibleMixers=new Set();const mixerObserver=new IntersectionObserver(entries=>{for(const entry of entries){if(entry.isIntersecting)visibleMixers.add(entry.target.id);else visibleMixers.delete(entry.target.id)}document.body.classList.toggle('mix-view',visibleMixers.size>0)},{threshold:.3});mixerObserver.observe(document.getElementById('studio'));mixerObserver.observe(document.getElementById('playground'));
 

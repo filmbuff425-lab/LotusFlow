@@ -3,7 +3,7 @@ import * as THREE from 'three';
 
 // A dedicated, independently playing film screen; the desk retains its listening UI.
 export function createMVWall({parent,texture,wallX}) {
- const films=window.lotusFilms;
+ const films=window.lotusFilms,firstFilm=Math.max(0,films.findIndex(film=>film.id==='show-me-love'));
  const group=new THREE.Group();group.name='Left wall / official music video screen';group.position.set(wallX,21.0,2.0);group.rotation.y=Math.PI/2;group.scale.setScalar(1.49);group.userData.dynamic=true;parent.add(group);
  const add=(geo,mat,x=0,y=0,z=0)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);group.add(m);return m};
  const black=new THREE.MeshStandardMaterial({color:0x05090c,metalness:.05,roughness:.3}),chrome=new THREE.MeshStandardMaterial({color:0xaab9c4,metalness:.92,roughness:.21});
@@ -35,7 +35,7 @@ export function createMVWall({parent,texture,wallX}) {
   const map=new THREE.CanvasTexture(canvas);map.colorSpace=THREE.SRGBColorSpace;
   const image=new Image();image.onload=()=>{const scale=Math.min(1024/image.width,576/image.height),w=image.width*scale,h=image.height*scale;g.drawImage(image,(1024-w)/2,(576-h)/2,w,h);map.needsUpdate=true};image.src=f.cover;posters[i]=map;return map;
  }
- const material=new THREE.MeshBasicMaterial({map:poster(0),toneMapped:false,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
+ const material=new THREE.MeshBasicMaterial({map:poster(firstFilm),toneMapped:false,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
  const screen=add(new THREE.PlaneGeometry(16.88,9.495),material,0,0,.145);
  screen.userData={action:'mv-wall',label:'MUSIC VIDEOS / OPEN FILM CONTROLS'};
  const badge=texture(512,32,g=>{g.clearRect(0,0,512,32);g.fillStyle='#bedbe5';g.font='500 12px LotusInterface,Arial,sans-serif';g.fillText('LOTUS FLOW / MUSIC VIDEOS',20,22)});
@@ -45,7 +45,7 @@ export function createMVWall({parent,texture,wallX}) {
  const selector=panel.querySelector('select');films.forEach(f=>{const option=document.createElement('option');option.value=f.id;option.textContent=f.title+' / '+f.artist;selector.append(option)});
  document.querySelector('#studio-stage').after(panel);
  const recordingContext=document.createElement('div');panel.querySelector('.studio-wall-film-controls').append(recordingContext);let contextId='';
- let index=0,room=false,onScreen=false,wanted=true,request=0,ready=false;
+ let index=firstFilm,room=false,onScreen=false,wanted=true,request=0,ready=false;
  const playButton=panel.querySelector('#studio-wall-play'),soundButton=panel.querySelector('#studio-wall-sound'),status=panel.querySelector('#studio-wall-status');
  function sync(){const film=films[index];if(contextId!==film.id){mountRecordingContext(recordingContext,film);contextId=film.id}selector.value=film.id;playButton.textContent=video.paused?'PLAY':'PAUSE';soundButton.textContent=video.muted?'SOUND OFF':'SOUND ON';soundButton.setAttribute('aria-pressed',String(!video.muted));panel.querySelector('a').href='works/'+film.id+'.html';video.dataset.currentTrack=film.id;video.dataset.playing=String(!video.paused);indicator.visible=!video.paused;}
  async function play(){const token=++request;if(!room||!onScreen||document.hidden)return;if(!video.muted)window.dispatchEvent(new CustomEvent('lotus-audio-start',{detail:'studio-wall-mv'}));try{await video.play();if(token===request)status.textContent=films[index].title+' / '+films[index].kind}catch(e){if(token===request&&e.name!=='AbortError')status.textContent='Press PLAY to start the music video.'}sync()}
@@ -57,7 +57,7 @@ export function createMVWall({parent,texture,wallX}) {
  window.addEventListener('lotus-audio-start',e=>{if(e.detail!=='studio-wall-mv'&&!video.muted){video.muted=true;sync()}});
  document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();else if(wanted)play()});
  new IntersectionObserver(([e])=>{onScreen=e.isIntersecting;if(onScreen&&wanted)play();else pause()}).observe(document.querySelector('#studio-stage'));
- video.src=films[0].src;sync();
+ video.src=films[index].src;sync();
  function update(){if(ready&&video.readyState>=2&&material.map!==filmTexture){material.map=filmTexture;material.needsUpdate=true;}}
  function open(){panel.open=true;panel.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'nearest'});selector.focus({preventScroll:true});}
  return{group,targets:[screen],update,open};

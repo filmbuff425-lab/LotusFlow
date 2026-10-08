@@ -12,6 +12,10 @@ function media(){return {dataset:{},volume:.6,paused:true,currentTime:0,handlers
 const intro=media(),screen=media();screen.paused=false;
 const opening=createOpening({media:intro,stopScreen:()=>screen.pause(),announce:()=>{}});
 await opening.arm();assert.ok(intro.paused);assert.equal(intro.volume,.6);assert.equal(intro.currentTime,0);
+opening.waitForReveal();assert.ok(intro.paused,'Loading and the early room reveal cannot start the drums');assert.equal(intro.dataset.entranceCue,'waiting-for-planet');
+await opening.reveal();assert.equal(intro.dataset.entranceCue,'planet-revealed');assert.ok(!intro.paused,'The actual visible planet starts the instrumental');
+intro.currentTime=2;await opening.reveal();assert.equal(intro.currentTime,2,'Duplicate reveal events cannot restart the music');
+opening.stop();opening.waitForReveal();opening.stop();await opening.reveal();assert.ok(intro.paused,'Leaving before the planet reveal cancels the pending cue');
 await opening.start();assert.ok(!intro.paused&&screen.paused,'Entrance pauses the computer track before playing the supplied instrumental');
 opening.stop();screen.play();assert.ok(intro.paused&&!screen.paused,'Opening the computer cannot layer the entrance over the first song');
 intro.currentTime=27;await opening.start();assert.equal(intro.currentTime,0,'Each room entrance begins at the start of the instrumental');

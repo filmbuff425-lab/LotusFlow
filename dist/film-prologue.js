@@ -2,7 +2,7 @@ import {timing} from './cut-timing.js?v=20261006-lake-surface1';
 import './blood-ink.js?v=20261007-mobile3';
 import {createIdentityScore,audioVisualTime} from './identity-score.js?v=20261007-mobile3';
 import {createInkFlow} from './identity-ink-flow.js?v=20261007-mobile3';
-import {scarThickness,bladeLength,fittedScar,followsScar} from './identity-gesture.js';
+import {scarThickness,bladeLength,fittedScar,followsScar,posterBleed} from './identity-gesture.js';
 import {createIdentityPeek} from './identity-peek.js';
 const artistSection=document.querySelector('#about'),gate=document.querySelector('.artist-gate');
 const seam=document.createElementNS('http://www.w3.org/2000/svg','svg');seam.classList.add('gate-seam-light');seam.setAttribute('aria-hidden','true');seam.setAttribute('preserveAspectRatio','xMidYMid slice');
@@ -93,7 +93,7 @@ function geometry(){const w=innerWidth,h=innerHeight,thick=scarThickness(w),a={x
 function point(g,t,n=0){return `${g.a.x+g.dx*t+g.nx*n} ${g.a.y+g.dy*t+g.ny*n}`}
 function blade(g,p,length,width){return `M ${point(g,p)} L ${point(g,p-length,width)} L ${point(g,p-length*.77,0)} L ${point(g,p-length,-width*.18)} Z`}
 let posterSize='';
-function draw(){const w=innerWidth,h=innerHeight,scale=Math.min(devicePixelRatio,1.5),stamp=`${w}/${h}/${scale}`;if(posterSize===stamp)return;posterSize=stamp;const source=document.createElement('canvas');source.width=w*scale;source.height=h*scale;const c=source.getContext('2d');c.scale(scale,scale);let seed=1973;const rand=()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646};const bg=c.createRadialGradient(w*.28,h*.4,0,w*.6,h*.4,w*.9);bg.addColorStop(0,'#40110f');bg.addColorStop(.48,'#160908');bg.addColorStop(1,'#060606');c.fillStyle=bg;c.fillRect(0,0,w,h);
+function draw(){const w=innerWidth,h=innerHeight,scale=Math.min(devicePixelRatio,1.5),stamp=`${w}/${h}/${scale}`;if(posterSize===stamp)return;posterSize=stamp;const source=document.createElement('canvas');source.width=(w+posterBleed*2)*scale;source.height=(h+posterBleed*2)*scale;const c=source.getContext('2d');c.scale(scale,scale);c.translate(posterBleed,posterBleed);let seed=1973;const rand=()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646};const bg=c.createRadialGradient(w*.28,h*.4,0,w*.6,h*.4,w*.9);bg.addColorStop(0,'#40110f');bg.addColorStop(.48,'#160908');bg.addColorStop(1,'#060606');c.fillStyle=bg;c.fillRect(-posterBleed,-posterBleed,w+posterBleed*2,h+posterBleed*2);
  for(let i=0;i<15000;i++){c.fillStyle=rand()>.48?'#8d292515':'#eee0c608';c.fillRect(rand()*w,rand()*h,rand()*1.8+.4,rand()*1.8+.4)}
  const atY=y=>w*(.77-.55*y/h),thick=scarThickness(w);dialog.style.setProperty("--seam-top",`${atY(0)+thick*.05}px`);dialog.style.setProperty("--seam-bottom",`${atY(h)+thick*.05}px`);
  // Dry ink, red flecks and the very thin white cut follow the supplied poster's diagonal.
@@ -101,7 +101,7 @@ function draw(){const w=innerWidth,h=innerHeight,scale=Math.min(devicePixelRatio
  c.fillStyle='#aa241c';c.beginPath();c.moveTo(atY(-30)-thick*.35,-30);for(let y=-30;y<h+30;y+=9)c.lineTo(atY(y)-thick*.4-rand()*4,y);for(let y=h+30;y>-30;y-=9)c.lineTo(atY(y)+thick*.5+rand()*6,y);c.closePath();c.fill();
  for(let i=0;i<250;i++){const y=h*(.32+rand()*.53),x=atY(y)-thick*(.4+Math.pow(rand(),2)*1.4),r=rand()<.09?2+rand()*5:rand()*1.7;c.fillStyle=i%12===0?'#c9a938':i%3?'#b72b20':'#7b1b15';c.beginPath();c.ellipse(x,y,r,r*(.7+rand()),-.2,0,Math.PI*2);c.fill()}
  c.strokeStyle='#e7ded1';c.lineWidth=Math.max(1,w*.0012);c.beginPath();c.moveTo(atY(-20)+thick*.05,-20);c.lineTo(atY(h+20)+thick*.05,h+20);c.stroke();
- for(const canvas of canvases){canvas.width=source.width;canvas.height=source.height;canvas.getContext('2d').drawImage(source,0,0)}
+ for(const canvas of canvases){canvas.width=source.width;canvas.height=source.height;canvas.getContext('2d').drawImage(source,0,0);if(canvas.parentElement.classList.contains('poster-half'))Object.assign(canvas.style,{position:'absolute',inset:'auto',left:`${-posterBleed}px`,top:`${-posterBleed}px`,width:`${w+posterBleed*2}px`,height:`${h+posterBleed*2}px`})}
  const spine=`M ${atY(0)+thick*.05} 0 L ${atY(h)+thick*.05} ${h}`;
  const falls=[.25,.4,.54,.7,.84].map((u,i)=>({x:atY(h*u)+thick*.22,y:h*u,length:38+(i*19%50),width:1.7+i%2}));
  for(const ink of [gateInk,...openingInk])ink.update({width:w,height:h,spine,thickness:thick*.48,falls});
@@ -182,7 +182,7 @@ new ResizeObserver(sizeSwipeTrack).observe(gate);
 
 
 // The black/red chapter cover gates the artist with small yellow wayfinding.
-function drawGate(){draw();const target=gate.querySelector(':scope>canvas');target.width=canvases[0].width;target.height=canvases[0].height;target.getContext('2d').drawImage(canvases[0],0,0);const w=innerWidth,h=innerHeight,thick=scarThickness(w),x=y=>w*(.77-.55*y/h)+thick*.05;seam.setAttribute('viewBox',`0 0 ${w} ${h}`);for(const p of seam.querySelectorAll('path')){const n=0;p.setAttribute('d',`M ${x(0)+n} 0 L ${x(h)+n} ${h}`)}if(artistSection.dataset.artistLocked==='true'&&!dialog.open)gatePeek.mount();else gatePeek.size()}
+function drawGate(){draw();const target=gate.querySelector(':scope>canvas');const scale=Math.min(devicePixelRatio,1.5);target.width=innerWidth*scale;target.height=innerHeight*scale;target.getContext('2d').drawImage(canvases[0],posterBleed*scale,posterBleed*scale,innerWidth*scale,innerHeight*scale,0,0,target.width,target.height);const w=innerWidth,h=innerHeight,thick=scarThickness(w),x=y=>w*(.77-.55*y/h)+thick*.05;seam.setAttribute('viewBox',`0 0 ${w} ${h}`);for(const p of seam.querySelectorAll('path')){const n=0;p.setAttribute('d',`M ${x(0)+n} 0 L ${x(h)+n} ${h}`)}if(artistSection.dataset.artistLocked==='true'&&!dialog.open)gatePeek.mount();else gatePeek.size()}
 drawGate();let gateResize;addEventListener('resize',()=>{clearTimeout(gateResize);gateResize=setTimeout(drawGate,180)});
 new IntersectionObserver(scheduleIdentityVisibility,{threshold:.08}).observe(artistSection);scheduleIdentityVisibility();
 

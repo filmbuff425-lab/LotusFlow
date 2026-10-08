@@ -78,7 +78,7 @@ export function createStudioSynths({root,texture,touchables,loadTexture=path=>cr
  function keyboard(p,count,w,depth,octave){const whiteClasses=[0,2,4,5,7,9,11],isWhite=n=>whiteClasses.includes(((n%12)+12)%12),whiteCount=Array.from({length:count},(_,i)=>i).filter(isWhite).length,step=w/whiteCount,start=-w/2;let wi=0;
   for(let i=0;i<count;i++){const white=isWhite(i),x=white?start+(wi+.5)*step:start+wi*step;if(white)wi++;
    const geo=white?cached(`white${step}/${depth}/${i>0&&!isWhite(i-1)}/${i<count-1&&!isWhite(i+1)}`,()=>whiteGeometry(step,depth,i>0&&!isWhite(i-1),i<count-1&&!isWhite(i+1))):rounded(step*.60,.30,depth*.60,.031);
-   const key=add(p,geo,white?ivory:blackKey,x,white?.225:.49,white?0:-depth*.20);key.name=p.name+' key '+i;key.userData={action:'note',note:octave*12+i,baseY:key.position.y,label:'PLAY / '+p.name,dynamic:true};touchables.push(key);keys.push(key);
+   const key=add(p,geo,white?ivory:blackKey,x,white?.225:.49,white?0:-depth*.20);key.name=p.name+' key '+i;key.userData={action:'note',instrument:p.name==='Prophet-6'?'prophet':'moog',note:octave*12+i,baseY:key.position.y,label:'PLAY / '+p.name,dynamic:true};touchables.push(key);keys.push(key);
   }
  }
  function wheel(p,x,z,color){bevel(p,.32,.035,1.16,x,.056,z,rubber);const arc=add(p,new THREE.TorusGeometry(.405,.061,8,40,Math.PI),color,x,.111,z);arc.rotation.y=Math.PI/2;arc.rotation.z=Math.PI/2;const o=cylinder(p,.40,.14,x,.11,z,rubber);o.rotation.z=Math.PI/2;for(let i=0;i<18;i++){const a=i/17*Math.PI;const rib=box(p,.145,.023,.035,x,.11+Math.sin(a)*.402,z+Math.cos(a)*.402,black);rib.rotation.x=Math.PI/2-a;} }
@@ -138,5 +138,5 @@ export function createStudioSynths({root,texture,touchables,loadTexture=path=>cr
  // Extend the service leads along the room perimeter, never across the aisle.
  const from=rig.localToWorld(new THREE.Vector3(-5.75,.10,-3.83));root.worldToLocal(from);cable(root,[from.toArray(),[31.2,.11,14.2],[32.0,.11,3],[32.0,.11,-9.3],[21.4,.13,-9.3],[19.9,1.60,-9.23],[18.1,2.18,-9.10]],.035);
  const bounds=new THREE.Box3(),local=new THREE.Matrix4();rig.updateMatrixWorld(true);const inverse=root.matrixWorld.clone().invert();rig.traverse(mesh=>{if(!mesh.isMesh)return;mesh.geometry.computeBoundingBox();local.multiplyMatrices(inverse,mesh.matrixWorld);bounds.union(mesh.geometry.boundingBox.clone().applyMatrix4(local))});
- return {rig,keys,controls,bounds:{min:bounds.min.toArray(),max:bounds.max.toArray()},update(now){for(const key of keys){const elapsed=now-(key.userData.pressedAt??-1000);key.position.y=key.userData.baseY-(elapsed>=0&&elapsed<240?Math.sin(elapsed/240*Math.PI)*.075:0)}}};
+ return {rig,keys,controls,bounds:{min:bounds.min.toArray(),max:bounds.max.toArray()},update(now){for(const key of keys){const elapsed=now-(key.userData.pressedAt??-1000);key.position.y=key.userData.baseY-(key.userData.held?.075:elapsed>=0&&elapsed<240?Math.sin(elapsed/240*Math.PI)*.075:0)}}};
 }

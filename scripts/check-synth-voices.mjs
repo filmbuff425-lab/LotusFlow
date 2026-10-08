@@ -1,0 +1,22 @@
+import assert from 'node:assert/strict';
+import {createSynthVoices} from '../dist/synth-voices.js';
+const nodes=[];
+const param=()=>({value:0,events:[],setValueAtTime(v,t){this.events.push(['set',v,t])},exponentialRampToValueAtTime(v,t){assert.ok(v>0);this.events.push(['ramp',v,t])},cancelAndHoldAtTime(t){this.events.push(['hold',t])}});
+function node(kind){const n={kind,gain:param(),frequency:param(),detune:param(),Q:param(),pan:param(),delayTime:param(),outputs:[],connect(next){this.outputs.push(next);return next},disconnect(){this.disconnected=true},start(at){this.started=at},stop(at){this.stopped=at}};nodes.push(n);return n}
+const ctx={currentTime:3,createGain:()=>node('gain'),createOscillator:()=>node('oscillator'),createBiquadFilter:()=>node('filter'),createWaveShaper:()=>node('drive'),createDelay:()=>node('delay'),createStereoPanner:()=>node('pan')},output=node('output');
+const synth=createSynthVoices(ctx,output);
+const bass=synth.noteOn(36,'moog');
+assert.deepEqual(bass.oscillators.map(o=>o.type),['sawtooth','square','square']);
+assert.equal(bass.oscillators[2].frequency.value,bass.oscillators[0].frequency.value/2,'Moog has its own sub oscillator, rather than the generic triangle sketch');
+assert.ok(nodes.some(n=>n.kind==='drive'&&n.curve.length===1024));assert.equal(bass.filters.length,2);
+const lead=synth.noteOn(60,'moog');assert.ok(bass.released,'The next Moog note releases the previous mono note');
+const keys=Array.from({length:7},(_,i)=>synth.noteOn(60+i,'prophet'));
+assert.ok(keys[0].released);assert.equal(keys.filter(v=>!v.released).length,6,'Polyphony is bounded to six voices');
+assert.deepEqual(keys[1].oscillators.map(o=>o.type),['sawtooth','sawtooth']);assert.equal(keys[1].oscillators[0].detune.value,-keys[1].oscillators[1].detune.value);
+assert.ok(nodes.some(n=>n.kind==='filter'&&n.type==='highpass'));assert.ok(nodes.some(n=>n.kind==='delay'&&n.delayTime.value===.011));
+ctx.currentTime=3.4;lead.release();assert.ok(lead.oscillators.every(o=>o.stopped>3.7),'Key release has a real envelope tail');
+const previousStop=lead.oscillators[0].stopped;lead.release();assert.equal(lead.oscillators[0].stopped,previousStop,'Repeated pointer cancellation is harmless');
+synth.stop();assert.ok(keys.every(v=>v.released),'Leaving the page releases every held note');
+for(const voice of [bass,lead,...keys])voice.oscillators[0].onended();
+assert.equal(synth.activeVoiceCount,0);assert.ok(nodes.filter(n=>n!==output).every(n=>n.disconnected),'Ended voices disconnect their entire filters, chorus and envelope graph');
+console.log('Synth voice checks passed: distinct signal paths, sub bass, six-voice polyphony, held notes, soft release and complete cleanup.');

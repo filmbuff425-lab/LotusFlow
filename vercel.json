@@ -20,7 +20,7 @@
     },
     {
       "source": "/(.*)",
-      "headers": [{"key":"X-Lotus-Release","value":"20261008-release1"}]
+      "headers": [{"key":"X-Lotus-Release","value":"20261008-studio-cues2"}]
     }
   ]
 }
