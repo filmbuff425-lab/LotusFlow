@@ -584,10 +584,6 @@ window.LotusTranslations = {
     "en": "PRACTICE",
     "zh": "创作方式"
   },
-  "BACKGROUND": {
-    "en": "BACKGROUND",
-    "zh": "成长经历"
-  },
   "Sound as architecture.": {
     "en": "Sound as architecture.",
     "zh": "以声音构筑空间。"
@@ -3086,4 +3082,52 @@ Object.assign(window.LotusTranslations,{
  "STUDIO OPENING / mirror (instrumental)":{en:"STUDIO OPENING / mirror (instrumental)",zh:"开场音乐 / mirror（伴奏）"},
  "Press PLAY STUDIO OPENING to listen.":{en:"Press PLAY STUDIO OPENING to listen.",zh:"点击「播放开场音乐」即可聆听。"},
  "The studio opening could not load. Try again.":{en:"The studio opening could not load. Try again.",zh:"开场音乐暂未加载，请重试。"}
+});
+
+// Artist-approved biography and third-person profile copy.
+Object.assign(window.LotusTranslations,{
+  "Lotus Flow is a Chinese producer, songwriter, and artist based in Los Angeles, working across electronic music, pop, hip-hop, R&B, and experimental sound.": {
+    "en": "Lotus Flow is a Chinese producer, songwriter, and artist based in Los Angeles, working across electronic music, pop, hip-hop, R&B, and experimental sound.",
+    "zh": "Lotus Flow 是一位常驻洛杉矶的中国音乐制作人、词曲作者与艺术家，创作横跨电子音乐、流行、嘻哈、R&B 与实验声音。"
+  },
+  "Classically trained in piano from the age of five, she later attended Berklee College of Music, where she earned a degree in Electronic Music Production and Sound Design. Rooted in classical training while drawing from electronic music, jazz, funk, and contemporary pop, Lotus Flow has developed a sound that balances musicality with experimentation.": {
+    "en": "Classically trained in piano from the age of five, she later attended Berklee College of Music, where she earned a degree in Electronic Music Production and Sound Design. Rooted in classical training while drawing from electronic music, jazz, funk, and contemporary pop, Lotus Flow has developed a sound that balances musicality with experimentation.",
+    "zh": "5 岁开始学习古典钢琴，后赴美国伯克利音乐学院深造，获得电子音乐制作与声音设计学位。她的创作根植于古典音乐训练，同时融合电子音乐、Jazz、Funk 与当代流行文化，逐渐形成兼具音乐性与实验性的个人声音。"
+  },
+  "She signed with Universal Music Publishing Group China at the age of 20 and has since built an international career spanning K-pop, Chinese hip-hop, J-pop, and Western pop. Her credits include collaborations with Tia Ray, WIZTHEMC, AleXa, XLOV, SANTA, Yitai Wang, Caelan, Akini Jing, and Benzo, among others. She has participated in songwriting camps and writing tours across the Netherlands, Sweden, Los Angeles, Miami, China, and South Korea, and was also invited to SHE WRITES, a songwriting camp presented by Tommy Brown and She Is The Music.": {
+    "en": "She signed with Universal Music Publishing Group China at the age of 20 and has since built an international career spanning K-pop, Chinese hip-hop, J-pop, and Western pop. Her credits include collaborations with Tia Ray, WIZTHEMC, AleXa, XLOV, SANTA, Yitai Wang, Caelan, Akini Jing, and Benzo, among others. She has participated in songwriting camps and writing tours across the Netherlands, Sweden, Los Angeles, Miami, China, and South Korea, and was also invited to SHE WRITES, a songwriting camp presented by Tommy Brown and She Is The Music.",
+    "zh": "20 岁签约环球音乐出版集团中国后，Lotus Flow 持续活跃于国际音乐创作领域，参与 K-pop、中文嘻哈、J-pop 及西方流行音乐项目。她曾与袁娅维、AleXa、XLOV、赞多、王以太、庆怜、朱婧汐、李大奔等艺人合作，并参与荷兰、瑞典、洛杉矶、迈阿密、中国及韩国的创作营与 writing tours。她也曾受邀参加由 Tommy Brown 与 She Is The Music 发起的 SHE WRITES 创作营。"
+  },
+  "As her work expands from production and songwriting into her own artist practice, Lotus Flow continues to move between music, visual art, and technology. She brings electronic music, pop songwriting, East Asian aesthetics, and internet culture into a shared language, using sound to build worlds shaped by personal imagination.": {
+    "en": "As her work expands from production and songwriting into her own artist practice, Lotus Flow continues to move between music, visual art, and technology. She brings electronic music, pop songwriting, East Asian aesthetics, and internet culture into a shared language, using sound to build worlds shaped by personal imagination.",
+    "zh": "从制作人与词曲作者，到独立艺术家的身份延伸，她的创作不断跨越音乐、视觉与科技。Lotus Flow 将电子音乐、流行音乐创作、东亚美学与互联网文化融入一套表达，将声音视为构建世界的一种方式，持续探索个人想象与当代流行文化之间的连接。"
+  },
+  "Production, composition, lyrics and arrangement are parts of the same creative language for Lotus Flow. She works across music, visual art and technology, with each release forming part of a larger world.": {
+    "en": "Production, composition, lyrics and arrangement are parts of the same creative language for Lotus Flow. She works across music, visual art and technology, with each release forming part of a larger world.",
+    "zh": "音乐制作、作曲、作词与编曲，是 Lotus Flow 表达创作理念的不同方式。她在音乐、视觉艺术与科技之间探索，让每一部作品延展出自己的世界。"
+  },
+  "Classical composition, electronic experimentation, jazz, funk and contemporary pop inform her musical language. Her artist work also draws on childhood imagination and East Asian aesthetics.": {
+    "en": "Classical composition, electronic experimentation, jazz, funk and contemporary pop inform her musical language. Her artist work also draws on childhood imagination and East Asian aesthetics.",
+    "zh": "古典作曲、电子实验、爵士、放克与当代流行音乐共同塑造了她的创作语言；童年的想象与东亚美学，也持续影响着她的个人作品。"
+  },
+  "Alongside recording artists, her work includes Ride the Wind 2024, Zhejiang Satellite TV and Tencent, with brand collaborations for Huawei, Arturia and Kala Brand.": {
+    "en": "Alongside recording artists, her work includes Ride the Wind 2024, Zhejiang Satellite TV and Tencent, with brand collaborations for Huawei, Arturia and Kala Brand.",
+    "zh": "除艺人合作外，她也参与《乘风2024》、浙江卫视及腾讯的音乐项目，并与华为、Arturia、Kala Brand 开展品牌合作。"
+  },
+  "Berklee College of Music.": {
+    "en": "Berklee College of Music.",
+    "zh": "伯克利音乐学院。"
+  },
+  "She began classical piano training at five and earned her degree in Electronic Music Production and Sound Design at Berklee College of Music.": {
+    "en": "She began classical piano training at five and earned her degree in Electronic Music Production and Sound Design at Berklee College of Music.",
+    "zh": "她自 5 岁起接受古典钢琴训练，后赴美国伯克利音乐学院深造，获得电子音乐制作与声音设计学位。"
+  },
+  "At 20, she signed with Universal Music Publishing Group China. Her songwriting camps and writing tours have taken her through the Netherlands, Sweden, Los Angeles, Miami, China and South Korea.": {
+    "en": "At 20, she signed with Universal Music Publishing Group China. Her songwriting camps and writing tours have taken her through the Netherlands, Sweden, Los Angeles, Miami, China and South Korea.",
+    "zh": "20 岁时，她签约环球音乐出版集团中国。此后的创作营与 writing tours 遍及荷兰、瑞典、洛杉矶、迈阿密、中国及韩国。"
+  },
+  "She was invited to SHE WRITES, a songwriting camp presented by Tommy Brown and She Is The Music.": {
+    "en": "She was invited to SHE WRITES, a songwriting camp presented by Tommy Brown and She Is The Music.",
+    "zh": "她曾受邀参加由 Tommy Brown 与 She Is The Music 发起的 SHE WRITES 创作营。"
+  }
 });

@@ -28,7 +28,7 @@ const blocked=media();blocked.play=async()=>{throw new Error('Gesture required')
 const THREE=await import('../dist/vendor/three.module.js');
 for(const reduced of [false,true]){
  let cues=0;
- const cubeContext=vm.createContext({THREE,innerWidth:1200,innerHeight:900,matchMedia:()=>({matches:reduced}),updateHeartbeat(){},studioLayout:{shell:[40,35,40],center:[0,17.5,0]},createCosmos({scene}){const group=new THREE.Group();group.visible=false;scene.add(group);return{group,setReveal(v){group.visible=v>.001},update(){}}}});
+ const cubeContext=vm.createContext({THREE,innerWidth:1200,innerHeight:900,matchMedia:()=>({matches:reduced}),updateHeartbeat(){},createEntrancePrint(){return{update(){}}},createCubeBrand(){return null},studioLayout:{shell:[40,35,40],center:[0,17.5,0]},createCosmos({scene}){const group=new THREE.Group();group.visible=false;scene.add(group);return{group,setReveal(v){group.visible=v>.001},update(){}}}});
  vm.runInContext(fs.readFileSync('dist/soundcube.js','utf8').replace(/^import .*$/gm,'').replace('export function','function'),cubeContext);
  const cube=vm.runInContext('createSoundcube',cubeContext)({scene:new THREE.Scene(),root:new THREE.Group(),camera:new THREE.PerspectiveCamera(),renderer:{domElement:{clientHeight:800}},onBlueReveal:()=>cues++});
  cube.attachRoom({update(){}});cube.setInteriorReady();cube.setProgress(.22);cube.update(1000);assert.equal(cues,0,'No downbeat before the blue sky is visible');

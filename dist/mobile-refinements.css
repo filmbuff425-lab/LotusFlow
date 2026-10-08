@@ -10,10 +10,10 @@ html{font-variant-emoji:text}
 .identity-score-toggle{font-size:10px;padding:9px 13px;min-height:36px}
 .work-destinations a{font-size:10.5px;gap:9px}
 .work-destinations .entrance-symbol{width:26px;height:26px}
-.archive-paths>a.visual-entrance{grid-template-columns:34px minmax(0,1fr);column-gap:13px;font-size:clamp(18px,1.9vw,24px);padding:22px 30px 22px 0}
+.archive-paths>a.visual-entrance{grid-template-columns:34px minmax(0,1fr);column-gap:13px;font-size:clamp(18px,1.9vw,24px);padding:30px 30px 30px 0}
 .archive-paths .entrance-symbol{width:30px;height:30px}
 .cosmic-archive .archive-paths>a.visual-entrance>span{font-size:9px;margin-bottom:6px}
-.archive-paths>a.visual-entrance>b{font-size:17px;bottom:23px}
+.archive-paths>a.visual-entrance>b{font-size:17px;bottom:31px}
 @media(max-width:700px){
  html{scroll-padding-top:128px}
  .cinema .header,body:has(.archive-header) .archive-header{display:grid;grid-template-columns:72px minmax(0,1fr);grid-template-rows:44px 44px;height:112px;min-height:112px;padding:8px 12px;gap:8px 12px}
@@ -53,8 +53,8 @@ html{font-variant-emoji:text}
  .cinema .particle-directory>a.record-portal{height:280px}
  .cinema .archive-more{justify-content:center;flex-wrap:wrap;gap:25px;margin-top:8px}
  .cinema .archive-more a{font-size:10.5px;min-height:44px}
- .archive-paths>a.visual-entrance{font-size:19px;padding-block:18px}
- .archive-paths>a.visual-entrance>b{bottom:19px}
+ .archive-paths>a.visual-entrance{font-size:19px;padding-block:24px}
+ .archive-paths>a.visual-entrance>b{bottom:25px}
  .cinema .about.artist-poster{padding:140px 7% 55px;gap:30px}
  .cinema .profile-panel p{font-size:14px;line-height:1.9}
  .cinema .profile-panel p.bio-lead{font-size:16px;line-height:1.8}

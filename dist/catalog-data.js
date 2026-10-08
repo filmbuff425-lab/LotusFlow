@@ -169,7 +169,10 @@ const artwork={'flow':'assets/flow-supplied.png','feed-on':'assets/feed-on-suppl
 Object.assign(artwork,{"im-falling": "assets/releases/im-falling.jpg", "right-here": "assets/releases/right-here.jpg", "pick-a-side": "assets/releases/pick-a-side.jpg", "midsummer-heat": "assets/releases/midsummer-heat.jpg", "endlessly": "assets/releases/endlessly.jpg", "red-flag-101": "assets/releases/red-flag-101.jpg", "rendezvous": "assets/releases/rendezvous.jpg", "jellyfish": "assets/releases/jellyfish.jpg", "mirror": "assets/releases/mirror.jpg", "say-it-to-me": "assets/releases/say-it-to-me.jpg", "train-to-nowhere": "assets/releases/train-to-nowhere.jpg", "still-miss-you": "assets/releases/still-miss-you.jpg"});
 tracks.forEach(t=>Object.assign(t,window.lotusMedia[t.id],{image:'/'+(window.lotusMedia[t.id]?.cover||artwork[t.id])}));
 tracks.forEach(t=>{if(t.audio?.startsWith('assets/'))t.audio='/'+t.audio;t.detailUrl='/works/'+t.id+'.html'});
+// Keep the opening release consistent across every song collection.
+const openingRecord=tracks.findIndex(t=>t.id==='lov');
+if(openingRecord>0)tracks.unshift(...tracks.splice(openingRecord,1));
 window.lotusCatalog=tracks;
 // One film library drives the wall screen, desktop player and film archive.
-window.lotusFilms=["flow", "feed-on", "juliet", "show-me-love", "airtight", "right-here", "jellyfish", "mirror", "im-fine", "wya", "say-it-to-me"].map(id=>tracks.find(t=>t.id===id)).filter(t=>t?.video).map(t=>({...t,src:t.video.src,kind:t.video.kind,cover:t.image}));
+window.lotusFilms=["show-me-love", "flow", "feed-on", "juliet", "airtight", "right-here", "jellyfish", "mirror", "im-fine", "wya", "say-it-to-me"].map(id=>tracks.find(t=>t.id===id)).filter(t=>t?.video).map(t=>({...t,src:t.video.src,kind:t.video.kind,cover:t.image}));
 })();

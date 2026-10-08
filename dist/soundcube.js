@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import {updateHeartbeat} from './cube-heartbeat.js?v=20261007-mobile3';
 import {studioLayout} from './studio-layout.js?v=20261006-lake-surface1';
 import {createCosmos} from './studio-cosmos.js?v=20261007-mobile3';
+import {createEntrancePrint,createCubeBrand} from './studio-entrance-type.js';
 
 export function createSoundcube({scene,root,texture,camera,renderer,onBlueReveal=()=>{}}){
  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -17,6 +18,7 @@ export function createSoundcube({scene,root,texture,camera,renderer,onBlueReveal
  // No hinged faces, independently growing interior or visibility threshold can expose a gap.
  const dims=new THREE.Vector3(...studioLayout.shell),center=new THREE.Vector3(...studioLayout.center);
  const glassGroup=new THREE.Group();scene.add(glassGroup);
+ const entrancePrint=createEntrancePrint(glassGroup,dims,renderer);
  const uniforms={time:{value:0},opacity:{value:1},hover:{value:0},beat:{value:0}};
  // The paired pulse lights the silhouette before any pointer interaction.
  const pulseUniforms={beat:{value:0},alpha:{value:1}};
@@ -25,6 +27,7 @@ export function createSoundcube({scene,root,texture,camera,renderer,onBlueReveal
  const frost=new THREE.ShaderMaterial({transparent:true,depthWrite:true,side:THREE.DoubleSide,uniforms,vertexShader:`varying vec2 vUv;varying vec3 vNormal,vView;void main(){vUv=uv;vec4 world=modelMatrix*vec4(position,1.);vNormal=normalize(mat3(modelMatrix)*normal);vView=normalize(cameraPosition-world.xyz);gl_Position=projectionMatrix*viewMatrix*world;}`,fragmentShader:`varying vec2 vUv;varying vec3 vNormal,vView;uniform float time,opacity,hover,beat;void main(){vec2 uv=vUv;float fresnel=pow(1.-abs(dot(normalize(vNormal),normalize(vView))),3.);float edge=1.-smoothstep(.001,.012,min(min(uv.x,1.-uv.x),min(uv.y,1.-uv.y)));float formation=1.-smoothstep(hover-.10,hover+.10,uv.y);float sweep=exp(-pow((uv.x+uv.y*.30-.70)*19.,2.));float reflection=exp(-pow((uv.x-.22)*4.,2.))*pow(uv.y,2.);float glint=.10+beat*.86;vec3 black=vec3(.001,.001,.002)+vec3(.13,.002,.007)*beat*(.18+fresnel);vec3 glass=vec3(.025,.019,.024)+fresnel*vec3(.18,.19,.22)+reflection*vec3(.05,.075,.09)+sweep*vec3(.13,.12,.12);vec3 c=mix(black,glass,formation*hover);c+=edge*(hover*.46+glint)*mix(vec3(1.,.04,.08),vec3(.75,.64,.61),hover);float transmission=formation*hover;float glassAlpha=.16+fresnel*.28+edge*.12;gl_FragColor=vec4(c,opacity*mix(1.,glassAlpha,transmission));}`});
  const edgeMaterial=new THREE.LineBasicMaterial({color:0xf0c7b7,transparent:true,opacity:.45,depthWrite:false});
  const surfaces=[];
+ const shellLogo=createCubeBrand(glassGroup,dims);
  const faceData=[[[0,0,dims.z/2],[0,0,0],[dims.x,dims.y]],[[0,0,-dims.z/2],[0,Math.PI,0],[dims.x,dims.y]],[[dims.x/2,0,0],[0,Math.PI/2,0],[dims.z,dims.y]],[[-dims.x/2,0,0],[0,-Math.PI/2,0],[dims.z,dims.y]],[[0,dims.y/2,0],[-Math.PI/2,0,0],[dims.x,dims.z]],[[0,-dims.y/2,0],[Math.PI/2,0,0],[dims.x,dims.z]]];
  for(const [position,rotation,size] of faceData){const panel=new THREE.Group();panel.position.set(...position);panel.rotation.set(...rotation);glassGroup.add(panel);const surface=new THREE.Mesh(new THREE.PlaneGeometry(size[0]+.02,size[1]+.02),frost);panel.add(surface);surfaces.push(surface);const edge=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(...size)),edgeMaterial);edge.position.z=.012;panel.add(edge)}
  // Condensation detaches from the actual top edges, accelerates under gravity,
@@ -57,7 +60,9 @@ export function createSoundcube({scene,root,texture,camera,renderer,onBlueReveal
   const yaw=Math.sin(t*.18)*.20,tilt=Math.sin(t*.15+1)*.055,roll=Math.sin(t*.13)*.018;
   root.scale.setScalar(scale);root.rotation.set(closed*tilt,closed*yaw,closed*roll);root.position.set(closed*Math.sin(t*.21)*.28,closed*(1.05+Math.sin(t*.42)*.68)+p*Math.sin(t*.32)*.16,closed*Math.sin(t*.19)*.20);root.visible=interiorReady&&(p>0||hoverSmooth>.12);
   glassGroup.rotation.copy(root.rotation);glassGroup.scale.copy(root.scale);glassGroup.position.copy(center).multiplyScalar(scale).applyEuler(root.rotation).add(root.position);glassGroup.visible=p<1;
+  entrancePrint.update(p,t);
   const reveal=THREE.MathUtils.smoothstep(p,.48,.98);cosmos?.setReveal(THREE.MathUtils.smoothstep(p,.22,.82));grainUniforms.open.value=THREE.MathUtils.smoothstep(p,0,.8);
+  if(shellLogo)shellLogo.material.opacity=(1-THREE.MathUtils.smoothstep(p,0,.20))*(1-hoverSmooth*.38);
   // Cue the downbeat from the same visibility change that paints the blue sky.
   const nextBlueVisible=cosmos?.group.visible||false;
   if(nextBlueVisible&&!blueVisible)onBlueReveal();

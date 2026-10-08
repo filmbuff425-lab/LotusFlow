@@ -23,6 +23,13 @@ for(const track of chinese.window.lotusCatalog){
  assert.equal(en(track.credits),track.credits,`Restore English credits: ${track.id}`);
 }
 for(const [a,b] of [['My music.','我的音乐'],['Music films.','音乐影像'],['Sound lab.','声音实验室']])assert.equal(zh(a),b);
+const home=fs.readFileSync('dist/index.html','utf8');
+const biography=home.match(/id="profile-bio"[^>]*>([\s\S]*?)<\/div>/)[1];
+const paragraphs=[...biography.matchAll(/<p(?: class="bio-lead")?>([\s\S]*?)<\/p>/g)].map(m=>m[1].replace(/&amp;/g,'&'));
+assert.equal(paragraphs.length,4,'Artist biography must preserve all four approved paragraphs');
+for(const paragraph of paragraphs){assert.notEqual(zh(paragraph),paragraph,'Biography must have curated Chinese copy');assert.equal(en(paragraph),paragraph);assert.ok(!/\b(?:I|my|me)\b/.test(paragraph),'Biography must use third person')}
+assert.ok(zh(paragraphs[3]).includes('Lotus Flow 将电子音乐、流行音乐创作、东亚美学与互联网文化融入一套表达'));
+assert.ok(!home.includes('SHENZHEN ↔ LOS ANGELES')&&!home.includes('Shenzhen → Los Angeles.'));
 assert.equal(zh('02 / Identity'),'02 / 个人简介');
 assert.equal(zh('Play NEWs'),'播放 NEWs');
 assert.equal(zh('NOW PLAYING / NEWs · OFFICIAL PREVIEW'),'正在播放 / NEWs · 官方试听');

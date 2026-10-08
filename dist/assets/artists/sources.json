@@ -18,5 +18,17 @@
   "cai": "https://pic6.iqiyipic.com/image/20251017/90/8c/p_205861805_m_601_m1_600_600.jpg",
   "alexa-detail": "https://images.squarespace-cdn.com/content/v1/6397fdb811013d59b7dd971e/ab1f0d8c-0d6a-4eb4-b7c2-4f8cbb0ff073/AleXa+%28%E1%84%8B%E1%85%A1%E1%86%AF%E1%84%85%E1%85%A6%E1%86%A8%E1%84%89%E1%85%A1%29+%E2%80%93+%27Back+In+Vogue%27+Official+MV1.00_01_39_13.Imagen+fija009.png",
   "adn-detail": "https://images.squarespace-cdn.com/content/v1/58ad9e40ebbd1a9ff6bcac42/1519063970525-B5AIFLU5CNQOBWN1J731/adn11701.jpg",
-  "hybrid": "https://tvax3.sinaimg.cn/crop.0.0.1080.1080.1080/0089YQGTly8h4uvrq7qtkj30u00u0aam.jpg"
+  "hybrid": "https://tvax3.sinaimg.cn/crop.0.0.1080.1080.1080/0089YQGTly8h4uvrq7qtkj30u00u0aam.jpg",
+  "caelan": {
+    "page": "https://www.sina.cn/media/7534227906",
+    "image": "https://tvax3.sinaimg.cn/crop.0.0.1080.1080.1080/008dSQQWly8hgt49hi20tj30u00u0q5f.jpg",
+    "local": "/assets/artists/caelan-official-portrait.webp",
+    "type": "Official Weibo artist portrait"
+  },
+  "fifteenafter": {
+    "page": "https://open.spotify.com/artist/3c6du62jWz8v0jfv24Eye3",
+    "image": "https://i.scdn.co/image/ab6761610000e5eb243f8b77dd752ccb7a22bccd",
+    "local": "/assets/artists/fifteenafter-spotify-portrait.webp",
+    "type": "Official Spotify artist portrait"
+  }
 }
