@@ -586,15 +586,15 @@ window.LotusTranslations = {
   },
   "Sound as architecture.": {
     "en": "Sound as architecture.",
-    "zh": "以声音构筑空间。"
+    "zh": "以声音构筑空间"
   },
   "Production as storytelling.": {
     "en": "Production as storytelling.",
-    "zh": "用声音讲述故事。"
+    "zh": "用声音讲述故事"
   },
   "Sound as architecture. Production as storytelling.": {
     "en": "Sound as architecture. Production as storytelling.",
-    "zh": "以声音构筑空间，以音乐讲述故事。"
+    "zh": "以声音构筑空间　用声音讲述故事"
   },
   "EXPLORE MY WORK": {
     "en": "EXPLORE MY WORK",

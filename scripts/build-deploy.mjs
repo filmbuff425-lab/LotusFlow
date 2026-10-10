@@ -5,7 +5,7 @@ import {createHash} from 'node:crypto';
 const {transform}=await import(process.env.LOTUS_ESBUILD_PATH?pathToFileURL(process.env.LOTUS_ESBUILD_PATH).href:'esbuild');
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const input=path.join(root,'dist'),output=path.join(root,'deploy');
-const revision='20261008-profile-clean15';
+const revision='20261010-transitions16';
 // Unreferenced media stays local. Current recordings remain byte-for-byte intact.
 const omitted=new Set(['assets/brand-waterlight.svg','assets/mv/airtight.mp4','assets/mv/feed-on.mp4','assets/mv/flow.mp4','assets/mv/juliet.mp4','assets/mv/show-me-love.mp4','assets/mv/show-me-love-20261006.mp4']);
 const studies=['_bar-study.html','design-review/','entry-study/','entry-visual/','home-demos/'];

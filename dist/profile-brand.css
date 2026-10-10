@@ -1,5 +1,5 @@
 /* Brand hierarchy is confined to the studio entrance and Identity profile. */
-.cinema .studio-home .studio-heading.studio-brand-heading{top:22px!important;mix-blend-mode:screen}
+.cinema .studio-home .studio-heading.studio-brand-heading{top:22px!important;mix-blend-mode:screen;transition:none}
 .cinema .studio-home .studio-heading #studio-title[data-art-custom=brand]{position:relative;width:max-content;margin:0 auto;background:none;animation:studio-brand-drift 9s ease-in-out infinite;filter:none!important;line-height:0!important}
 @keyframes studio-brand-drift{0%,100%{transform:translate3d(-.4px,1px,0) rotate(-.12deg)}50%{transform:translate3d(.5px,-1.5px,0) rotate(.12deg)}}
 @keyframes studio-brand-breath{0%,100%{opacity:.78}50%{opacity:.86}}
@@ -15,6 +15,7 @@ html[data-entrance-brand=cube] .studio-brand-heading{visibility:hidden}
 .cinema .identity-profile .profile-panel p.bio-lead{font-size:17px;line-height:1.85;color:#e9dfd5}
 html:lang(zh-CN) .cinema .identity-profile .profile-panel p{font-size:16px;line-height:1.95}
 html:lang(zh-CN) .cinema .identity-profile .profile-panel p.bio-lead{font-size:18px;line-height:1.9}
+html:lang(zh-CN) .cinema .identity-profile .profile-panel p.practice-motto{white-space:nowrap}
 .cinema .identity-profile .profile-panel p.bio-signature,html:lang(zh-CN) .cinema .identity-profile .profile-panel p.bio-signature{font-size:12px;line-height:1.6;color:#b89489;margin:32px 0 10px}
 @media(max-width:700px){
  .cinema .studio-home .studio-heading.studio-brand-heading{top:36px!important}

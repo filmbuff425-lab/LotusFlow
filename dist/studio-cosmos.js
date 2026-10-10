@@ -6,9 +6,9 @@ export function createCosmos({scene,camera}){
  const rnd=n=>{const v=Math.sin(n*127.1+47.7)*43758.5453;return v-Math.floor(v)};
  const orbitPhoto=createSharedTextureLoader().load('assets/studio-earth-rim.png');orbitPhoto.colorSpace=THREE.SRGBColorSpace;orbitPhoto.anisotropy=8;
  const uniforms={time:{value:0},reveal:{value:0},orbitPhoto:{value:orbitPhoto}};
- // Camera-centred opaque sky renders before the room. It cannot intersect the room
- // or expose a low-poly silhouette when the camera crosses its old world-space edge.
- const sky=new THREE.Mesh(new THREE.SphereGeometry(260,48,32),new THREE.ShaderMaterial({uniforms,side:THREE.BackSide,depthWrite:false,depthTest:false,toneMapped:false,
+ // Blend the camera-centred sky over the red entrance before drawing the room.
+ // Keep it in the opaque queue: a transparent sky would paint over the furniture.
+ const sky=new THREE.Mesh(new THREE.SphereGeometry(260,48,32),new THREE.ShaderMaterial({uniforms,side:THREE.BackSide,depthWrite:false,depthTest:false,toneMapped:false,blending:THREE.CustomBlending,blendSrc:THREE.SrcAlphaFactor,blendDst:THREE.OneMinusSrcAlphaFactor,blendEquation:THREE.AddEquation,
  vertexShader:'varying vec3 direction;void main(){direction=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
  fragmentShader:`varying vec3 direction;uniform float reveal,time;uniform sampler2D orbitPhoto;
  void main(){
@@ -27,7 +27,7 @@ export function createCosmos({scene,camera}){
   float breathe=.95+.13*sin(time*.46+uv.x*4.8);
   photo*=mix(1.,breathe,atmosphere);
   c=mix(c,photo,photoMask);
-  gl_FragColor=vec4(mix(vec3(.001,.001,.0016),c,reveal),1.);
+  gl_FragColor=vec4(c,reveal);
   #include <colorspace_fragment>
  }`}));sky.renderOrder=-90;sky.frustumCulled=false;group.add(sky);
  const count=2900,positions=new Float32Array(count*3),sizes=new Float32Array(count),colors=new Float32Array(count*3),seeds=new Float32Array(count);
