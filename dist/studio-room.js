@@ -55,7 +55,7 @@ export function createRecordingRoom({root,renderer,texture,camera,scene}){
  recordTargets.push(...glassRecords.targets,...mvWall.targets);
  // A single raised listening shelf. Four open jackets have physical front
  // and back sheets, so the partially extracted record occupies their cavity.
- const vinylWall=new THREE.Group();vinylWall.name='Four selected records above centered wall player';vinylWall.position.set(studioLayout.rightWall-1.14,0,studioLayout.listeningZ);vinylWall.rotation.y=-Math.PI/2;room.add(vinylWall);
+ const vinylWall=new THREE.Group();vinylWall.name='Four selected records above centered wall player';vinylWall.position.set(studioLayout.leftWall+1.14,0,studioLayout.listeningZ);vinylWall.rotation.y=Math.PI/2;room.add(vinylWall);
  box(33,.10,2.2,0,17.50,0,acrylic,vinylWall);
  for(const x of[-12.3,12.3]){box(.08,.09,1.7,x,17.40,-.28,bronze,vinylWall);box(.20,.8,.09,x,17.05,-1.09,bronze,vinylWall);}
  const sleevePaper=new THREE.MeshStandardMaterial({color:0xd6d0bf,roughness:.92});
@@ -82,6 +82,6 @@ export function createRecordingRoom({root,renderer,texture,camera,scene}){
  createStudioLamps({root,room,texture});
  // Sparse curved stems reach the blade area of the rear Kill Bill poster.
  const rearPlant=createReferenceMarginata(texture);rearPlant.position.set(-33.0,0,studioLayout.backWall+3.287);rearPlant.rotation.y=.1;room.add(rearPlant);root.userData.rearPlant=({species:'Dracaena marginata',position:rearPlant.position.toArray(),height:19.1,bladeArea:[15.5,19.5]});
- function update(now,p=1){back.visible=left.visible=ceiling.visible=true;rearPlant.userData.update(now*.001);candles.userData.update(now*.001);glassRecords.update(now);mvWall.update();glazing.update(now,p>.995);}
+ function update(now,p=1){back.visible=left.visible=ceiling.visible=true;rearPlant.userData.update(now*.001);candles.userData.update(now*.001);glassRecords.update(now);mvWall.update(now);glazing.update(now,p>.995);}
  return{room,update,recordTargets,glassRecords,mvWall};
 }

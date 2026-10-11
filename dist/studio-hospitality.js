@@ -32,7 +32,7 @@ export function createStudioHospitality({root,texture}){
  lathe(table,[[1.26,.09],[1.27,2.525],[1.18,2.525],[1.18,.09]],glass);for(const y of[.09,2.525]){const r=add(new THREE.TorusGeometry(1.23,.018,6,64),edge,table,0,y,0);r.rotation.x=Math.PI/2;}
  cyl(table,1.34,.035,0,.065,0,chrome);createWhiskyOnIce({parent:table,texture,x:.85,y:2.715,z:.28,scale:1.38});const book=box(table,1.8,.12,1.4,-1.2,2.77,-.23,paper);book.rotation.y=-.13;box(book,1.82,.019,1.42,0,.07,0,dark);
  // Two low tiers, six open bays. Long axis follows the left wall and vinyl display.
- const cabinet=new THREE.Group();cabinet.name='Low modular glass television console along the left wall';cabinet.position.set(studioLayout.mediaConsoleX,0,2.0);cabinet.rotation.y=Math.PI/2;group.add(cabinet);
+ const cabinet=new THREE.Group();cabinet.name='Low modular glass television console along the left wall';cabinet.position.set(studioLayout.mediaConsoleX,0,studioLayout.listeningZ);cabinet.rotation.y=Math.PI/2;group.add(cabinet);
  const span=4.8,levels=[.30,3.72,7.14],xs=Array.from({length:7},(_,i)=>-14.4+i*span);
  for(let bay=0;bay<6;bay++)for(const y of levels){const x=-12+bay*span;box(cabinet,4.73,.10,4.42,x,y,0,glass);outline(cabinet,4.73,.10,4.42,x,y,0);}
  for(const x of xs)for(const z of[-2.15,2.15])for(const offset of[-.062,.062]){rod(cabinet,[x+offset,.12,z],[x+offset,7.38,z],.032,chrome);for(const y of levels){cyl(cabinet,.072,.055,x+offset,y-.075,z,chrome);cyl(cabinet,.062,.075,x+offset,y+.085,z,chrome);}ball(cabinet,.069,x+offset,7.42,z,chrome);cyl(cabinet,.089,.08,x+offset,.08,z,dark);}

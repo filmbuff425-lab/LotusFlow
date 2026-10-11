@@ -20,7 +20,7 @@
     },
     {
       "source": "/(.*)",
-      "headers": [{"key":"X-Lotus-Release","value":"20261010-transitions16"}]
+      "headers": [{"key":"X-Lotus-Release","value":"20261011-studio-release25"}]
     }
   ]
 }

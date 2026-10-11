@@ -5,15 +5,16 @@ import {createHash} from 'node:crypto';
 const {transform}=await import(process.env.LOTUS_ESBUILD_PATH?pathToFileURL(process.env.LOTUS_ESBUILD_PATH).href:'esbuild');
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const input=path.join(root,'dist'),output=path.join(root,'deploy');
-const revision='20261010-transitions16';
+const revision='20261011-studio-release25';
 // Unreferenced media stays local. Current recordings remain byte-for-byte intact.
-const omitted=new Set(['assets/brand-waterlight.svg','assets/mv/airtight.mp4','assets/mv/feed-on.mp4','assets/mv/flow.mp4','assets/mv/juliet.mp4','assets/mv/show-me-love.mp4','assets/mv/show-me-love-20261006.mp4']);
+const omitted=new Set(['assets/brand-waterlight.svg','assets/mv/airtight.mp4','assets/mv/feed-on.mp4','assets/mv/flow.mp4','assets/mv/juliet.mp4','assets/mv/show-me-love.mp4','assets/mv/show-me-love-20261006.mp4',
+ 'flow-transition.js','home-particles.js','impact-intro.js','living-membrane.js','red-universe.js','release-notes.js','sound-cells.js','studio-botanical.js','studio-cd-player.js','studio-city.js','supernatural-type.js','universe-flight.js','universe.js']);
 const studies=['_bar-study.html','design-review/','entry-study/','entry-visual/','home-demos/'];
 const sourceText=[];
-async function collect(directory){for(const entry of await fs.readdir(directory,{withFileTypes:true})){const file=path.join(directory,entry.name);if(entry.isDirectory())await collect(file);else if(/\.(js|html|css|json)$/.test(file))sourceText.push(await fs.readFile(file,'utf8'))}}
+async function collect(directory){for(const entry of await fs.readdir(directory,{withFileTypes:true})){const file=path.join(directory,entry.name),relative=path.relative(input,file).split(path.sep).join('/');if(omitted.has(relative)||studies.some(study=>relative===study||relative.startsWith(study)))continue;if(entry.isDirectory())await collect(file);else if(/\.(js|html|css|json)$/.test(file))sourceText.push(await fs.readFile(file,'utf8'))}}
 await collect(input);
 const combined=sourceText.join('\n');
-for(const relative of omitted)if(combined.includes(path.basename(relative)))throw new Error(`Cannot omit referenced media: ${relative}`);
+for(const relative of omitted)if(combined.includes(path.basename(relative)))throw new Error(`Cannot omit a referenced file: ${relative}`);
 // Finish the entire build before touching a directory served by local previews.
 // Publish each file by rename, with new dependencies first and HTML last.
 const staging=await fs.mkdtemp(path.join(root,'.deploy-build-'));

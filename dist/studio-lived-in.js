@@ -9,7 +9,7 @@ export function createLivedInStudio(root){
  const box=(p,w,h,d,x,y,z,m)=>add(new THREE.BoxGeometry(w,h,d),m,p,x,y,z);
  function line(p,points,r,m){return add(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points.map(v=>new THREE.Vector3(...v))),24,r,5,false),m,p)}
  // A six-string offset guitar on a proper floor stand: lacquer, pickguard, frets and hardware.
- const guitar=new THREE.Group();guitar.name='Electric guitar';guitar.position.set(32.1,0,-25.1);guitar.rotation.set(-.075,-.18,.20);set.add(guitar);
+ const guitar=new THREE.Group();guitar.name='Electric guitar';guitar.position.set(...studioLayout.guitar);guitar.rotation.set(.10,-.18,.06);
  const silhouette=new THREE.Shape();silhouette.moveTo(-.24,3.15);silhouette.bezierCurveTo(-.8,3.3,-.61,4.35,-1.05,4.05);silhouette.bezierCurveTo(-1.65,3.5,-.68,2.84,-1.25,2.22);silhouette.bezierCurveTo(-2.3,.7,-.95,.25,0,.32);silhouette.bezierCurveTo(1.68,.08,2.06,1.19,1.20,2.39);silhouette.bezierCurveTo(.72,3.09,1.18,3.94,.78,3.64);silhouette.bezierCurveTo(.62,3.48,.52,3.05,.23,3.15);silhouette.closePath();
  const body=new THREE.ExtrudeGeometry(silhouette,{depth:.35,bevelEnabled:true,bevelSegments:3,bevelThickness:.08,bevelSize:.09,curveSegments:12});
  add(body,new THREE.MeshPhysicalMaterial({color:0xac2413,roughness:.24,metalness:.1,clearcoat:1,clearcoatRoughness:.13}),guitar);
@@ -22,9 +22,19 @@ export function createLivedInStudio(root){
  for(const y of [1.76,2.32,2.86]){box(guitar,.75,.19,.07,0,y,.49,ivory);for(let i=0;i<6;i++)add(new THREE.SphereGeometry(.025,6,4),chrome,guitar,-.15+i*.06,y,.536)}
  for(const [x,y] of [[.71,1.44],[.91,1.08],[.73,.73]]){const k=add(new THREE.CylinderGeometry(.105,.105,.09,16),ivory,guitar,x,y,.51);k.rotation.x=Math.PI/2}
  line(guitar,[[.17,1.14,.56],[.65,1.06,.77],[.91,1.67,.76]],.024,chrome);
- // Lean naturally beside the steel shelf; the lower body actually meets the floor.
- guitar.updateMatrixWorld(true);const guitarBounds=new THREE.Box3().setFromObject(guitar);guitar.position.y+=.055-guitarBounds.min.y;
- line(set,[[32.45,.32,-24.6],[33.10,.065,-23.8],[32.4,.065,-22.8],[31.5,.065,-23.1],[32.2,.065,-23.8],[34.0,.065,-24.9]],.025,black);
+ // Ground in room-local coordinates before attaching to the animated cube.
+ // World bounds include its opening tilt and scale, which used to lift the guitar.
+ const guitarBounds=new THREE.Box3().setFromObject(guitar,true);guitar.position.y+=.28-guitarBounds.min.y;guitar.updateMatrix();set.add(guitar);
+ const stand=new THREE.Group();stand.name='Grounded padded guitar stand';stand.position.set(studioLayout.guitar[0],0,studioLayout.guitar[2]);stand.rotation.y=-.18;set.add(stand);
+ const standMetal=mat(0x363a3d,.42,.48);
+ for(const [x,z]of[[-1.30,.80],[1.30,.80],[0,-1.25]]){line(stand,[[0,.25,-.30],[x*.55,.13,z*.55],[x,.085,z]],.085,standMetal);box(stand,.25,.17,.30,x,.085,z,black)}
+ // The lower cradle carries the body; a padded fork supports the tilted neck.
+ line(stand,[[-.95,.61,.32],[-.65,.22,.32],[.65,.22,.32],[.95,.61,.32]],.09,black);
+ const neck=new THREE.Vector3(0,6.40,-.12).applyMatrix4(guitar.matrix);neck.sub(stand.position).applyAxisAngle(new THREE.Vector3(0,1,0),.18);
+ line(stand,[[0,.23,-.30],[0,3.35,neck.z-.20],[neck.x,neck.y,neck.z-.16]],.085,standMetal);
+ line(stand,[[neck.x-.36,neck.y,neck.z+.29],[neck.x-.36,neck.y,neck.z],[neck.x+.36,neck.y,neck.z],[neck.x+.36,neck.y,neck.z+.29]],.085,black);
+ const jack=new THREE.Vector3(.92,1.02,.47).applyMatrix4(guitar.matrix);
+ line(set,[jack.toArray(),[jack.x+.28,.25,jack.z+.45],...[ [1.0,.065,1.30],[.30,.065,2.30],[-.60,.065,2.0],[.10,.065,1.30],[1.90,.065,.20] ].map(([x,y,z])=>[x+studioLayout.guitar[0],y,z+studioLayout.guitar[2]])],.025,black);
  // Full official artwork, attached directly to the inner glass with translucent tape.
  const poster=new THREE.Group();poster.name='Taped official Kill Bill poster';poster.position.set(-27.3,20.2,studioLayout.backWall+.13);poster.rotation.y=0;set.add(poster);
  const art=createSharedTextureLoader().load('assets/cinema/kill-bill-official.jpg');art.colorSpace=THREE.SRGBColorSpace;

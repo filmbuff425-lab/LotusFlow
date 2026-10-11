@@ -392,6 +392,18 @@ window.LotusTranslations = {
     "en": "OPEN STUDIO",
     "zh": "打开工作室"
   },
+  "ENTER WITH SOUND": {
+    "en": "ENTER WITH SOUND",
+    "zh": "开启声音进入"
+  },
+  "HEADPHONES RECOMMENDED": {
+    "en": "HEADPHONES RECOMMENDED",
+    "zh": "建议戴上耳机"
+  },
+  "Enable sound and enter the glass studio": {
+    "en": "Enable sound and enter the glass studio",
+    "zh": "开启声音进入工作室"
+  },
   "MOVE CLOSER TO REVEAL · CLICK TO ENTER": {
     "en": "MOVE CLOSER TO REVEAL · CLICK TO ENTER",
     "zh": "靠近探索 · 点击进入"
@@ -2848,9 +2860,9 @@ window.LotusTranslations = {
     "en": "VIEW OFFICIAL RELEASE",
     "zh": "查看官方发行"
   },
-  "MUSIC VIDEOS / LEFT SCREEN": {
-    "en": "MUSIC VIDEOS / LEFT SCREEN",
-    "zh": "音乐影像 / 左侧屏幕"
+  "MUSIC VIDEOS / RIGHT SCREEN": {
+    "en": "MUSIC VIDEOS / RIGHT SCREEN",
+    "zh": "音乐影像 / 右侧屏幕"
   },
   "MUSIC VIDEOS / OPEN FILM CONTROLS": {
     "en": "MUSIC VIDEOS / OPEN FILM CONTROLS",

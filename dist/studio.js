@@ -111,7 +111,15 @@ function setupStudio() {
   const spherical=new THREE.Spherical(THREE.MathUtils.lerp(a.radius,b.radius,q),THREE.MathUtils.lerp(a.phi,b.phi,q),a.theta+delta*q);
   controls.target.lerpVectors(fromTarget,toTarget,q);camera.position.setFromSpherical(spherical).add(controls.target);camera.lookAt(controls.target);
  }
- let preparingRoom=false;
+ let preparingRoom=false,entranceHeard=false;
+ function syncEntry(){
+  entry.dataset.soundEntry=entranceHeard?'heard':'prompt';
+  openButton.querySelector('.studio-enter-label').textContent=preparingRoom?'PREPARING STUDIO…':entranceHeard?'OPEN STUDIO':'ENTER WITH SOUND';
+  openButton.setAttribute('aria-label',entranceHeard?'Open the glass studio':'Enable sound and enter the glass studio');
+  document.getElementById('studio-entry-note').textContent=entranceHeard?'MOVE CLOSER TO REVEAL · CLICK TO ENTER':'HEADPHONES RECOMMENDED';
+ }
+ // A successful audible play, rather than a click or muted prime, clears the first-entry cue.
+ window.addEventListener('lotus-studio-audible',()=>{entranceHeard=true;syncEntry()});
  let warmTimer=0;
  function warmVisibleStudio(){if(handheld||warmTimer||interiorTask||!host.dataset.firstFrameMs||document.hidden||!studioOnScreen)return;warmTimer=setTimeout(()=>{warmTimer=0;if(studioOnScreen&&!document.hidden)prepareInterior().catch(error=>console.warn('Studio preparation failed:',error))},120)}
  new IntersectionObserver(([e])=>{if(e.isIntersecting)warmVisibleStudio()},{rootMargin:'100px'}).observe(host);
@@ -122,7 +130,7 @@ function setupStudio() {
   if(on&&!handheld&&host.dataset.roomState!=='ready')previewTimer=setTimeout(()=>prepareInterior().catch(error=>{host.dataset.roomState='error';console.warn('Studio preview preparation failed:',error)}),750);
  }
  function frameStudio(behavior='smooth'){const header=document.querySelector('.header'),offset=header?.getBoundingClientRect().height||92;window.scrollTo({top:stage.getBoundingClientRect().top+window.scrollY-offset,behavior})}
- async function setRoom(open){if(preparingRoom||transition||roomOpen===open)return;if(open){const entranceAudio=window.lotusStudioMedia?.armEntrance();preparingRoom=true;openButton.disabled=true;openButton.setAttribute('aria-busy','true');if(host.dataset.roomState!=='ready')openButton.textContent='PREPARING STUDIO…';try{await Promise.all([prepareInterior(),entranceAudio])}catch(error){window.lotusStudioMedia?.cancelEntrance();console.warn('Studio preparation failed:',error);host.dataset.roomState='error';loading.hidden=false;loading.textContent='The room could not load. Refresh to try again.';return}finally{preparingRoom=false;openButton.disabled=false;openButton.removeAttribute('aria-busy');openButton.innerHTML='OPEN STUDIO <span>＋</span>'}}roomOpen=open;window.dispatchEvent(new CustomEvent('lotus-room-change',{detail:open}));frameStudio();controls.enableDamping=false;controls.update();controls.enabled=false;controls.autoRotate=false;cameraMove=null;openButton.disabled=true;closeButton.disabled=true;stage.classList.toggle('is-opening-room',open);strip.inert=true;
+ async function setRoom(open){if(preparingRoom||transition||roomOpen===open)return;if(open){const entranceAudio=window.lotusStudioMedia?.armEntrance();if(window.lotusSfx?.enabled===false)document.querySelector('.interaction-sound-toggle')?.click();preparingRoom=true;openButton.disabled=true;openButton.setAttribute('aria-busy','true');syncEntry();try{await Promise.all([prepareInterior(),entranceAudio])}catch(error){window.lotusStudioMedia?.cancelEntrance();console.warn('Studio preparation failed:',error);host.dataset.roomState='error';loading.hidden=false;loading.textContent='The room could not load. Refresh to try again.';return}finally{preparingRoom=false;openButton.disabled=false;openButton.removeAttribute('aria-busy');syncEntry()}}roomOpen=open;window.dispatchEvent(new CustomEvent('lotus-room-change',{detail:open}));frameStudio();controls.enableDamping=false;controls.update();controls.enabled=false;controls.autoRotate=false;cameraMove=null;openButton.disabled=true;closeButton.disabled=true;stage.classList.toggle('is-opening-room',open);strip.inert=true;
   if(!open&&api.audioState.playing)api.togglePlayback();
   transition={at:performance.now(),from:entrance,to:open?1:0,position:camera.position.clone(),target:controls.target.clone(),destination:open?insideView:cubeView};
   if(reduced)transition.at-=5800;

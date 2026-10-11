@@ -5,7 +5,7 @@ import {studioLayout} from './studio-layout.js?v=20261006-lake-surface1';
 
 // A wall-mounted listening deck, modelled in world units independently of the glass room.
 export function createStudioCDPlayer({root,texture,touchables}){
- const deck=new THREE.Group();deck.name='Brushed aluminium CD player and headphones';deck.scale.setScalar(.68);deck.position.set(studioLayout.cdPlayerX,10.5,studioLayout.listeningZ);deck.rotation.y=-Math.PI/2;root.add(deck);
+ const deck=new THREE.Group();deck.name='Brushed aluminium CD player and headphones';deck.scale.setScalar(.68);deck.position.set(studioLayout.cdPlayerX,10.5,studioLayout.listeningZ);deck.rotation.y=Math.PI/2;root.add(deck);
  const grain=texture(512,512,g=>{g.fillStyle='#b8bcc0';g.fillRect(0,0,512,512);for(let x=0;x<512;x++){g.fillStyle=x%3?'#ffffff13':'#17202b18';g.fillRect(x,0,1,512)}const light=g.createLinearGradient(0,0,512,0);light.addColorStop(0,'#ffffff44');light.addColorStop(.28,'#ffffff00');light.addColorStop(.72,'#ffffff22');light.addColorStop(1,'#00000020');g.fillStyle=light;g.fillRect(0,0,512,512)});
  const silver=new THREE.MeshPhysicalMaterial({color:0xffffff,map:grain,bumpMap:grain,bumpScale:.009,metalness:.94,roughness:.31,anisotropy:.72,anisotropyRotation:Math.PI/2});
  const edge=new THREE.MeshStandardMaterial({color:0x9fa6aa,metalness:.86,roughness:.22});

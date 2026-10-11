@@ -12,7 +12,7 @@ python3 -m http.server 4178 --bind 127.0.0.1 --directory dist
 
 ## Deployment
 
-Vercel framework preset: Other. Output directory: `dist`. No install or build command is required. All fonts, media previews and studio assets are served locally.
+Vercel framework preset: Other. Install with `npm ci`, build with `npm run build`, and publish `deploy` as configured in `vercel.json`. The build keeps unused studies, retired modules and duplicate videos in local `dist` while excluding them from the public output. It minifies scripts and styles, versions module URLs, and preserves every retained media asset byte for byte.
 
 ## Checks
 
