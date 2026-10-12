@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import {createSessionScreens} from './studio-session-screens.js';
 import {createMVWall} from './studio-mv-wall.js';
 import {studioLayout} from './studio-layout.js';
+import {mobileAsset} from './device-profile.js';
 
 // A separate phone model: desktop models, geometry and hotspots remain intact.
 export async function createStudioInterior({scene,root,api,soundcube,host,touchables,selected}) {
@@ -53,9 +54,9 @@ export async function createStudioInterior({scene,root,api,soundcube,host,toucha
  for(const [i,track] of releases.slice(0,8).entries()){
   const art=new THREE.MeshBasicMaterial({color:0xffffff});const cover=label(track.title,7,7,-30+i%4*20,26-Math.floor(i/4)*9,studioLayout.backWall+.3);
   register(cover,{action:'release',release:track.id,label:track.title+' / VIEW RELEASE'});
-  loader.load(track.image,t=>{const c=document.createElement('canvas');c.width=c.height=384;c.getContext('2d').drawImage(t.image,0,0,384,384);art.map=new THREE.CanvasTexture(c);art.map.colorSpace=THREE.SRGBColorSpace;art.needsUpdate=true;cover.material.map.dispose();cover.material.dispose();cover.material=art;t.dispose()});
+  loader.load(mobileAsset(track.image),t=>{const c=document.createElement('canvas');c.width=c.height=384;c.getContext('2d').drawImage(t.image,0,0,384,384);art.map=new THREE.CanvasTexture(c);art.map.colorSpace=THREE.SRGBColorSpace;art.needsUpdate=true;cover.material.map.dispose();cover.material.dispose();cover.material=art;t.dispose()});
  }
- let lastWall=0;const room={mobile:true,room:root,recordTargets:[],mvWall,update(now,p){scene.background.set(p>.5?0x0b1727:0x16070b);if(now-lastWall>100){mvWall.update();lastWall=now}}};soundcube.attachRoom(room);
+ let lastWall=0;const room={mobile:true,room:root,recordTargets:[],mvWall,update(now,p){scene.background.set(p>.22?0x0b1727:0x16070b);if(now-lastWall>100){mvWall.update();lastWall=now}}};soundcube.attachRoom(room);
  const details={soundcube,room:root,keys:[],update:now=>soundcube.update(now),press(){}};
  mountPhoneFunctions({api,releases,mvWall,host});
  host.dataset.roomObjects='mixer,computer,music-library,mv-screen,release-covers,speakers,synth';host.dataset.roomQuality='phone';
@@ -73,7 +74,7 @@ function mountPhoneFunctions({api,releases,mvWall,host}){
  button('混音 / 调整音量',()=>{window.lotusStudioMedia?.setMode('session');document.querySelector('.studio-control-strip').scrollIntoView({behavior:'smooth',block:'center'})});
  const label=document.createElement('label');label.textContent='作品 / Releases';const select=document.createElement('select');const placeholder=document.createElement('option');placeholder.textContent='选择作品查看详情 / Choose a release';placeholder.value='';select.append(placeholder);
  for(const track of releases){const option=document.createElement('option');option.value=track.id;option.textContent=track.title+' / '+track.artist;select.append(option)}
- select.addEventListener('change',()=>{if(select.value)window.lotusPortfolio?.openTrack(select.value,select)});label.append(select);panel.append(label);
+ select.addEventListener('change',()=>{if(select.value){window.lotusPortfolio?.openTrack(select.value,select);select.value=''}});label.append(select);panel.append(label);
  document.getElementById('studio-stage').after(panel);
  document.getElementById('studio-stage').classList.add('has-phone-room');
 }

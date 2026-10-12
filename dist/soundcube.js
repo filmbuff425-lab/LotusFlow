@@ -64,7 +64,7 @@ export function createSoundcube({scene,root,texture,camera,renderer,onBlueReveal
   const reveal=THREE.MathUtils.smoothstep(p,.48,.98);cosmos?.setReveal(THREE.MathUtils.smoothstep(p,.22,.82));grainUniforms.open.value=THREE.MathUtils.smoothstep(p,0,.8);
   if(shellLogo)shellLogo.material.opacity=(1-THREE.MathUtils.smoothstep(p,0,.20))*(1-hoverSmooth*.38);
   // Cue the downbeat from the same visibility change that paints the blue sky.
-  const nextBlueVisible=cosmos?.group.visible||false;
+  const nextBlueVisible=roomScene?.mobile?p>.22:cosmos?.group.visible||false;
   if(nextBlueVisible&&!blueVisible)onBlueReveal();
   blueVisible=nextBlueVisible;
   uniforms.beat.value=beat;uniforms.time.value=t;uniforms.hover.value=Math.max(hoverSmooth,THREE.MathUtils.smoothstep(p,0,.2));uniforms.opacity.value=1-reveal;frost.depthWrite=p<.49&&hoverSmooth<.025;edgeMaterial.opacity=(.13+beat*.65+hoverSmooth*.26)*(1-reveal);edgeMaterial.color.set(hoverSmooth>.5?0xf0c7b7:0xff3845);
