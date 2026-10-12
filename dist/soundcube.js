@@ -9,7 +9,7 @@ export function createSoundcube({scene,root,texture,camera,renderer,onBlueReveal
  scene.background=new THREE.Color(0x16070b);scene.fog=null;
  const pointer=new THREE.Vector2(4,4),pointerTarget=new THREE.Vector2(4,4);
  let cosmos=null,roomScene=null,interiorReady=false,blueVisible=false;
- function attachRoom(room){roomScene=room;if(!room.mobile)cosmos??=createCosmos({scene,camera})}
+ function attachRoom(room){roomScene=room;cosmos??=createCosmos({scene,camera})}
  const rnd=n=>{const q=Math.sin(n*127.1+41.1)*43758.5453;return q-Math.floor(q)};
  const grainUniforms={time:{value:0},open:{value:0}};
  const grain=new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.ShaderMaterial({uniforms:grainUniforms,depthTest:false,depthWrite:false,toneMapped:false,vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,.99999,1.);}',fragmentShader:`varying vec2 vUv;uniform float open;void main(){vec2 p=vUv-vec2(.50,.28);float light=exp(-dot(p*vec2(1.15,1.4),p*vec2(1.15,1.4))*2.2);float top=1.-smoothstep(.68,1.,vUv.y);vec3 red=mix(vec3(.055,.001,.004),vec3(.62,.006,.013),light*top);red=mix(red,vec3(.004,.004,.009)+red*.018,open);gl_FragColor=vec4(red,1.);}`}));grain.frustumCulled=false;grain.renderOrder=-100;scene.add(grain);
@@ -64,7 +64,7 @@ export function createSoundcube({scene,root,texture,camera,renderer,onBlueReveal
   const reveal=THREE.MathUtils.smoothstep(p,.48,.98);cosmos?.setReveal(THREE.MathUtils.smoothstep(p,.22,.82));grainUniforms.open.value=THREE.MathUtils.smoothstep(p,0,.8);
   if(shellLogo)shellLogo.material.opacity=(1-THREE.MathUtils.smoothstep(p,0,.20))*(1-hoverSmooth*.38);
   // Cue the downbeat from the same visibility change that paints the blue sky.
-  const nextBlueVisible=roomScene?.mobile?p>.22:cosmos?.group.visible||false;
+  const nextBlueVisible=cosmos?.group.visible||false;
   if(nextBlueVisible&&!blueVisible)onBlueReveal();
   blueVisible=nextBlueVisible;
   uniforms.beat.value=beat;uniforms.time.value=t;uniforms.hover.value=Math.max(hoverSmooth,THREE.MathUtils.smoothstep(p,0,.2));uniforms.opacity.value=1-reveal;frost.depthWrite=p<.49&&hoverSmooth<.025;edgeMaterial.opacity=(.13+beat*.65+hoverSmooth*.26)*(1-reveal);edgeMaterial.color.set(hoverSmooth>.5?0xf0c7b7:0xff3845);
