@@ -1,5 +1,7 @@
 import {createVisibleFrameLoop} from './visible-frame-loop.js?v=20261007-deploy1';
 import {deviceProfile,handheld} from './device-profile.js';
+import {usePhoneRoom,phoneRoomPixelRatio} from './mobile-room-profile.js';
+const phoneRoom=usePhoneRoom();
 import * as THREE from 'three';
 import {OrbitControls} from './vendor/OrbitControls.js';
 import {studioLayout} from './studio-layout.js?v=20261006-lake-surface1';
@@ -32,7 +34,7 @@ function setupStudio() {
  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
  const renderer = new THREE.WebGLRenderer({ antialias: !handheld, alpha: false, powerPreference: handheld?'default':'high-performance' });
  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.25)); renderer.setClearColor(0x060608); renderer.outputColorSpace = THREE.SRGBColorSpace;
- renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.00; renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+ renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.00; renderer.shadowMap.enabled = !phoneRoom; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
  renderer.transmissionResolutionScale=.5;
  const canvas = renderer.domElement; canvas.tabIndex = 0; canvas.setAttribute('aria-label', 'Eight-channel 3D studio. Drag to orbit, use + / − to zoom, drag a metal fader to mix. Arrow keys rotate; plus and minus zoom.'); host.append(canvas);
  const scene = new THREE.Scene(); scene.fog = new THREE.FogExp2(0x07070b, .008);
@@ -56,7 +58,7 @@ function setupStudio() {
   const preparingAt=performance.now();
   interiorTask=(async()=>{
    const phases={},phaseStart=performance.now();
-   const {createStudioInterior}=await import('./studio-interior.js?v=20261007-mobile3');
+   const {createStudioInterior}=await (phoneRoom?import('./studio-mobile-room.js?v=20261012-phone-room1'):import('./studio-interior.js?v=20261007-mobile3'));
    phases.import=+(performance.now()-phaseStart).toFixed(1);const buildAt=performance.now();
    const parts=await createStudioInterior({scene,root,renderer,api,camera,soundcube,host,touchables,selected:()=>selected});
    phases.build=+(performance.now()-buildAt).toFixed(1);const compileAt=performance.now();
@@ -64,11 +66,11 @@ function setupStudio() {
    if(new URLSearchParams(location.search).has('perf'))host.dataset.textureFootprint=JSON.stringify(studioTextureFootprint([root,scene.getObjectByName('Studio cosmos')]));
    // Include the hidden sky in shader preparation, then warm geometry uploads
    // offscreen. The first visible reveal keeps the same full-quality renderer.
-   const sky=scene.getObjectByName('Studio cosmos'),wasSkyVisible=sky.visible,wasVisible=root.visible;
+   const sky=scene.getObjectByName('Studio cosmos'),wasSkyVisible=sky?.visible,wasVisible=root.visible;
    // Phones upload only what the opening camera actually renders. Warming all
    // 450+ textures, hidden models and shader variants at once can evict WebKit's
    // graphics context before the visitor even enters. Keep every source texel.
-   if(!handheld){root.visible=true;sky.visible=true;
+   if(!handheld&&!phoneRoom){root.visible=true;sky.visible=true;
    const compilation=renderer.compileAsync(scene,camera);root.visible=wasVisible;sky.visible=wasSkyVisible;
    await compilation;phases.compile=+(performance.now()-compileAt).toFixed(1);
    const textureAt=performance.now();
@@ -98,7 +100,7 @@ function setupStudio() {
  let roomOpen=false,transition=null,entrance=0,openedAt=0;
  // Room presets face their subject squarely. The exterior cube keeps its own orbit.
  const views = {
-  perspective:{position:[0,15.5,handheld?116:92],target:[0,15.5,-6]},
+  perspective:phoneRoom?{position:[0,14,90],target:[0,9,-6]}:{position:[0,15.5,handheld?116:92],target:[0,15.5,-6]},
   console:{position:[0,18,43],target:[0,7,-2]},
   room:{position:[0,15.5,118],target:[0,15.5,-3]},
   listening:{position:[4,19,26],target:[studioLayout.synths[0],5.9,studioLayout.synths[2]]}
@@ -164,7 +166,7 @@ function setupStudio() {
  document.querySelectorAll('[data-studio-zoom]').forEach(button=>button.addEventListener('click',()=>{if(transition)return;const offset=(cameraMove?.to||camera.position).clone().sub(controls.target);offset.setLength(THREE.MathUtils.clamp(offset.length()*(button.dataset.studioZoom==='in'?.84:1.19),controls.minDistance,controls.maxDistance));moveCamera(controls.target.clone().add(offset),controls.target.clone())}));
  document.getElementById('studio-reset-view').addEventListener('click',()=>{if(transition)return;const view=roomOpen?insideView:cubeView;moveCamera(view.position.clone(),view.target.clone());document.querySelectorAll('[data-camera]').forEach(b=>b.classList.toggle('active',b.dataset.camera==='perspective'))});
  document.getElementById('auto-rotate').addEventListener('click', e => { if(!roomOpen||transition)return; controls.autoRotate = !controls.autoRotate; e.currentTarget.setAttribute('aria-pressed', String(controls.autoRotate)); });
- function resize() { const w = host.clientWidth, h = host.clientHeight; if(!w||!h)return;renderer.setPixelRatio(Math.min(devicePixelRatio,deviceProfile.pixelRatio,2200/w));renderer.setSize(w, h); camera.aspect = w / h; camera.fov = handheld ? 62 : 37; camera.updateProjectionMatrix();host.dataset.deviceProfile=handheld?'phone':'desktop'; }
+ function resize() { const w = host.clientWidth, h = host.clientHeight; if(!w||!h)return;renderer.setPixelRatio(phoneRoom?phoneRoomPixelRatio(w,h,devicePixelRatio):Math.min(devicePixelRatio,deviceProfile.pixelRatio,2200/w));renderer.setSize(w, h); camera.aspect = w / h; camera.fov = handheld ? 62 : 37; camera.updateProjectionMatrix();host.dataset.deviceProfile=handheld?'phone':'desktop'; }
  new ResizeObserver(resize).observe(host); resize(); let frameLoop;new IntersectionObserver(e => { visible = e[0].isIntersecting;frameLoop?.wake(); }, { rootMargin: '0px' }).observe(host);
  let contextLost=false;
  canvas.addEventListener('webglcontextlost', e => { e.preventDefault();contextLost=true;visible=false;host.dataset.graphicsState='recovering';loading.hidden=false;loading.textContent='RESTORING STUDIO…'; });
@@ -172,7 +174,7 @@ function setupStudio() {
  let interactionUntil=0;
  for(const event of ['pointerdown','pointermove','keydown'])canvas.addEventListener(event,()=>{interactionUntil=performance.now()+1200},{passive:true});
  const measure=new URLSearchParams(location.search).has('perf'),perfFrames=[];let perfAt=0,previousFrame=0;
- function animate(now) { if (contextLost || !visible || document.hidden || document.body.classList.contains('desktop-open')){previousFrame=0;return;} const interval=transition||cameraMove||(roomOpen&&(controls.autoRotate||now<interactionUntil))?1000/60:1000/30;const elapsed=now-last;if(elapsed<interval-.5)return; const cpuStart=performance.now();if(measure){renderer.info.autoReset=false;renderer.info.reset()}const frameInterval=previousFrame?now-previousFrame:16.7;previousFrame=now;last+=interval*Math.max(1,Math.floor((elapsed+.5)/interval));
+ function animate(now) { if (contextLost || !visible || document.hidden || document.body.classList.contains('desktop-open')){previousFrame=0;return;} const interval=phoneRoom?1000/30:transition||cameraMove||(roomOpen&&(controls.autoRotate||now<interactionUntil))?1000/60:1000/30;const elapsed=now-last;if(elapsed<interval-.5)return; const cpuStart=performance.now();if(measure){renderer.info.autoReset=false;renderer.info.reset()}const frameInterval=previousFrame?now-previousFrame:16.7;previousFrame=now;last+=interval*Math.max(1,Math.floor((elapsed+.5)/interval));
   if(transition?.to===1&&!reduced){
    const journey=transition;
    if(!journey.warmupRequested&&now-journey.at>=studioWarmupAt){
@@ -190,7 +192,7 @@ function setupStudio() {
   const soloing = api.channels.some(c => c.solo),frameMeters=api.readMeters(now); if(roomOpen)api.channels.forEach((c, i) => { faders[i].position.z += (1.65-c.value/100*1.68-faders[i].position.z)*.28;
    const oled=oleds[i],stamp=`${c.value}/${selected===c.id}/${c.mute}/${c.solo}`;if(oled.last!==stamp){oled.last=stamp;const image=oled.screen.material.map.image,g=image.getContext('2d');image.width=512;image.height=224;g.fillStyle=selected===c.id?'#18252c':'#091318';g.fillRect(0,0,512,224);g.fillStyle=selected===c.id?'#e83324':'#94c3d6';g.fillRect(0,0,512,7);g.font='600 46px Arial';g.fillText(c.name,30,66);g.fillStyle='#e1e8ec';g.font='52px monospace';g.fillText(c.value===0?'−∞':`${(20*Math.log10(Math.pow(c.value/100,1.4))).toFixed(1)} dB`,30,145);g.font='23px monospace';g.fillStyle='#86a1b5';g.fillText(`${c.mute?'MUTED':c.solo?'SOLO':'STEREO'}    CH ${i+1}`,30,198);oled.screen.material.map.needsUpdate=true}
     const enabled = !c.mute && (!soloing || c.solo), level = api.audioState.playing && enabled && !api.audioState.muted ? THREE.MathUtils.clamp((frameMeters.channels[i].peakDb+60)/60,0,1) : 0; leds[i].forEach((led, k) => { const lit = k < level * 16; led.material.color.set(lit ? (k > 13 ? 0xf5ba54 : 0x73d9d2) : 0x17292c); led.material.emissiveIntensity = lit ? 1.7 : .015; }); selectionLights[i].material.emissiveIntensity = c.id === selected ? 3.3 : .6; selectionLights[i].material.color.set(c.id === selected ? 0xb5ecff : 0x407582); channelButtons[i].mute.material.color.set(c.mute ? 0xef4352 : 0xa9bcc4); channelButtons[i].solo.material.color.set(c.solo ? 0xf7c56b : 0xa9bcc4); });
-  if (roomOpen && now - lastDaw >= 1000/deviceProfile.screenFPS) { sessionScreens.update(now); lastDaw = now; } renderer.render(scene, camera);
+  if (roomOpen && now - lastDaw >= 1000/(phoneRoom?10:deviceProfile.screenFPS)) { sessionScreens.update(now); lastDaw = now; } renderer.render(scene, camera);
   if(!host.dataset.firstFrameMs){
    host.dataset.firstFrameMs=performance.now().toFixed(0);loading.hidden=true;
    window.dispatchEvent(new Event('lotus-studio-ready'));
@@ -202,3 +204,4 @@ function setupStudio() {
  }
  host.dataset.setupMs=(performance.now()-setupStarted).toFixed(0);host.dataset.roomState='waiting';camera.position.copy(cubeView.position);controls.target.copy(cubeView.target);controls.update();camera.lookAt(controls.target);finishRoom();frameLoop=createVisibleFrameLoop({update:animate,active:()=>!contextLost&&visible&&!document.hidden&&!document.body.classList.contains('desktop-open')&&!document.body.classList.contains('prologue-open'),onPause:()=>previousFrame=0,watchBodyClasses:true});frameLoop.wake(); window.lotusStudio = { renderer, camera, controls, selectChannel, scene, desk, faders, touchables, details };
 }
+
