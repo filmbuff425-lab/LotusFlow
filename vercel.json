@@ -16,11 +16,21 @@
     },
     {
       "source": "/(.*)\\.(js|css)",
-      "headers": [{"key":"Cache-Control","value":"public, max-age=86400, stale-while-revalidate=604800"}]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=604800"
+        }
+      ]
     },
     {
       "source": "/(.*)",
-      "headers": [{"key":"X-Lotus-Release","value":"20261011-studio-release25"}]
+      "headers": [
+        {
+          "key": "X-Lotus-Release",
+          "value": "20261013-jewel-flow30"
+        }
+      ]
     }
   ]
 }

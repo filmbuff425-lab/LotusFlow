@@ -59,7 +59,8 @@
 .artist-gate.has-peek-panels .gate-light-spill{display:block}
 .artist-gate.seam-awake .gate-light-spill,.artist-gate.seam-awake .gap-dust{animation-play-state:running}
 .gap-spill-core{fill:none;stroke:#fff;stroke-width:9;opacity:.16;filter:blur(8px)}
-.gap-spill-field{filter:blur(12px)}
+.gap-spill-field{filter:blur(12px);will-change:transform,opacity}
+.gap-spill-diffuse{filter:blur(28px);opacity:0}
 .gap-spill-rays{fill:none;stroke:url(#gate-spill-width);filter:blur(5px)}
 .gap-dust{fill:#fff;opacity:.25;animation:identity-light-dust 5s ease-in-out infinite paused}
 @keyframes identity-light-spill{0%,14%,92%,100%{opacity:0}20%{opacity:.06;animation-timing-function:cubic-bezier(.16,.85,.22,1)}38%{opacity:1}49%{opacity:.94}71%{opacity:.3}}
@@ -73,9 +74,9 @@
 #film-prologue .poster-left{transform:translate(calc(var(--cut-progress)*-90vw + var(--cut-shock,0)*-3px - var(--aperture-x,0px)),calc(var(--cut-progress)*-19vh - var(--aperture-y,0px))) rotate(calc(var(--cut-progress)*-2deg))}
 #film-prologue .poster-right{transform:translate(calc(var(--cut-progress)*90vw + var(--cut-shock,0)*3px + var(--aperture-x,0px)),calc(var(--cut-progress)*19vh + var(--aperture-y,0px))) rotate(calc(var(--cut-progress)*2deg))}
 #film-prologue .identity-carried-light .gap-dust{animation-play-state:running}
-#about>.identity-arrived-light{z-index:-1;animation:identity-arrival-fade 3.8s ease-out forwards}
+#about>.identity-arrived-light{z-index:-1;animation:none}
 .identity-arrived-light .gap-dust{animation-play-state:running}
 .identity-arrived-light .gap-spill-core{display:none}
-@keyframes identity-arrival-fade{0%{opacity:.24}30%{opacity:.15}100%{opacity:0}}
+
 @media(prefers-reduced-motion:reduce){.gate-cover-half,.gate-light-spill,.gap-dust{animation:none!important}.gate-gap-light .gap-core{opacity:1}.gate-light-spill{opacity:0}.identity-carried-light{opacity:.24}}
 @media(prefers-reduced-motion:reduce){.identity-arrived-light{display:none!important}}

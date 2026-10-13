@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';import {recognitionData,recognitionExtraEntries} from '../dist/recognition-data.js';
+const ctx={window:{}};vm.createContext(ctx);for(const file of ['release-media.js','catalog-data.js'])vm.runInContext(fs.readFileSync('dist/'+file,'utf8'),ctx);
+const tracks=ctx.window.lotusCatalog,byId=new Map(tracks.map(t=>[t.id,t]));
+assert.deepEqual(Array.from(tracks,t=>t.id).slice(0,14),['lov','show-me-love','mirror','bridge','juliet','cassette','pick-a-side','news','train-to-nowhere','red-flag-101','rendezvous','wya','feed-on','im-fine']);
+assert.deepEqual(Array.from(ctx.window.lotusStudioSongIds),['lov','show-me-love','mirror','bridge','juliet','cassette','pick-a-side','news','train-to-nowhere','feed-on','airtight']);
+assert.deepEqual(Array.from(ctx.window.lotusFilms,t=>t.id),['show-me-love','mirror','juliet','say-it-to-me','feed-on','airtight','flow','wya','jellyfish','right-here']);
+assert.equal(byId.get('bridge').title,'大桥');assert.equal(byId.get('bridge').artist,'Yitai Wang');assert.equal(byId.get('adult').title,'不完美大人');assert.equal(byId.get('cassette').title,'Cassette');assert.equal(byId.get('cassette').artist,'Caelan');
+assert.ok(byId.get('im-fine').audio&&!byId.get('im-fine').video);assert.ok(!fs.readFileSync('dist/works/im-fine.html','utf8').includes('<section class="release-film">'));
+for(const t of tracks)assert.ok(!/WD|WUMUTI|QSTNMRKS|NIE|Mucky|Sally Han|Kory|Hitimpulse|Writers:|Shawn Halim|ADN Lewis|Yixuan Ouyang/.test(t.credits),`Other people's credits: ${t.id}`);
+for(const id of ['flow','summer','im-falling','red-flag-101','rendezvous','jellyfish','news'])assert.ok(!(recognitionData[id]?.facts||[]).some(f=>['editorial','press'].includes(f.type)));
+assert.ok(recognitionData.lov.facts.some(f=>f.value==='10M+'&&f.type==='reach'));for(const id of ['best-u-had','all-of-you'])assert.ok(recognitionData[id].facts.some(f=>f.value==='1M+'&&/SNAPSHOT/.test(f.dateLabel)));
+assert.ok(recognitionData.juliet.facts.some(f=>f.id==='juliet-genius'));for(const id of ['lotus-songwriters-apple','lotus-voyage-la','lotus-bold-journey'])assert.ok(recognitionData['lotus-flow-profile'].facts.some(f=>f.id===id));
+for(const t of recognitionExtraEntries)assert.ok(fs.existsSync('dist'+t.image));
+const home=fs.readFileSync('dist/index.html','utf8');assert.ok(home.indexOf('data-view="gallery"')<home.indexOf('data-view="vinyl"'));assert.ok(home.indexOf('data-view="vinyl"')<home.indexOf('data-view="list"'));assert.ok(home.includes('CREATIVE PRACTICE'));
+console.log('Client notes: collection orders, bilingual naming, MV-only removal, role scopes and dated recognition passed.');

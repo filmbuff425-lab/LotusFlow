@@ -1,18 +1,18 @@
 window.lotusMedia = {
   "news": {
-    "audio": "assets/music/news.mp3",
+    "audio": "assets/music/news-20261006.mp3",
     "audioKind": "full"
   },
   "bridge": {
-    "audio": "assets/music/great-bridge.mp3",
+    "audio": "assets/music/bridge-20261006.mp3",
     "audioKind": "full"
   },
   "juliet": {
-    "audio": "assets/music/juliet.mp3",
+    "audio": "assets/music/juliet-20261006.mp3",
     "audioKind": "full"
   },
   "airtight": {
-    "audio": "assets/music/airtight.mp3",
+    "audio": "assets/music/airtight-20261006.mp3",
     "audioKind": "full"
   },
   "summer": {
@@ -36,23 +36,23 @@ window.lotusMedia = {
     "url": "https://music.apple.com/us/album/only-you/1735851508?i=1735851510&uo=4"
   },
   "lov": {
-    "audio": "assets/music/lov.mp3",
+    "audio": "assets/music/lov-20261006.mp3",
     "audioKind": "full"
   },
   "adult": {
-    "audio": "assets/music/adult.mp3",
+    "audio": "assets/music/adult-20261006.mp3",
     "audioKind": "full"
   },
   "flow": {
-    "audio": "assets/music/flow.mp3",
+    "audio": "assets/music/flow-20261006.mp3",
     "audioKind": "full"
   },
   "feed-on": {
-    "audio": "assets/music/feed-on.mp3",
+    "audio": "assets/music/feed-on-20261006.mp3",
     "audioKind": "full"
   },
   "show-me-love": {
-    "audio": "assets/music/show-me-love.mp3",
+    "audio": "assets/music/show-me-love-20261006.mp3",
     "audioKind": "full"
   }
 };
@@ -143,11 +143,7 @@ Object.assign(window.lotusMedia, Object.fromEntries(Object.entries({
   "im-fine": {
     "audio": "assets/music/im-fine-20261006.mp3",
     "audioKind": "full",
-    "cover": "assets/releases/im-fine-20261006.jpg",
-    "video": {
-      "src": "/assets/mv/im-fine-20261006.mp4",
-      "kind": "OFFICIAL VISUALIZER"
-    }
+    "cover": "assets/releases/im-fine-20261006.jpg"
   },
   "red-flag-101": {
     "audio": "assets/music/red-flag-101-20261006.mp3",

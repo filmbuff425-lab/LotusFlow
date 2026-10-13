@@ -19,7 +19,7 @@ document.body.append(dialog);const canvases=[...dialog.querySelectorAll('.poster
 const openingInk=canvases.map(canvas=>{const ink=createInkFlow();canvas.after(ink.svg);return ink});
 const gatePeek=createIdentityPeek({gate,canvases,liquids:openingInk.map(ink=>ink.svg)});
 let cutting=false,openedAt=0,animation=0;
-const measureCut=new URLSearchParams(location.search).has('perf');let frameIntervals=[],previousCutFrame=0;
+const measureCut=new URLSearchParams(location.search).has('perf');let frameIntervals=[],previousCutFrame=0,cutLongFrames=[];
 const katana=dialog.querySelector('.katana-motion');
 const katanaAsset=new Image();katanaAsset.src='assets/cinema/katana.png';
 const bevel=dialog.querySelector('.steel-bevel'),spine=dialog.querySelector('.steel-spine'),soundToggle=dialog.querySelector('.cut-sound-toggle');
@@ -40,7 +40,7 @@ const scoreEnabled=()=>!muted&&!scoreMuted&&window.lotusSfx?.enabled!==false;
 function syncIdentityVisibility(){
  visibilityFrame=0;const r=artistSection.getBoundingClientRect();identityVisible=!document.hidden&&r.bottom>innerHeight*.2&&r.top<innerHeight*.75;
  gate.classList.toggle('seam-awake',!dialog.open&&identityVisible&&artistSection.dataset.artistLocked==='true');
- if(identityVisible&&artistSection.dataset.artistLocked==='true')prepareBlade().catch(()=>{});
+ if(identityVisible&&artistSection.dataset.artistLocked==='true'){prepareBlade().catch(()=>{});if(scoreEnabled())identityScore.prepare().catch(()=>{})}
  if(dialog.open&&cutting)return;
  if(!identityVisible){foregroundClaimed=false;identityScore.pause()}else if(!scoreEnabled()||foregroundClaimed)identityScore.pause();else identityScore.enter(artistSection.dataset.artistLocked==='false');
 }
@@ -48,7 +48,7 @@ function scheduleIdentityVisibility(){if(!visibilityFrame)visibilityFrame=reques
 addEventListener('scroll',scheduleIdentityVisibility,{passive:true});addEventListener('resize',scheduleIdentityVisibility);
 document.addEventListener('pointerdown',e=>{const entering=e.target.closest('a[href="#about"],.artist-gate');if(entering)foregroundClaimed=false;if(entering||identityVisible&&!foregroundClaimed&&!e.target.closest('.cut-sound-toggle,.identity-score-toggle')){if(scoreEnabled())identityScore.enter(artistSection.dataset.artistLocked==='false')}},{capture:true,passive:true});
 document.addEventListener('keydown',e=>{if(identityVisible&&(e.key==='Enter'||e.key===' ')&&scoreEnabled())identityScore.enter(artistSection.dataset.artistLocked==='false')},{capture:true});
-window.addEventListener('lotus-effects-change',()=>syncIdentityVisibility());
+window.addEventListener('lotus-effects-change',e=>{if(!e.detail)stopCutSound();syncIdentityVisibility()});
 window.addEventListener('lotus-audio-start',e=>{if(e.detail!=='identity-score'){foregroundClaimed=true;identityScore.pause()}});
 window.addEventListener('lotus-room-change',e=>{if(e.detail)identityScore.pause()});
 window.addEventListener('lotus-prologue-end',()=>{artistSection.dataset.identityScoreState=identityScore.playing?'reveal':'paused';syncIdentityVisibility()});
@@ -63,6 +63,7 @@ async function prepareBlade(){
  return decodeTask;
 }
 async function armSound(){
+ if(window.lotusSfx?.enabled===false)return false;
  try{
   audioContext??=new(window.AudioContext||window.webkitAudioContext)();
   await audioContext.resume();
@@ -76,11 +77,11 @@ function stopCutSound(){
  if(activeSource){const source=activeSource;activeSource=null;try{source.stop()}catch{}source.disconnect();}
  if(activeGain){activeGain.disconnect();activeGain=null}
 }
-function cutSound(at){
- stopCutSound();if(!audioContext||audioContext.state!=='running'||muted||!knifeBuffer)return;
+function cutSound(at,offset=0){
+ stopCutSound();if(!audioContext||audioContext.state!=='running'||muted||!knifeBuffer||window.lotusSfx?.enabled===false)return;
  const source=audioContext.createBufferSource(),gain=audioContext.createGain();source.buffer=knifeBuffer;
- gain.gain.setValueAtTime(.72,at);source.connect(gain).connect(audioContext.destination);
- activeSource=source;activeGain=gain;source.start(at);
+ gain.gain.setValueAtTime(offset?0:.72,at);if(offset)gain.gain.linearRampToValueAtTime(.72,at+.025);source.connect(gain).connect(audioContext.destination);
+ activeSource=source;activeGain=gain;source.start(at,offset);
  dialog.dataset.audioState='scheduled';dialog.dataset.audioDuration=String(knifeBuffer.duration);
  source.onended=()=>{source.disconnect();gain.disconnect();if(activeSource===source){activeSource=null;activeGain=null;dialog.dataset.audioState='played'}};
 }
@@ -113,13 +114,13 @@ function idle(now){
  if(cutting||!dialog.open)return;const g=geometry(),p=((now-openedAt)/4400)%1;
  glint.setAttribute('d',`M ${point(g,clamp(p-.075))} L ${point(g,p)}`);glint.style.opacity=String(Math.sin(p*Math.PI)*.85);animation=requestAnimationFrame(idle);
 }
-function finish(){if(measureCut&&frameIntervals.length){const sorted=frameIntervals.slice().sort((a,b)=>a-b);dialog.dataset.frameTiming=JSON.stringify({frames:sorted.length,medianMs:+sorted[Math.floor(sorted.length*.5)].toFixed(1),p95Ms:+sorted[Math.floor(sorted.length*.95)].toFixed(1),maxMs:+sorted.at(-1).toFixed(1)})}gatePeek.arrive(artistSection);dialog.close();document.body.classList.remove('prologue-open');history.replaceState(null,'','#about');const heading=document.querySelector('#about-title');heading.tabIndex=-1;heading.focus({preventScroll:true});window.dispatchEvent(new Event('lotus-prologue-end'))}
+function finish(){if(measureCut&&frameIntervals.length){const sorted=frameIntervals.slice().sort((a,b)=>a-b);dialog.dataset.frameTiming=JSON.stringify({frames:sorted.length,medianMs:+sorted[Math.floor(sorted.length*.5)].toFixed(1),p95Ms:+sorted[Math.floor(sorted.length*.95)].toFixed(1),maxMs:+sorted.at(-1).toFixed(1),longFrames:cutLongFrames})}gatePeek.arrive(artistSection);dialog.close();document.body.classList.remove('prologue-open');history.replaceState(null,'','#about');const heading=document.querySelector('#about-title');heading.tabIndex=-1;heading.focus({preventScroll:true});window.dispatchEvent(new Event('lotus-prologue-end'))}
 function renderFrame(t){
  const {strikeStart,contact,release,spray,settle,duration}=timing,g=geometry();
  gatePeek.cut(t,timing);
  if(reduced){dialog.style.setProperty('--cut-progress',clamp(t/180));window.dispatchEvent(new CustomEvent('lotus-cut-frame',{detail:{time:t<180?-1:duration}}));return}
  let tip;
- if(t<strikeStart){tip=-.30+.38*easeOut(t/strikeStart);dialog.dataset.phase='draw'}
+ if(t<strikeStart){const q=clamp(t/strikeStart);tip=-.30+.38*(q*.65+q*q*.35);dialog.dataset.phase='draw'}
  else if(t<contact){const q=clamp((t-strikeStart)/(contact-strikeStart));tip=.08+1.25*(q*q*(2-q));dialog.dataset.phase='strike'}
  else{tip=1.33+1.65*easeOut((t-contact)/140);dialog.dataset.phase=t<spray?'contact':t<settle?'spray':'settle'}
  const axis=Math.atan2(g.dy,g.dx)*180/Math.PI;
@@ -132,17 +133,21 @@ function renderFrame(t){
  white.style.opacity=String(.8*Math.sin(q*Math.PI));
  afterimage.setAttribute('d',t>=strikeStart&&t<contact?`M ${point(g,Math.max(0,tip-.32),6)} L ${point(g,clamp(tip),6)}`:'');
  afterimage.style.opacity=String(.28*Math.sin(q*Math.PI));
- incision.setAttribute('d',`M ${point(g,0)} L ${point(g,clamp(tip))}`);incision.style.opacity=t<strikeStart?0:String(1-clamp((t-release)/210));
- impact.setAttribute('d',t>=contact&&t<release?`M ${point(g,0)} L ${point(g,1)}`:'');impact.style.opacity=String(1-clamp((t-contact)/70));
- const split=t<contact?0:easeOut((t-contact)/310);dialog.style.setProperty('--cut-progress',split);
- const shock=t-contact;dialog.style.setProperty('--cut-shock',shock>=0&&shock<110?Math.sin(shock*.08)*Math.exp(-shock/35)*3.8:0);
+ incision.setAttribute('d','');incision.style.opacity='0';
+ // The white seam supplies the impact light; a second full-length flash reads as flicker.
+ impact.setAttribute('d','');impact.style.opacity='0';
+ const split=t<contact?0:easeOut((t-contact)/620);dialog.style.setProperty('--cut-progress',split);
+ dialog.style.setProperty('--cut-shock',0);
  dialog.dataset.elapsed=String(Math.round(t));
  window.dispatchEvent(new CustomEvent('lotus-cut-frame',{detail:{time:t}}));
 }
 async function slash(){
  if(cutting||preparing)return;preparing=true;
- // A real click resumes Web Audio; complete decoding before starting either clock.
- const [ready,scoreReady]=await Promise.all([muted?false:armSound(),scoreEnabled()?identityScore.prepare().catch(()=>false):false]);
+ // Audio begins preparing as the chapter enters view. Slow network/decode must
+ // never freeze the gesture; if needed the blade joins its already-running clock.
+ const soundReady=muted?Promise.resolve(false):armSound();
+ const musicReady=scoreEnabled()?identityScore.prepare().catch(()=>false):Promise.resolve(false);
+ await Promise.race([Promise.all([soundReady,musicReady]),new Promise(resolve=>setTimeout(resolve,100))]);
  if(!dialog.open||document.hidden){preparing=false;return}
  cutting=true;preparing=false;cancelAnimationFrame(animation);window.lotusReleasePlayer?.unlock();
  artistSection.dataset.artistLocked='false';profileChildren.forEach(el=>el.inert=false);
@@ -154,10 +159,10 @@ async function slash(){
  const audioAt=audioContext?.state==='running'?audioContext.currentTime+.040:null;
  const at=audioAt===null?performance.now()+40:audioVisualTime(audioContext,audioAt);
  dialog.dataset.visualStart=String(at);if(audioAt!==null)dialog.dataset.bladeAt=String(audioAt);
- if(ready&&!reduced)cutSound(audioAt);
- if(scoreReady)identityScore.reveal(audioAt+(reduced ? .12 : timing.contact/1000));
- frameIntervals=[];previousCutFrame=0;
- function animate(now){if(measureCut&&previousCutFrame)frameIntervals.push(now-previousCutFrame);previousCutFrame=now;const t=Math.max(0,now-at);renderFrame(t);if(t<(reduced?180:timing.duration))animation=requestAnimationFrame(animate);else finish()}
+ soundReady.then(ready=>{if(ready&&!reduced&&dialog.open&&cutting&&!document.hidden){const now=performance.now(),lead=Math.max(.015,(at-now)/1000),elapsed=Math.max(0,(now+lead*1000-at)/1000);if(elapsed<knifeBuffer.duration)cutSound(audioContext.currentTime+lead,elapsed)}});
+ musicReady.then(ready=>{if(ready&&dialog.open&&cutting&&scoreEnabled()&&!document.hidden){const beatAt=audioContext.currentTime+(at+(reduced?120:timing.contact)-performance.now())/1000;identityScore.reveal(beatAt)}});
+ frameIntervals=[];previousCutFrame=0;cutLongFrames=[];
+ function animate(now){if(measureCut&&previousCutFrame){const interval=now-previousCutFrame;frameIntervals.push(interval);if(interval>32)cutLongFrames.push({elapsed:Math.round(now-at),interval:+interval.toFixed(1)});}previousCutFrame=now;const t=Math.max(0,now-at);renderFrame(t);if(t<(reduced?180:timing.duration))animation=requestAnimationFrame(animate);else finish()}
  animation=requestAnimationFrame(animate);
 }
 dialog.addEventListener('pointermove',e=>{
@@ -169,7 +174,7 @@ dialog.addEventListener('click',e=>{if(!e.target.closest('button'))slash()});
 dialog.querySelector('.prologue-enter').addEventListener('click',()=>{armSound();slash()});dialog.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&!e.target.closest('.cut-sound-toggle')){e.preventDefault();armSound();slash()}});dialog.addEventListener('cancel',e=>{e.preventDefault();slash()});window.addEventListener('resize',()=>{if(dialog.open&&!cutting)draw()});
 
 document.querySelector('#replay-opening')?.addEventListener('click',open);
-function enterGate(){const rect=gate.getBoundingClientRect();open();armSound();if(reduced){slash();return}dialog.animate([{clipPath:`inset(${Math.max(0,rect.top)}px ${Math.max(0,innerWidth-rect.right)}px ${Math.max(0,innerHeight-rect.bottom)}px ${Math.max(0,rect.left)}px)`},{clipPath:'inset(0px)'}],{duration:600,easing:'cubic-bezier(.16,1,.3,1)'});setTimeout(slash,430)}
+function enterGate(){const rect=gate.getBoundingClientRect();open();armSound();if(reduced){slash();return}dialog.animate([{clipPath:`inset(${Math.max(0,rect.top)}px ${Math.max(0,innerWidth-rect.right)}px ${Math.max(0,innerHeight-rect.bottom)}px ${Math.max(0,rect.left)}px)`},{clipPath:'inset(0px)'}],{duration:600,easing:'cubic-bezier(.16,1,.3,1)'});setTimeout(slash,90)}
 let swipeStart=null,suppressClickUntil=0,scarFit;
 const swipeTrack=document.createElement('span');swipeTrack.className='gate-swipe-track';swipeTrack.setAttribute('aria-hidden','true');gate.append(swipeTrack);gate.dataset.swipeCue='light';
 gate.addEventListener('click',e=>{if(performance.now()<suppressClickUntil){e.preventDefault();return}enterGate()});

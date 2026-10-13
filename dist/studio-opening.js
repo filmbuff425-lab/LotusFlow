@@ -9,14 +9,16 @@ export function createStudioOpening({media,stopScreen,announce,onState=()=>{}}){
  const firstKick=.866;
  const volume=media.volume,originalMuted=media.muted;
  function state(value){media.dataset.audioState=value;onState(value)}
- function stop(){revision++;active=false;waiting=false;media.pause();media.volume=volume;media.muted=originalMuted;state('paused')}
+ function stop(){revision++;active=false;waiting=false;media.pause();media.volume=volume;media.muted=originalMuted||window.lotusSfx?.enabled===false;state('paused')}
  async function arm(){
+  if(window.lotusSfx?.enabled===false){state("muted");return}
   const token=++revision;active=false;media.preload='auto';media.muted=true;media.volume=0;state('arming');
-  try{await media.play();if(token!==revision)return;media.pause();media.currentTime=0;media.volume=volume;media.muted=originalMuted;state('armed')}
-  catch{if(token===revision){media.volume=volume;media.muted=originalMuted;state('needs-gesture')}}
+  try{await media.play();if(token!==revision)return;media.pause();media.currentTime=0;media.volume=volume;media.muted=originalMuted||window.lotusSfx?.enabled===false;state('armed')}
+  catch{if(token===revision){media.volume=volume;media.muted=originalMuted||window.lotusSfx?.enabled===false;state('needs-gesture')}}
  }
  async function start({offset=0,keepWaiting=false}={}){
-  const token=++revision;active=true;waiting=keepWaiting;stopScreen();media.pause();if(Math.abs(media.currentTime-offset)>.001)media.currentTime=offset;media.volume=volume;media.muted=originalMuted;
+  if(window.lotusSfx?.enabled===false){active=false;waiting=keepWaiting;state("muted");return}
+  const token=++revision;active=true;waiting=keepWaiting;stopScreen();media.pause();if(Math.abs(media.currentTime-offset)>.001)media.currentTime=offset;media.volume=volume;media.muted=originalMuted||window.lotusSfx?.enabled===false;
   announce();state('starting');
   try{await media.play();if(token!==revision)return;state(media.paused?'needs-gesture':'playing')}
   catch{if(token===revision)state('needs-gesture')}

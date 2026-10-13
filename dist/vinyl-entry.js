@@ -10,5 +10,5 @@ function prepare(){
   document.getElementById('vinyl-loading').textContent='The record view could not load. Choose Grid or List to browse.';
  });return pending;
 }
-const observer=new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting))prepare()},{rootMargin:'400px'});observer.observe(host);
+const observer=new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting))prepare()},{rootMargin:'150px'});observer.observe(host);
 document.querySelector('[data-view="vinyl"]').addEventListener('click',prepare);

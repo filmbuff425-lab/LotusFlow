@@ -1,5 +1,16 @@
 import {fittedScar,posterCover,posterBleed} from './identity-gesture.js';
 
+const clamp=value=>Math.max(0,Math.min(1,value));
+export function identityLightFrame(time,{contact,duration},entry=.4){
+ const spread=clamp((time-contact)/(duration-contact));
+ const fade=spread*spread*(3-2*spread);
+ const warm=clamp(time/contact);
+ const source=entry+(.68-entry)*warm;
+ // Extinguish the narrow source before the moving covers expose its full width.
+ const slit=1-clamp((time-contact+180)/220);
+ return {spread,opacity:source*(1-fade),slit:slit*slit};
+}
+
 // Reuse the opening's two existing poster canvases. The gap is only light;
 // the profile stays covered and inert until the actual cut.
 export function createIdentityPeek({gate,canvases,liquids}){
@@ -10,7 +21,7 @@ export function createIdentityPeek({gate,canvases,liquids}){
  glow.innerHTML='<defs><linearGradient id="gate-secret-light" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff"/><stop offset=".5" stop-color="#fff"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><path class="gap-halo"/><path class="gap-core"/>';
  gate.prepend(glow);
  const spill=document.createElementNS('http://www.w3.org/2000/svg','svg');spill.classList.add('gate-light-spill');spill.setAttribute('aria-hidden','true');gate.append(spill);
- let lightSize='',phase='gate',destination,entryLight=.5,entryDistance=3,lightAxis;
+ let lightSize='',phase='gate',destination,entryLight=.5,entryDistance=3,lightAxis,lightFields=[],lightCore,lightRays;
  function scatter(scar,w,h){
   const ax=scar.a?.x??scar.top,ay=scar.a?.y??0,bx=scar.b?.x??scar.bottom,by=scar.b?.y??h;
   const stamp=`${w}/${h}/${ax}/${ay}/${bx}/${by}`;if(lightSize===stamp)return;lightSize=stamp;
@@ -29,14 +40,16 @@ export function createIdentityPeek({gate,canvases,liquids}){
    dust+=`<circle class="gap-dust" cx="${x}" cy="${y}" r="${.55+(i%4)*.21}" style="--dust-x:${rx*(16+i%12)}px;--dust-y:${ry*(16+i%12)-6}px;animation-delay:${-i*.37}s;animation-duration:${3.8+i%4*.7}s"/>`;
   }
   spill.setAttribute('viewBox',`0 0 ${w} ${h}`);spill.innerHTML=`<defs>${defs}</defs><g class="gap-light-body" mask="url(#gate-spill-mask)"><path class="gap-spill-field" fill="url(#gate-spill-width)" d="${field}"/><path class="gap-spill-core" d="M ${ax} ${ay} L ${bx} ${by}"/><g class="gap-spill-rays">${rays}</g><g class="gap-dust-cloud">${dust}</g></g>`;
+  // Cache two fixed diffusion layers; changing a viewport-sized blur every frame stalls the reveal.
+  const sharp=spill.querySelector('.gap-spill-field'),soft=sharp.cloneNode();soft.classList.add('gap-spill-diffuse');sharp.after(soft);lightFields=[sharp,soft];lightCore=spill.querySelector('.gap-spill-core');lightRays=spill.querySelector('.gap-spill-rays');
  }
  function slit(scar,w,h){glow.setAttribute('viewBox',`0 0 ${w} ${h}`);glow.querySelectorAll('path').forEach(path=>path.setAttribute('d',`M ${scar.top} 0 L ${scar.bottom} ${h}`))}
  function diffuse(p){
   if(!lightAxis)return;
-  const {nx,ny,cx,cy}=lightAxis,s=2*p*p,a=1+s*nx*nx,b=s*nx*ny,d=1+s*ny*ny,field=spill.querySelector('.gap-spill-field');
-  field.style.transform=`matrix(${a},${b},${b},${d},${cx*(1-a)-cy*b},${cy*(1-d)-cx*b})`;
-  field.style.filter=`blur(${12+16*p}px)`;
-  spill.querySelector('.gap-spill-core').style.opacity=String(.16*(1-p)*(1-p));spill.querySelector('.gap-spill-rays').style.opacity=String(1-p);
+  const {nx,ny,cx,cy}=lightAxis,s=2,a=1+s*nx*nx,b=s*nx*ny,d=1+s*ny*ny;
+  const transform=`matrix(${a},${b},${b},${d},${cx*(1-a)-cy*b},${cy*(1-d)-cx*b})`;
+  lightFields.forEach((field,i)=>{field.style.transform=i?transform:'none';field.style.opacity=String(i?p:1-p)});
+  lightCore.style.opacity=String(.16*(1-p)*(1-p));lightRays.style.opacity=String(1-p);
  }
  function size(){
   if(phase!=='gate'){
@@ -61,17 +74,20 @@ export function createIdentityPeek({gate,canvases,liquids}){
  }
  function mount(){phase='gate';gate.prepend(glow);gate.append(spill);glow.classList.remove('identity-carried-slit');glow.style.opacity='';spill.classList.remove('identity-carried-light','identity-arrived-light');spill.removeAttribute('style');lightSize='';canvases.forEach((canvas,i)=>panels[i].append(canvas,liquids[i]));gate.classList.add('has-peek-panels');gate.dataset.swipeCue='light-between-halves';size()}
  function close(){entryLight=Math.max(.4,Number(getComputedStyle(spill).opacity)||0);const movement=new DOMMatrixReadOnly(getComputedStyle(panels[0]).transform);entryDistance=Math.max(2.8,Math.hypot(movement.m41,movement.m42));canvases.forEach((canvas,i)=>{homes[i].append(canvas,liquids[i]);Object.assign(canvas.style,{position:'absolute',inset:'auto',left:`${-posterBleed}px`,top:`${-posterBleed}px`,width:`${innerWidth+posterBleed*2}px`,height:`${innerHeight+posterBleed*2}px`});liquids[i].removeAttribute('style')});gate.classList.remove('has-peek-panels')}
- function carry(target){phase='opening';destination=target;target.prepend(glow);target.append(spill);glow.classList.add('identity-carried-slit');spill.classList.remove('identity-arrived-light');spill.classList.add('identity-carried-light');spill.style.height='100%';spill.style.opacity=String(entryLight);size();window.lotusSfx?.play('seam-air')}
- function cut(time,{contact,duration}){
-  const p=Math.max(0,Math.min(1,(time-contact)/(duration-contact))),warm=Math.min(1,time/contact),light=entryLight+(.85-entryLight)*warm;
-  spill.style.opacity=String(light*(1-p)+.24*p);
-  // The light disperses into the room, independently of the blood landing.
-  diffuse(p);glow.style.opacity=String((1-p)*(1-p));
+ function carry(target){phase='opening';destination=target;target.prepend(glow);target.append(spill);glow.classList.add('identity-carried-slit');glow.style.opacity='1';spill.style.display='';spill.classList.remove('identity-arrived-light');spill.classList.add('identity-carried-light');spill.style.height='100%';spill.style.opacity=String(entryLight);size();diffuse(0);window.lotusSfx?.play('seam-air')}
+ function cut(time,clock){
+  const frame=identityLightFrame(time,clock,entryLight);
+  spill.style.opacity=String(frame.opacity);diffuse(frame.spread);glow.style.opacity=String(frame.slit);
  }
- function arrive(target){phase='arrived';destination=target;target.append(spill);gate.prepend(glow);glow.classList.remove('identity-carried-slit');glow.style.opacity='';spill.classList.add('identity-arrived-light');spill.style.opacity='';size()}
+ function arrive(target){
+  // Finish the fade in the same top-layer coordinate space. Moving a still-lit
+  // SVG into the much taller profile changed its size, mask and stacking order.
+  phase='arrived';destination=target;spill.style.opacity='0';spill.style.display='none';
+  glow.style.opacity='0';
+ }
  function breathe(){if(phase==='gate'&&gate.classList.contains('seam-awake'))window.lotusSfx?.play('seam-air',{delay:1.35})}
  panels[0].addEventListener('animationstart',breathe);panels[0].addEventListener('animationiteration',breathe);
- spill.addEventListener('animationend',()=>{if(phase==='arrived')spill.style.display='none'});
+
  new ResizeObserver(size).observe(gate);
  addEventListener('resize',size);
  return{mount,close,size,carry,cut,arrive};

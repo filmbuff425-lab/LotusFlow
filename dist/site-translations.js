@@ -1,5 +1,4 @@
-// Curated bilingual copy. Original song names and credit scope are preserved.
-window.LotusTranslations = {
+window.LotusTranslations={
   "Interactive audio demo, not stems from a Lotus Flow release. Try the eight-channel mixer below.": {
     "zh": "这是互动音频演示，并非 Lotus Flow 作品的分轨。你也可以试试下方的八轨混音台。",
     "en": "Interactive audio demo, not stems from a Lotus Flow release. Try the eight-channel mixer below."
@@ -12,9 +11,9 @@ window.LotusTranslations = {
     "zh": "我的创作涵盖电子音乐、流行音乐、实验声音与视觉叙事，参与 K-pop、华语嘻哈、J-pop 及欧美流行音乐的词曲创作与制作，与亚洲及美国的艺人展开合作。",
     "en": "My work moves between electronic music, pop, experimental sound and visual world-building. I write and produce across K-pop, Chinese hip-hop, J-pop and Western pop, collaborating with artists across Asia and the U.S."
   },
-  "My credits include AleXa, XLOV, SANTA, Wang Yitai, BENZO, TIA RAY, CAELAN and Laurie. My own artist releases explore electronic sound, pop songwriting, East Asian aesthetics and internet culture.": {
-    "zh": "合作艺人包括 AleXa、XLOV、赞多 SANTA、王以太、李大奔 BENZO、袁娅维 TIA RAY、庆怜 CAELAN 和 Laurie。在以 Lotus Flow 名义发行的个人作品中，我将电子声音、流行歌曲创作、东亚美学与互联网文化融入同一套表达。",
-    "en": "My credits include AleXa, XLOV, SANTA, Wang Yitai, BENZO, TIA RAY, CAELAN and Laurie. My own artist releases explore electronic sound, pop songwriting, East Asian aesthetics and internet culture."
+  "My credits include AleXa, XLOV, SANTA, Yitai Wang, BENZO, Tia Ray, CAELAN and Laurie. My own artist releases explore electronic sound, pop songwriting, East Asian aesthetics and internet culture.": {
+    "zh": "合作艺人包括 AleXa、XLOV、Santa、王以太、李大奔 BENZO、袁娅维 Tia Ray、庆怜 CAELAN 和 Laurie。在以 Lotus Flow 名义发行的个人作品中，我将电子声音、流行歌曲创作、东亚美学与互联网文化融入同一套表达。",
+    "en": "My credits include AleXa, XLOV, SANTA, Yitai Wang, BENZO, Tia Ray, CAELAN and Laurie. My own artist releases explore electronic sound, pop songwriting, East Asian aesthetics and internet culture."
   },
   "Production, composition, lyrics and arrangement are parts of the same creative language for me. I work across music, visual art and technology, with each release forming part of a larger world.": {
     "zh": "音乐制作、作曲、作词与编曲，是我表达创作理念的不同方式。我在音乐、视觉艺术与技术之间探索，让每一部作品延展出自己的世界。",
@@ -60,25 +59,25 @@ window.LotusTranslations = {
     "zh": "Laurie / 洛藝以 Laurie 为艺名发表作品。我们的合作曲目包括《RED FLAG 101》《Rendezvous》《I’m Fine》与《Wya?》。",
     "en": "Laurie / 洛藝 releases music under the artist name Laurie. Our collaborations include “RED FLAG 101”, “Rendezvous”, “I’m Fine” and “Wya?”."
   },
-  "I share the lyrics and composition credits on Show Me Love (Tia Ray Version), with WizTheMc, bees & honey and TIA RAY.": {
-    "zh": "我与 WizTheMc、bees & honey 及袁娅维 TIA RAY 共同参与《Show Me Love (Tia Ray Version)》的作词与作曲。",
-    "en": "I share the lyrics and composition credits on Show Me Love (Tia Ray Version), with WizTheMc, bees & honey and TIA RAY."
+  "I share the lyrics and composition credits on Show Me Love (Tia Ray Version), with WizTheMc, bees & honey and Tia Ray.": {
+    "zh": "我与 WizTheMc、bees & honey 及袁娅维 Tia Ray 共同参与《Show Me Love (Tia Ray Version)》的作词与作曲。",
+    "en": "I share the lyrics and composition credits on Show Me Love (Tia Ray Version), with WizTheMc, bees & honey and Tia Ray."
   },
-  "The shared writing team includes TIA RAY, Lotus Flow, Sanele David Sydow and the Hitimpulse writers.": {
-    "zh": "共同创作团队包括 TIA RAY、Lotus Flow、Sanele David Sydow 与 Hitimpulse 的词曲作者。",
-    "en": "The shared writing team includes TIA RAY, Lotus Flow, Sanele David Sydow and the Hitimpulse writers."
+  "The shared writing team includes Tia Ray, Lotus Flow, Sanele David Sydow and the Hitimpulse writers.": {
+    "zh": "共同创作团队包括 Tia Ray、Lotus Flow、Sanele David Sydow 与 Hitimpulse 的词曲作者。",
+    "en": "The shared writing team includes Tia Ray, Lotus Flow, Sanele David Sydow and the Hitimpulse writers."
   },
-  "TIA RAY joins WizTheMc and bees & honey on the Tia Ray version of “Show Me Love”, released on 22 August 2025. The writing credits include TIA RAY and Lotus Flow; Hitimpulse is credited with production.": {
-    "zh": "袁娅维 TIA RAY 与 WizTheMc、bees & honey 合作的《Show Me Love (Tia Ray Version)》于 2025 年 8 月 22 日发行。TIA RAY 与 Lotus Flow 参与词曲创作，Hitimpulse 担任制作人。",
-    "en": "TIA RAY joins WizTheMc and bees & honey on the Tia Ray version of “Show Me Love”, released on 22 August 2025. The writing credits include TIA RAY and Lotus Flow; Hitimpulse is credited with production."
+  "Tia Ray joins WizTheMc and bees & honey on the Tia Ray version of “Show Me Love”, released on 22 August 2025. The writing credits include Tia Ray and Lotus Flow; Hitimpulse is credited with production.": {
+    "zh": "袁娅维 Tia Ray 与 WizTheMc、bees & honey 合作的《Show Me Love (Tia Ray Version)》于 2025 年 8 月 22 日发行。Tia Ray 与 Lotus Flow 参与词曲创作，Hitimpulse 担任制作人。",
+    "en": "Tia Ray joins WizTheMc and bees & honey on the Tia Ray version of “Show Me Love”, released on 22 August 2025. The writing credits include Tia Ray and Lotus Flow; Hitimpulse is credited with production."
   },
-  "WizTheMc is a lead artist on “Show Me Love” with bees & honey. The 2025 Tia Ray version adds TIA RAY to the artist line-up. Its writing credits include Sanele David Sydow, TIA RAY, Lotus Flow and the Hitimpulse writers.": {
-    "zh": "《Show Me Love》原曲由 WizTheMc 与 bees & honey 演绎，2025 年推出袁娅维 TIA RAY 参与的版本。该版本的词曲作者包括 Sanele David Sydow、TIA RAY、Lotus Flow 及 Hitimpulse 的创作者。",
-    "en": "WizTheMc is a lead artist on “Show Me Love” with bees & honey. The 2025 Tia Ray version adds TIA RAY to the artist line-up. Its writing credits include Sanele David Sydow, TIA RAY, Lotus Flow and the Hitimpulse writers."
+  "WizTheMc is a lead artist on “Show Me Love” with bees & honey. The 2025 Tia Ray version adds Tia Ray to the artist line-up. Its writing credits include Sanele David Sydow, Tia Ray, Lotus Flow and the Hitimpulse writers.": {
+    "zh": "《Show Me Love》原曲由 WizTheMc 与 bees & honey 演绎，2025 年推出袁娅维 Tia Ray 参与的版本。该版本的词曲作者包括 Sanele David Sydow、Tia Ray、Lotus Flow 及 Hitimpulse 的创作者。",
+    "en": "WizTheMc is a lead artist on “Show Me Love” with bees & honey. The 2025 Tia Ray version adds Tia Ray to the artist line-up. Its writing credits include Sanele David Sydow, Tia Ray, Lotus Flow and the Hitimpulse writers."
   },
-  "bees & honey is credited alongside WizTheMc and TIA RAY on “Show Me Love (Tia Ray Version)”. This release file focuses on that specific recording and its shared songwriting credits.": {
-    "zh": "bees & honey 与 WizTheMc、TIA RAY 共同演绎《Show Me Love (Tia Ray Version)》。本页展示的是这一录音版本及其词曲署名。",
-    "en": "bees & honey is credited alongside WizTheMc and TIA RAY on “Show Me Love (Tia Ray Version)”. This release file focuses on that specific recording and its shared songwriting credits."
+  "bees & honey is credited alongside WizTheMc and Tia Ray on “Show Me Love (Tia Ray Version)”. This release file focuses on that specific recording and its shared songwriting credits.": {
+    "zh": "bees & honey 与 WizTheMc、Tia Ray 共同演绎《Show Me Love (Tia Ray Version)》。本页展示的是这一录音版本及其词曲署名。",
+    "en": "bees & honey is credited alongside WizTheMc and Tia Ray on “Show Me Love (Tia Ray Version)”. This release file focuses on that specific recording and its shared songwriting credits."
   },
   "“Say It To Me” — SABAI, HALIENE & ANDe, 2025. My contribution: Shared songwriting credit on the SABAI, HALIENE and ANDe recording.": {
     "zh": "《Say It To Me》由 SABAI、HALIENE 与 ANDe 于 2025 年发行。我参与联合词曲创作。",
@@ -101,8 +100,8 @@ window.LotusTranslations = {
     "en": "I write and produce across K-pop, Chinese hip-hop, J-pop and Western pop. My work spans production, composition, lyrics, arrangement and recording, alongside releases under my own artist name. Open a project to hear the recording and explore the credits and collaborators."
   },
   "Co-production · Arrangement · Programming · Co-lyrics · Co-composition · Recording": {
-    "zh": "联合制作 · 编曲 · 音乐编程 · 联合作词 · 联合作曲 · 录音",
-    "en": "Co-production · Arrangement · Programming · Co-lyrics · Co-composition · Recording"
+    "en": "Co-production · Arrangement · Programming · Co-lyrics · Co-composition · Recording",
+    "zh": "联合制作 · 编曲 · 音乐编程 · 共同作词 · 共同作曲 · 录音"
   },
   "Production · Arrangement · Co-lyrics · Co-composition. Writers: Ren Kai / Tat Tong / Lotus Flow / Asia D.": {
     "zh": "音乐制作 · 编曲 · 联合作词 · 联合作曲。词曲作者：Ren Kai / Tat Tong / Lotus Flow / Asia D。",
@@ -125,8 +124,8 @@ window.LotusTranslations = {
     "en": "Production · Arrangement · Co-lyrics · Co-composition. Composition: Lotus Flow / Sally Han / Kory. Arrangement: Lotus Flow / Kory / 赵连帅@ZZmusic."
   },
   "Production · Arrangement · Co-lyrics · Co-composition · Recording · Mixing · Mastering": {
-    "zh": "音乐制作 · 编曲 · 联合作词 · 联合作曲 · 录音 · 混音 · 母带制作",
-    "en": "Production · Arrangement · Co-lyrics · Co-composition · Recording · Mixing · Mastering"
+    "en": "Production · Arrangement · Co-lyrics · Co-composition · Recording · Mixing · Mastering",
+    "zh": "音乐制作 · 编曲 · 共同作词 · 共同作曲 · 录音 · 混音 · 母带制作"
   },
   "Co-lyrics · Co-composition · Production · Recording engineering · Executive production": {
     "zh": "联合作词 · 联合作曲 · 音乐制作 · 录音 · 执行制作",
@@ -169,7 +168,7 @@ window.LotusTranslations = {
     "en": "For Gen1es EMMA’s Right Here, I contributed production, arrangement, lyrics, composition, recording, mixing and mastering."
   },
   "I contributed production, arrangement, lyrics and composition to Train to Nowhere, from SANTA’s 2024 album Prologue.": {
-    "zh": "我参与赞多 SANTA 的《Train to Nowhere》的音乐制作、编曲、作词与作曲。该曲收录于其 2024 年专辑《Prologue》。",
+    "zh": "我参与Santa 的《Train to Nowhere》的音乐制作、编曲、作词与作曲。该曲收录于其 2024 年专辑《Prologue》。",
     "en": "I contributed production, arrangement, lyrics and composition to Train to Nowhere, from SANTA’s 2024 album Prologue."
   },
   "Composition with ADN Lewis, WD and SANTA; the shared lyric team also includes JR FOG.": {
@@ -177,7 +176,7 @@ window.LotusTranslations = {
     "en": "Composition with ADN Lewis, WD and SANTA; the shared lyric team also includes JR FOG."
   },
   "SANTA / 赞多 is a solo artist and dancer. I contributed production, arrangement, lyrics and composition to “Train to Nowhere” from his 2024 album Prologue.": {
-    "zh": "赞多 SANTA 是歌手及舞者。我们的合作曲《Train to Nowhere》收录于其 2024 年专辑《Prologue》，我参与音乐制作、编曲及词曲创作。",
+    "zh": "Santa 是歌手及舞者。我们的合作曲《Train to Nowhere》收录于其 2024 年专辑《Prologue》，我参与音乐制作、编曲及词曲创作。",
     "en": "SANTA / 赞多 is a solo artist and dancer. I contributed production, arrangement, lyrics and composition to “Train to Nowhere” from his 2024 album Prologue."
   },
   "I contributed production, arrangement, lyrics and composition to Ren Kai’s title track from the 2024 Flow EP, released through RCA Records China.": {
@@ -224,9 +223,9 @@ window.LotusTranslations = {
     "zh": "《Midsummer Heat》由 JENZEE 演绎，我参与词曲创作与音乐制作。",
     "en": "JENZEE is the recording artist behind “Midsummer Heat”. My contribution spans its writing and production."
   },
-  "“PICK A SIDE” — Haezee 黄玮昕, 2025. My contribution: Co-composition with Haezee, WD and ADN Lewis. Produced by Haezee.": {
+  "“PICK A SIDE” — Haezee, 2025. My contribution: Co-composition with Haezee, WD and ADN Lewis. Produced by Haezee.": {
     "zh": "《PICK A SIDE》由 Haezee 黃瑋昕于 2025 年发行。我与 Haezee、WD、ADN Lewis 联合作曲；Haezee 担任制作人。",
-    "en": "“PICK A SIDE” — Haezee 黄玮昕, 2025. My contribution: Co-composition with Haezee, WD and ADN Lewis. Produced by Haezee."
+    "en": "“PICK A SIDE” — Haezee, 2025. My contribution: Co-composition with Haezee, WD and ADN Lewis. Produced by Haezee."
   },
   "Haezee 黃瑋昕 is a singer and songwriter with Sony Music Taiwan. Our collaboration “PICK A SIDE” appears on UNLOCKED.": {
     "zh": "Haezee 黃瑋昕是签约台湾索尼音乐的歌手及词曲作者。我们的合作曲《PICK A SIDE》收录于其专辑《UNLOCKED》。",
@@ -304,21 +303,21 @@ window.LotusTranslations = {
     "zh": "《密不透风》是《乘风2024》第五次公演的六人合作舞台，由戚薇、杨谨华、朱丹、尚雯婕、萨顶顶与蔡文静共同演绎。我参与音乐制作、编曲及词曲创作，公演视频中可查阅联合作曲与编曲署名。",
     "en": "A six-performer collaboration from the fifth performance round of Ride the Wind 2024. The stage brings together Qi Wei, Cheryl Yang, Zhu Dan, Shang Wenjie, Sa Dingding and Cai Wenjing. My contribution spans production, arrangement and songwriting; the performance video documents the shared composition and arrangement credits."
   },
-  "For CAELAN’s Cassette / 磁带, my contribution includes production, arrangement, composition and recording.": {
-    "zh": "我参与庆怜 CAELAN 的《Cassette / 磁带》的音乐制作、编曲、作曲与录音。",
-    "en": "For CAELAN’s Cassette / 磁带, my contribution includes production, arrangement, composition and recording."
+  "For CAELAN’s Cassette, my contribution includes production, arrangement, composition and recording.": {
+    "zh": "我参与庆怜 CAELAN 的《Cassette》的音乐制作、编曲、作曲与录音。",
+    "en": "For CAELAN’s Cassette, my contribution includes production, arrangement, composition and recording."
   },
-  "CAELAN is the recording artist behind Cassette / 磁带, included on The Letter I Never Sent. My contribution spans production, arrangement, composition and recording.": {
-    "zh": "《Cassette / 磁带》由庆怜 CAELAN 演绎，收录于《The Letter I Never Sent》。我参与音乐制作、编曲、作曲与录音。",
-    "en": "CAELAN is the recording artist behind Cassette / 磁带, included on The Letter I Never Sent. My contribution spans production, arrangement, composition and recording."
+  "CAELAN is the recording artist behind Cassette, included on The Letter I Never Sent. My contribution spans production, arrangement, composition and recording.": {
+    "zh": "《Cassette》由庆怜 CAELAN 演绎，收录于《The Letter I Never Sent》。我参与音乐制作、编曲、作曲与录音。",
+    "en": "CAELAN is the recording artist behind Cassette, included on The Letter I Never Sent. My contribution spans production, arrangement, composition and recording."
   },
-  "I worked with Wang Yitai on Da Qiao / 大桥, contributing production, arrangement and songwriting. The track appears on his 2024 album Love Me Later.": {
-    "zh": "我与王以太合作《Da Qiao / 大桥》，参与音乐制作、编曲与词曲创作。该曲收录于其 2024 年专辑《Love Me Later》。",
-    "en": "I worked with Wang Yitai on Da Qiao / 大桥, contributing production, arrangement and songwriting. The track appears on his 2024 album Love Me Later."
+  "I worked with Yitai Wang on 大桥, contributing production, arrangement and songwriting. The track appears on his 2024 album Love Me Later.": {
+    "zh": "我与王以太合作《大桥》，参与音乐制作、编曲与词曲创作。该曲收录于其 2024 年专辑《Love Me Later》。",
+    "en": "I worked with Yitai Wang on 大桥, contributing production, arrangement and songwriting. The track appears on his 2024 album Love Me Later."
   },
-  "The Chengdu artist moves between rap and melody, weaving Mandarin, English and Sichuanese into his writing. His 2024 concept album Love Me Later was written across two years and recorded in Los Angeles. “Da Qiao” brings his melodic side into focus, with a chorus rooted in the language of a pop ballad.": {
+  "The Chengdu artist moves between rap and melody, weaving Mandarin, English and Sichuanese into his writing. His 2024 concept album Love Me Later was written across two years and recorded in Los Angeles. “大桥” brings his melodic side into focus, with a chorus rooted in the language of a pop ballad.": {
     "zh": "王以太将说唱与旋律结合，以普通话、英语及四川话展开创作。2024 年概念专辑《Love Me Later》历时两年创作，在洛杉矶录制。《大桥》着重呈现其旋律表达，副歌带有流行抒情歌曲的质感。",
-    "en": "The Chengdu artist moves between rap and melody, weaving Mandarin, English and Sichuanese into his writing. His 2024 concept album Love Me Later was written across two years and recorded in Los Angeles. “Da Qiao” brings his melodic side into focus, with a chorus rooted in the language of a pop ballad."
+    "en": "The Chengdu artist moves between rap and melody, weaving Mandarin, English and Sichuanese into his writing. His 2024 concept album Love Me Later was written across two years and recorded in Los Angeles. “大桥” brings his melodic side into focus, with a chorus rooted in the language of a pop ballad."
   },
   "STUDIO": {
     "en": "STUDIO",
@@ -606,7 +605,7 @@ window.LotusTranslations = {
   },
   "Sound as architecture. Production as storytelling.": {
     "en": "Sound as architecture. Production as storytelling.",
-    "zh": "以声音构筑空间　用声音讲述故事"
+    "zh": "声音是建筑，制作是叙事。"
   },
   "EXPLORE MY WORK": {
     "en": "EXPLORE MY WORK",
@@ -635,6 +634,10 @@ window.LotusTranslations = {
   "ALL WORK": {
     "en": "ALL WORK",
     "zh": "全部作品"
+  },
+  "MUSIC PRODUCTION": {
+    "en": "MUSIC PRODUCTION",
+    "zh": "音乐制作"
   },
   "PRODUCTION": {
     "en": "PRODUCTION",
@@ -742,11 +745,11 @@ window.LotusTranslations = {
   },
   "SOUND / ON": {
     "en": "SOUND / ON",
-    "zh": "声音 / 开启"
+    "zh": "声音 开启"
   },
   "SOUND / OFF": {
     "en": "SOUND / OFF",
-    "zh": "声音 / 关闭"
+    "zh": "声音 关闭"
   },
   "SOUND / ENABLE": {
     "en": "SOUND / ENABLE",
@@ -892,9 +895,9 @@ window.LotusTranslations = {
     "en": "Shared writing credit",
     "zh": "联合词曲创作"
   },
-  "With bees & honey and TIA RAY": {
-    "en": "With bees & honey and TIA RAY",
-    "zh": "与 bees & honey、TIA RAY 合作"
+  "With bees & honey and Tia Ray": {
+    "en": "With bees & honey and Tia Ray",
+    "zh": "与 bees & honey、Tia Ray 合作"
   },
   "OFFICIAL ARTIST PHOTOGRAPH": {
     "en": "OFFICIAL ARTIST PHOTOGRAPH",
@@ -1082,7 +1085,7 @@ window.LotusTranslations = {
   },
   "Production and songwriting for SANTA.": {
     "en": "Production and songwriting for SANTA.",
-    "zh": "为赞多 SANTA 创作与制作。"
+    "zh": "为Santa 创作与制作。"
   },
   "PRODUCTION & ARRANGEMENT": {
     "en": "PRODUCTION & ARRANGEMENT",
@@ -1374,7 +1377,7 @@ window.LotusTranslations = {
   },
   "Production and composition for Cassette.": {
     "en": "Production and composition for Cassette.",
-    "zh": "《Cassette / 磁带》的制作与作曲。"
+    "zh": "《Cassette》的制作与作曲。"
   },
   "A shared composition contribution.": {
     "en": "A shared composition contribution.",
@@ -1384,9 +1387,9 @@ window.LotusTranslations = {
     "en": "The complete artist-supplied recording is available to listen to.",
     "zh": "可收听艺人提供的完整录音。"
   },
-  "Production and songwriting for Da Qiao.": {
-    "en": "Production and songwriting for Da Qiao.",
-    "zh": "《Da Qiao / 大桥》的创作与制作。"
+  "Production and songwriting for 大桥.": {
+    "en": "Production and songwriting for 大桥.",
+    "zh": "《大桥》的创作与制作。"
   },
   "My contribution connects the written song with its recorded arrangement.": {
     "en": "My contribution connects the written song with its recorded arrangement.",
@@ -2130,11 +2133,11 @@ window.LotusTranslations = {
   },
   "Mute ambience and interaction sounds": {
     "en": "Mute ambience and interaction sounds",
-    "zh": "关闭背景音乐与交互音效"
+    "zh": "关闭环境音乐与交互音效"
   },
   "Enable ambience and interaction sounds": {
     "en": "Enable ambience and interaction sounds",
-    "zh": "开启背景音乐与交互音效"
+    "zh": "开启环境音乐与交互音效"
   },
   "Mute heartbeat sound": {
     "en": "Mute heartbeat sound",
@@ -2330,11 +2333,11 @@ window.LotusTranslations = {
   },
   "《Love Me Later》｜第三届浪潮音乐大赏最佳说唱专辑，王以太领奖": {
     "zh": "《Love Me Later》｜第三届浪潮音乐大赏最佳说唱专辑，王以太领奖",
-    "en": "Love Me Later / Best Rap Album, 3rd Wave Music Awards · Wang Yitai accepting the award"
+    "en": "Love Me Later / Best Rap Album, 3rd Wave Music Awards · Yitai Wang accepting the award"
   },
   "王以太不闪火（微博认证唱作歌手）": {
     "zh": "王以太不闪火（微博认证唱作歌手）",
-    "en": "Wang Yitai / Verified artist Weibo"
+    "en": "Yitai Wang / Verified artist Weibo"
   },
   "浪潮音乐大赏（Bilibili UID 1428827652）": {
     "zh": "浪潮音乐大赏（Bilibili UID 1428827652）",
@@ -2366,7 +2369,7 @@ window.LotusTranslations = {
   },
   "Co-composition": {
     "en": "Co-composition",
-    "zh": "联合作曲"
+    "zh": "共同作曲"
   },
   "CO-COMPOSITION": {
     "en": "CO-COMPOSITION",
@@ -2378,7 +2381,7 @@ window.LotusTranslations = {
   },
   "Co-lyrics": {
     "en": "Co-lyrics",
-    "zh": "联合作词"
+    "zh": "共同作词"
   },
   "CO-LYRICS": {
     "en": "CO-LYRICS",
@@ -2536,24 +2539,24 @@ window.LotusTranslations = {
     "en": "Editorial",
     "zh": "编辑推荐"
   },
-  "Love Me Later / Wang Yitai. “Da Qiao” is a track on the awarded album.": {
-    "en": "Love Me Later / Wang Yitai. “Da Qiao” is a track on the awarded album.",
+  "Love Me Later / Yitai Wang. “大桥” is a track on the awarded album.": {
+    "en": "Love Me Later / Yitai Wang. “大桥” is a track on the awarded album.",
     "zh": "《Love Me Later》/ 王以太。《大桥》收录于这张获奖专辑。"
   },
   "NetEase Chinese Hip-hop Music Awards / 2024": {
     "en": "NetEase Chinese Hip-hop Music Awards / 2024",
     "zh": "网易云音乐中文说唱音乐奖 / 2024"
   },
-  "Love Me Later · Wang Yitai Album recognition for the record featuring “Da Qiao”.": {
-    "en": "Love Me Later · Wang Yitai\nAlbum recognition for the record featuring “Da Qiao”.",
+  "Love Me Later · Yitai Wang Album recognition for the record featuring “大桥”.": {
+    "en": "Love Me Later · Yitai Wang\nAlbum recognition for the record featuring “大桥”.",
     "zh": "Love Me Later · 王以太。收录《大桥》的专辑获得荣誉。"
   },
-  "Love Me Later / Wang Yitai. Voted by listeners; an album award.": {
-    "en": "Love Me Later / Wang Yitai. Voted by listeners; an album award.",
+  "Love Me Later / Yitai Wang. Voted by listeners; an album award.": {
+    "en": "Love Me Later / Yitai Wang. Voted by listeners; an album award.",
     "zh": "《Love Me Later》/ 王以太。由听众投票选出的专辑奖项。"
   },
-  "Awarded to Love Me Later / Wang Yitai, the album containing “Da Qiao”.": {
-    "en": "Awarded to Love Me Later / Wang Yitai, the album containing “Da Qiao”.",
+  "Awarded to Love Me Later / Yitai Wang, the album containing “大桥”.": {
+    "en": "Awarded to Love Me Later / Yitai Wang, the album containing “大桥”.",
     "zh": "获奖作品为王以太的《Love Me Later》，《大桥》收录于该专辑。"
   },
   "Love Me Later placed third on Douban’s most-followed hip-hop/rap album list for 2024.": {
@@ -2574,7 +2577,7 @@ window.LotusTranslations = {
   },
   "Prologue / SANTA. Combined plays of the album’s tracks; not the individual total for “Train to Nowhere”.": {
     "en": "Prologue / SANTA. Combined plays of the album’s tracks; not the individual total for “Train to Nowhere”.",
-    "zh": "《Prologue》/ 赞多 SANTA。此处为专辑全部曲目的累计播放量，并非《Train to Nowhere》的单曲播放量。"
+    "zh": "《Prologue》/ Santa。此处为专辑全部曲目的累计播放量，并非《Train to Nowhere》的单曲播放量。"
   },
   "Album plays / Chinese DSPs": {
     "en": "Album plays / Chinese DSPs",
@@ -2582,7 +2585,7 @@ window.LotusTranslations = {
   },
   "Prologue · SANTA Combined plays across the album’s tracks.": {
     "en": "Prologue · SANTA\nCombined plays across the album’s tracks.",
-    "zh": "Prologue · 赞多 SANTA。专辑各曲累计播放。"
+    "zh": "Prologue · Santa。专辑各曲累计播放。"
   },
   "Lotus Flow: The Songwriters": {
     "en": "Lotus Flow: The Songwriters",
@@ -2692,9 +2695,9 @@ window.LotusTranslations = {
     "en": "Recording certification",
     "zh": "唱片认证"
   },
-  "The original “Show Me Love” is certified Double Platinum by IFPI Austria. Lotus Flow co-wrote the lyrics and composition for the TIA RAY version.": {
-    "en": "The original “Show Me Love” is certified Double Platinum by IFPI Austria. Lotus Flow co-wrote the lyrics and composition for the TIA RAY version.",
-    "zh": "《Show Me Love》原曲获 IFPI 奥地利双白金认证；Lotus Flow 参与袁娅维 TIA RAY 版本的词曲创作。"
+  "The original “Show Me Love” is certified Double Platinum by IFPI Austria. Lotus Flow co-wrote the lyrics and composition for the Tia Ray version.": {
+    "en": "The original “Show Me Love” is certified Double Platinum by IFPI Austria. Lotus Flow co-wrote the lyrics and composition for the Tia Ray version.",
+    "zh": "《Show Me Love》原曲获 IFPI 奥地利双白金认证；Lotus Flow 参与袁娅维 Tia Ray 版本的词曲创作。"
   },
   "Released under my own artist name, Lotus Flow.": {
     "en": "Released under my own artist name, Lotus Flow.",
@@ -2716,16 +2719,16 @@ window.LotusTranslations = {
     "en": "Dedicated official category-winning album poster.",
     "zh": "获奖专辑的官方专属海报。"
   },
-  "Award acceptance photograph showing Wang Yitai in the award sash holding ceremony mascot.": {
-    "en": "Award acceptance photograph showing Wang Yitai in the award sash holding ceremony mascot.",
+  "Award acceptance photograph showing Yitai Wang in the award sash holding ceremony mascot.": {
+    "en": "Award acceptance photograph showing Yitai Wang in the award sash holding ceremony mascot.",
     "zh": "王以太身披获奖绶带、手持颁奖礼吉祥物的领奖照片。"
   },
-  "Love Me Later · Wang Yitai — Best Chinese Rap Album, 13th Fusion HipHop Awards (2025).": {
-    "en": "Love Me Later · Wang Yitai — Best Chinese Rap Album, 13th Fusion HipHop Awards (2025).",
+  "Love Me Later · Yitai Wang — Best Chinese Rap Album, 13th Fusion HipHop Awards (2025).": {
+    "en": "Love Me Later · Yitai Wang — Best Chinese Rap Album, 13th Fusion HipHop Awards (2025).",
     "zh": "Love Me Later · 王以太 — 第十三届融合嘻哈盛典最佳华语说唱专辑（2025）。"
   },
-  "Wang Yitai accepting the Most Popular Rap Album recognition for Love Me Later — 32nd 东方风云榜 (2025).": {
-    "en": "Wang Yitai accepting the Most Popular Rap Album recognition for Love Me Later — 32nd 东方风云榜 (2025).",
+  "Yitai Wang accepting the Most Popular Rap Album recognition for Love Me Later — 32nd 东方风云榜 (2025).": {
+    "en": "Yitai Wang accepting the Most Popular Rap Album recognition for Love Me Later — 32nd 东方风云榜 (2025).",
     "zh": "王以太凭 Love Me Later 领取最受欢迎说唱专辑荣誉 — 第 32 届东方风云榜（2025）。"
   },
   "融合嘻哈盛典 / verified official Weibo, syndicated by Sina": {
@@ -3043,61 +3046,35 @@ window.LotusTranslations = {
   "VIEWS / OFFICIAL MV": {
     "en": "VIEWS / OFFICIAL MV",
     "zh": "播放量 / 官方 MV"
-  }
-};
-window.LotusTranslationTerms = {
-  "Co-production": "联合制作",
-  "Production": "音乐制作",
-  "Co-arrangement": "联合编曲",
-  "Arrangement": "编曲",
-  "Co-composition": "联合作曲",
-  "Composition": "作曲",
-  "Co-lyrics": "联合作词",
-  "Lyrics": "作词",
-  "Songwriting": "词曲创作",
-  "Programming": "音乐编程",
-  "Recording engineering": "录音",
-  "Recording": "录音",
-  "Executive production": "执行制作",
-  "Vocal production": "人声制作",
-  "Backing vocals & supervision": "和声及指导",
-  "Backing vocals": "和声",
-  "Mixing": "混音",
-  "Mastering": "母带制作",
-  "Artist release": "个人作品",
-  "Artist": "艺人",
-  "Producer": "制作人",
-  "Songwriter": "词曲作者",
-  "Audio": "音频",
-  "Collaboration": "合作作品",
-  "Official music video": "官方音乐视频",
-  "Live performance": "现场表演",
-  "Animated music video": "动画音乐视频",
-  "Lyric video excerpt": "歌词视频片段",
-  "Official visualizer": "官方视觉视频",
-  "Record": "唱片",
-  "Year-end list": "年度榜单",
-  "Editorial": "编辑推荐"
-};
-
-Object.assign(window.LotusTranslations,{
- "CERTIFICATION":{en:"CERTIFICATION",zh:"唱片认证"},
- "Original recording":{en:"Original recording",zh:"原曲录音"}
-});
-
-Object.assign(window.LotusTranslations,{
- "FULL BODY / HEAD · DRAG THE WINDOW":{en:"FULL BODY / HEAD · DRAG THE WINDOW",zh:"全身 / 头像 · 拖动窗口"}
-});
-
-Object.assign(window.LotusTranslations,{
- "PLAY STUDIO OPENING":{en:"PLAY STUDIO OPENING",zh:"播放开场音乐"},
- "STUDIO OPENING / mirror (instrumental)":{en:"STUDIO OPENING / mirror (instrumental)",zh:"开场音乐 / mirror（伴奏）"},
- "Press PLAY STUDIO OPENING to listen.":{en:"Press PLAY STUDIO OPENING to listen.",zh:"点击「播放开场音乐」即可聆听。"},
- "The studio opening could not load. Try again.":{en:"The studio opening could not load. Try again.",zh:"开场音乐暂未加载，请重试。"}
-});
-
-// Artist-approved biography and third-person profile copy.
-Object.assign(window.LotusTranslations,{
+  },
+  "CERTIFICATION": {
+    "en": "CERTIFICATION",
+    "zh": "唱片认证"
+  },
+  "Original recording": {
+    "en": "Original recording",
+    "zh": "原曲录音"
+  },
+  "FULL BODY / HEAD · DRAG THE WINDOW": {
+    "en": "FULL BODY / HEAD · DRAG THE WINDOW",
+    "zh": "全身 / 头像 · 拖动窗口"
+  },
+  "PLAY STUDIO OPENING": {
+    "en": "PLAY STUDIO OPENING",
+    "zh": "播放开场音乐"
+  },
+  "STUDIO OPENING / mirror (instrumental)": {
+    "en": "STUDIO OPENING / mirror (instrumental)",
+    "zh": "开场音乐 / mirror（伴奏）"
+  },
+  "Press PLAY STUDIO OPENING to listen.": {
+    "en": "Press PLAY STUDIO OPENING to listen.",
+    "zh": "点击「播放开场音乐」即可聆听。"
+  },
+  "The studio opening could not load. Try again.": {
+    "en": "The studio opening could not load. Try again.",
+    "zh": "开场音乐暂未加载，请重试。"
+  },
   "Lotus Flow is a Chinese producer, songwriter, and artist based in Los Angeles, working across electronic music, pop, hip-hop, R&B, and experimental sound.": {
     "en": "Lotus Flow is a Chinese producer, songwriter, and artist based in Los Angeles, working across electronic music, pop, hip-hop, R&B, and experimental sound.",
     "zh": "Lotus Flow 是一位常驻洛杉矶的中国音乐制作人、词曲作者与艺术家，创作横跨电子音乐、流行、嘻哈、R&B 与实验声音。"
@@ -3141,5 +3118,397 @@ Object.assign(window.LotusTranslations,{
   "She was invited to SHE WRITES, a songwriting camp presented by Tommy Brown and She Is The Music.": {
     "en": "She was invited to SHE WRITES, a songwriting camp presented by Tommy Brown and She Is The Music.",
     "zh": "她曾受邀参加由 Tommy Brown 与 She Is The Music 发起的 SHE WRITES 创作营。"
+  },
+  "Lotus Flow is a Chinese music producer, songwriter, and artist working across K-pop, Western pop, J-pop, C-pop, and experimental sound. Classically trained in piano from the age of five, she later studied Electronic Music Production and Sound Design at Berklee College of Music, developing a practice that brings together musical discipline, sonic experimentation, and a strong sense of atmosphere.": {
+    "en": "Lotus Flow is a Chinese music producer, songwriter, and artist working across K-pop, Western pop, J-pop, C-pop, and experimental sound. Classically trained in piano from the age of five, she later studied Electronic Music Production and Sound Design at Berklee College of Music, developing a practice that brings together musical discipline, sonic experimentation, and a strong sense of atmosphere.",
+    "zh": "Lotus Flow 是一位中国音乐制作人、词曲作者与艺术家，创作横跨 K-pop、欧美流行、J-pop、C-pop 与实验音乐。五岁开始学习古典钢琴，后赴伯克利音乐学院深造电子音乐制作与声音设计，她的创作始终建立在严谨的音乐训练与对声音的自由探索之间。"
+  },
+  "She signed with Universal Music Publishing Group China in 2021 and renewed her publishing deal in 2025. Her selected credits include producing and co-writing AleXa’s “Juliet,” songwriting for XLOV’s “1 of LOV,” contributing to Santa’s “Train to Nowhere,” producing and co-writing Yitai Wang’s “大桥,” and contributing to “Show Me Love (with Tia Ray),” selected as the official theme song for Team Wolves at the 2025 Esports World Cup.": {
+    "en": "She signed with Universal Music Publishing Group China in 2021 and renewed her publishing deal in 2025. Her selected credits include producing and co-writing AleXa’s “Juliet,” songwriting for XLOV’s “1 of LOV,” contributing to Santa’s “Train to Nowhere,” producing and co-writing Yitai Wang’s “大桥,” and contributing to “Show Me Love (with Tia Ray),” selected as the official theme song for Team Wolves at the 2025 Esports World Cup.",
+    "zh": "2021 年，Lotus Flow 与环球音乐出版集团中国（Universal Music Publishing Group China）签约，并于 2025 年续约。她的代表作品包括 AleXa 的《Juliet》、XLOV 的《1 of LOV》、Santa 的《Train to Nowhere》，以及由她担任制作人与词曲作者的王以太作品《大桥》。她也参与了《Show Me Love (with Tia Ray)》的词曲创作，该曲入选 2025 年电竞世界杯 Team Wolves 战队官方主题曲。"
+  },
+  "Alongside her work for other artists, Lotus Flow is developing an independent creative practice that extends beyond music. Influenced by electronic sound, film, visual art, East Asian aesthetics, and internet culture, she is interested in the relationship between sound, image, and the worlds they evoke. Her work moves between the familiar and the unexpected, balancing an appreciation for structure with a curiosity for what lies outside it.": {
+    "en": "Alongside her work for other artists, Lotus Flow is developing an independent creative practice that extends beyond music. Influenced by electronic sound, film, visual art, East Asian aesthetics, and internet culture, she is interested in the relationship between sound, image, and the worlds they evoke. Her work moves between the familiar and the unexpected, balancing an appreciation for structure with a curiosity for what lies outside it.",
+    "zh": "在职业音乐创作之外，Lotus Flow 也在逐步构建属于自己的艺术世界。她从电子声音、电影、视觉艺术、东亚美学与互联网文化中汲取灵感，探索声音与图像如何共同塑造氛围、传递情绪，并延伸出超越单一作品的想象空间。她既重视结构与细节，也对未知、反差与非传统表达保持开放。"
+  },
+  "Guided by the philosophy “Expression over Impression,” Lotus Flow values creative honesty over external expectations. Rather than working toward a fixed image or sound, she approaches each project as an opportunity to explore new ideas and discover unexpected connections.": {
+    "en": "Guided by the philosophy “Expression over Impression,” Lotus Flow values creative honesty over external expectations. Rather than working toward a fixed image or sound, she approaches each project as an opportunity to explore new ideas and discover unexpected connections.",
+    "zh": "“表达大于印象”（Expression over Impression）是贯穿她创作的核心理念。相比迎合既定风格或塑造某种固定形象，她更在意作品是否源于真实的感受与好奇。对她而言，创作不仅是完成一首作品，更是不断探索、建立联系，并找到属于自己的表达方式。"
+  },
+  "Her long-term vision is to bring music, visual art, and storytelling into a cohesive artistic world—one shaped by curiosity, individuality, and the freedom to create beyond convention.": {
+    "en": "Her long-term vision is to bring music, visual art, and storytelling into a cohesive artistic world—one shaped by curiosity, individuality, and the freedom to create beyond convention.",
+    "zh": "未来，Lotus Flow 希望进一步连接音乐、视觉艺术与叙事，发展出一个独立而完整的艺术体系。在这个世界里，声音可以延伸为图像，情绪可以转化为体验，想象力也不必受限于既有形式。"
+  },
+  "Some feelings arrive before words. A shift in atmosphere, a lingering memory, a place that feels strangely familiar. Lotus Flow is drawn to these intangible experiences—to the things we sense before we fully understand them.": {
+    "en": "Some feelings arrive before words. A shift in atmosphere, a lingering memory, a place that feels strangely familiar. Lotus Flow is drawn to these intangible experiences—to the things we sense before we fully understand them.",
+    "zh": "有些感受，先于语言出现。一种氛围的变化，一段挥之不去的记忆，或一个明明陌生却莫名熟悉的地方。Lotus Flow 对这些难以言明的体验始终保持好奇——那些我们先于理解便已感知的东西。"
+  },
+  "For her, music is a way of giving these feelings form. A sound can hold a memory, a texture can reshape a space, and a melody can lead somewhere language cannot quite reach. Production becomes a form of storytelling through what is heard, felt, imagined, and left unsaid.": {
+    "en": "For her, music is a way of giving these feelings form. A sound can hold a memory, a texture can reshape a space, and a melody can lead somewhere language cannot quite reach. Production becomes a form of storytelling through what is heard, felt, imagined, and left unsaid.",
+    "zh": "对她而言，音乐是让这些感受拥有形状的方式。声音可以承载记忆，音色可以改变一个空间的温度，旋律也能带人抵达语言难以触及的地方。制作因此成为一种叙事：关于听见的、感受到的、想象中的，以及那些未曾说出口的部分。"
+  },
+  "Rooted in classical composition and shaped by electronic music, sound design, and contemporary songwriting, her work moves between control and instinct, beauty and distortion, structure and chaos. Her inspiration can come from a harmony, an unusual sound, a passing image, or an idea that makes little sense until it suddenly does.": {
+    "en": "Rooted in classical composition and shaped by electronic music, sound design, and contemporary songwriting, her work moves between control and instinct, beauty and distortion, structure and chaos. Her inspiration can come from a harmony, an unusual sound, a passing image, or an idea that makes little sense until it suddenly does.",
+    "zh": "她的创作根植于古典音乐，也受到电子音乐、声音设计与当代流行创作的影响，在控制与直觉、美感与失真、秩序与混沌之间寻找自己的语言。灵感可能来自一段和声、一种陌生的声音、一闪而过的画面，或一个起初毫无道理、后来却逐渐显现意义的念头。"
+  },
+  "Moving between music, visual art, film, and internet culture, Lotus Flow creates worlds that invite people to step outside the ordinary and experience something from a different perspective.": {
+    "en": "Moving between music, visual art, film, and internet culture, Lotus Flow creates worlds that invite people to step outside the ordinary and experience something from a different perspective.",
+    "zh": "在音乐、视觉艺术、电影与互联网文化之间，Lotus Flow 持续构建属于自己的想象空间，邀请人们暂时离开日常，从不同的角度感受熟悉的世界。"
+  },
+  "Expression over Impression. Creating from curiosity rather than expectation, and leaving room for the unexpected.": {
+    "en": "Expression over Impression. Creating from curiosity rather than expectation, and leaving room for the unexpected.",
+    "zh": "表达大于印象。从好奇心出发，而非迎合期待；在创作中保持开放，也为意料之外留出空间。"
+  },
+  "CREATIVE PRACTICE": {
+    "en": "CREATIVE PRACTICE",
+    "zh": "创作实践"
+  },
+  "MUSIC PRODUCER / SONGWRITER / ARTIST": {
+    "en": "MUSIC PRODUCER / SONGWRITER / ARTIST",
+    "zh": "音乐制作人 / 词曲作者 / 艺术家"
+  },
+  "Cassette": {
+    "en": "Cassette",
+    "zh": "磁带"
+  },
+  "Caelan": {
+    "en": "Caelan",
+    "zh": "庆怜"
+  },
+  "Santa": {
+    "en": "Santa",
+    "zh": "赞多"
+  },
+  "Sulianya": {
+    "en": "Sulianya",
+    "zh": "苏恋雅"
+  },
+  "NEWs": {
+    "en": "NEWs",
+    "zh": "NEWs（头条八卦）"
+  },
+  "BENZO": {
+    "en": "BENZO",
+    "zh": "李大奔"
+  },
+  "Haezee": {
+    "en": "Haezee",
+    "zh": "Haezee 黄玮昕"
+  },
+  "RIDE THE WIND 2024": {
+    "en": "RIDE THE WIND 2024",
+    "zh": "乘风破浪的姐姐2024"
+  },
+  "WizTheMc · bees & honey · Tia Ray": {
+    "en": "WizTheMc · bees & honey · Tia Ray",
+    "zh": "WizTheMc · bees & honey · 袁娅维"
+  },
+  "Yitai Wang": {
+    "en": "Yitai Wang",
+    "zh": "王以太"
+  },
+  "大桥": {
+    "en": "大桥",
+    "zh": "大桥"
+  },
+  "不完美大人": {
+    "en": "不完美大人",
+    "zh": "不完美大人"
+  },
+  "Album production": {
+    "en": "Album production",
+    "zh": "专辑制作"
+  },
+  "1 of LOV — XLOV": {
+    "en": "1 of LOV — XLOV",
+    "zh": "1 of LOV — XLOV"
+  },
+  "NEWs — BENZO": {
+    "en": "NEWs — BENZO",
+    "zh": "NEWs（头条八卦） — 李大奔"
+  },
+  "大桥 — Yitai Wang": {
+    "en": "大桥 — Yitai Wang",
+    "zh": "大桥 — 王以太"
+  },
+  "Juliet — AleXa": {
+    "en": "Juliet — AleXa",
+    "zh": "Juliet — AleXa"
+  },
+  "洋流 Flow — Ren Kai 人凱": {
+    "en": "洋流 Flow — Ren Kai 人凱",
+    "zh": "洋流 Flow — Ren Kai 人凱"
+  },
+  "Feed On — Sulianya": {
+    "en": "Feed On — Sulianya",
+    "zh": "Feed On — 苏恋雅"
+  },
+  "Show Me Love — WizTheMc · bees & honey · Tia Ray": {
+    "en": "Show Me Love — WizTheMc · bees & honey · Tia Ray",
+    "zh": "Show Me Love — WizTheMc · bees & honey · 袁娅维"
+  },
+  "Over the Summer — Lotus Flow · ADN Lewis": {
+    "en": "Over the Summer — Lotus Flow · ADN Lewis",
+    "zh": "Over the Summer — Lotus Flow · ADN Lewis"
+  },
+  "不完美大人 — Duan Yixuan & HYBRIDGENE": {
+    "en": "不完美大人 — Duan Yixuan & HYBRIDGENE",
+    "zh": "不完美大人 — Duan Yixuan & HYBRIDGENE"
+  },
+  "密不透风 — RIDE THE WIND 2024": {
+    "en": "密不透风 — RIDE THE WIND 2024",
+    "zh": "密不透风 — 乘风破浪的姐姐2024"
+  },
+  "I'm Falling — Dena": {
+    "en": "I'm Falling — Dena",
+    "zh": "I'm Falling — Dena"
+  },
+  "Right Here — Gen1es EMMA": {
+    "en": "Right Here — Gen1es EMMA",
+    "zh": "Right Here — Gen1es EMMA"
+  },
+  "PICK A SIDE — Haezee": {
+    "en": "PICK A SIDE — Haezee",
+    "zh": "PICK A SIDE — Haezee 黄玮昕"
+  },
+  "Midsummer Heat — JENZEE": {
+    "en": "Midsummer Heat — JENZEE",
+    "zh": "Midsummer Heat — JENZEE"
+  },
+  "Endlessly — 케일라 / Kayla": {
+    "en": "Endlessly — 케일라 / Kayla",
+    "zh": "Endlessly — 케일라 / Kayla"
+  },
+  "RED FLAG 101 — Laurie": {
+    "en": "RED FLAG 101 — Laurie",
+    "zh": "RED FLAG 101 — Laurie"
+  },
+  "Rendezvous — Laurie": {
+    "en": "Rendezvous — Laurie",
+    "zh": "Rendezvous — Laurie"
+  },
+  "jellyfish — LilyPichu": {
+    "en": "jellyfish — LilyPichu",
+    "zh": "jellyfish — LilyPichu"
+  },
+  "mirror — Lotus Flow": {
+    "en": "mirror — Lotus Flow",
+    "zh": "mirror — Lotus Flow"
+  },
+  "Say It To Me — SABAI, HALIENE & ANDe": {
+    "en": "Say It To Me — SABAI, HALIENE & ANDe",
+    "zh": "Say It To Me — SABAI, HALIENE & ANDe"
+  },
+  "Train to Nowhere — Santa": {
+    "en": "Train to Nowhere — Santa",
+    "zh": "Train to Nowhere — 赞多"
+  },
+  "still miss you — Lotus Flow": {
+    "en": "still miss you — Lotus Flow",
+    "zh": "still miss you — Lotus Flow"
+  },
+  "I’m fine. — Laurie · FIFTEENAFTER": {
+    "en": "I’m fine. — Laurie · FIFTEENAFTER",
+    "zh": "I’m fine. — Laurie · FIFTEENAFTER"
+  },
+  "Wya? — Laurie": {
+    "en": "Wya? — Laurie",
+    "zh": "Wya? — Laurie"
+  },
+  "Cassette — Caelan": {
+    "en": "Cassette — Caelan",
+    "zh": "磁带 — 庆怜"
+  },
+  "未命名关系 — Duan Yixuan & HYBRIDGENE": {
+    "en": "未命名关系 — Duan Yixuan & HYBRIDGENE",
+    "zh": "未命名关系 — Duan Yixuan & HYBRIDGENE"
+  },
+  "Co-lyrics · Co-composition": {
+    "en": "Co-lyrics · Co-composition",
+    "zh": "共同作词 · 共同作曲"
+  },
+  "Production · Co-arrangement · Co-lyrics · Co-composition": {
+    "en": "Production · Co-arrangement · Co-lyrics · Co-composition",
+    "zh": "音乐制作 · 共同编曲 · 共同作词 · 共同作曲"
+  },
+  "Production · Arrangement · Co-lyrics · Co-composition": {
+    "en": "Production · Arrangement · Co-lyrics · Co-composition",
+    "zh": "音乐制作 · 编曲 · 共同作词 · 共同作曲"
+  },
+  "Production · Arrangement · Composition · Recording": {
+    "en": "Production · Arrangement · Composition · Recording",
+    "zh": "音乐制作 · 编曲 · 作曲 · 录音"
+  },
+  "Co-production · Arrangement · Co-lyrics · Co-composition · Recording": {
+    "en": "Co-production · Arrangement · Co-lyrics · Co-composition · Recording",
+    "zh": "联合制作 · 编曲 · 共同作词 · 共同作曲 · 录音"
+  },
+  "Production · Arrangement · Co-lyrics · Co-composition · Recording": {
+    "en": "Production · Arrangement · Co-lyrics · Co-composition · Recording",
+    "zh": "音乐制作 · 编曲 · 共同作词 · 共同作曲 · 录音"
+  },
+  "Production · Arrangement · Mixing · Mastering": {
+    "en": "Production · Arrangement · Mixing · Mastering",
+    "zh": "音乐制作 · 编曲 · 混音 · 母带制作"
+  },
+  "Artist release · Production · Arrangement · Co-lyrics · Co-composition": {
+    "en": "Artist release · Production · Arrangement · Co-lyrics · Co-composition",
+    "zh": "个人作品 · 音乐制作 · 编曲 · 共同作词 · 共同作曲"
+  },
+  "Album production · Production · Vocal production · Backing vocals · Vocal supervision": {
+    "en": "Album production · Production · Vocal production · Backing vocals · Vocal supervision",
+    "zh": "专辑制作 · 音乐制作 · 人声制作 · 和声 · 人声监制"
+  },
+  "Co-lyrics · Co-composition · Production · Recording · Executive production": {
+    "en": "Co-lyrics · Co-composition · Production · Recording · Executive production",
+    "zh": "共同作词 · 共同作曲 · 音乐制作 · 录音 · 监制"
+  },
+  "Co-composition · Co-arrangement": {
+    "en": "Co-composition · Co-arrangement",
+    "zh": "共同作曲 · 共同编曲"
+  },
+  "Co-production · Arrangement · Co-lyrics · Co-composition": {
+    "en": "Co-production · Arrangement · Co-lyrics · Co-composition",
+    "zh": "联合制作 · 编曲 · 共同作词 · 共同作曲"
+  },
+  "Interviews & editorial": {
+    "en": "Interviews & editorial",
+    "zh": "访谈与媒体报道"
+  },
+  "SPOTIFY STREAMS": {
+    "en": "SPOTIFY STREAMS",
+    "zh": "Spotify 播放量"
+  },
+  "Streaming milestone": {
+    "en": "Streaming milestone",
+    "zh": "播放量里程碑"
+  },
+  "Artist interview": {
+    "en": "Artist interview",
+    "zh": "艺人访谈"
+  },
+  "TRACK": {
+    "en": "TRACK",
+    "zh": "单曲"
+  },
+  "SONGWRITER PLAYLIST": {
+    "en": "SONGWRITER PLAYLIST",
+    "zh": "词曲作者歌单"
+  },
+  "THE SONGWRITERS": {
+    "en": "THE SONGWRITERS",
+    "zh": "词曲作者"
+  },
+  "LOTUS FLOW / APPLE MUSIC": {
+    "en": "LOTUS FLOW / APPLE MUSIC",
+    "zh": "LOTUS FLOW / APPLE MUSIC"
+  },
+  "FRESH PICK / JULIET": {
+    "en": "FRESH PICK / JULIET",
+    "zh": "FRESH PICK / JULIET"
+  },
+  "LIFE & WORK WITH LOTUS FLOW": {
+    "en": "LIFE & WORK WITH LOTUS FLOW",
+    "zh": "LOTUS FLOW 的生活与创作"
+  },
+  "MEET LOTUS FLOW": {
+    "en": "MEET LOTUS FLOW",
+    "zh": "认识 LOTUS FLOW"
+  },
+  "SPOTIFY / OFFICIAL RELEASE": {
+    "en": "SPOTIFY / OFFICIAL RELEASE",
+    "zh": "SPOTIFY / 官方发行"
+  },
+  "SNAPSHOT / OCT 2026": {
+    "en": "SNAPSHOT / OCT 2026",
+    "zh": "数据快照 / 2026年10月"
+  },
+  "EDITORIAL / OCT 2026": {
+    "en": "EDITORIAL / OCT 2026",
+    "zh": "媒体报道 / 2026年10月"
+  },
+  "1 of LOV / XLOV. 10,118,462 streams in the October 2026 snapshot.": {
+    "en": "1 of LOV / XLOV. 10,118,462 streams in the October 2026 snapshot.",
+    "zh": "1 of LOV / XLOV 在2026年10月的快照中累计播放量为10,118,462次"
+  },
+  "Best U Had / Gloria Kim. More than one million streams on Spotify.": {
+    "en": "Best U Had / Gloria Kim. More than one million streams on Spotify.",
+    "zh": "Best U Had / Gloria Kim 在 Spotify 的累计播放量超过一百万次"
+  },
+  "All of You / Gloria Kim. More than one million streams on Spotify.": {
+    "en": "All of You / Gloria Kim. More than one million streams on Spotify.",
+    "zh": "All of You / Gloria Kim 在 Spotify 的累计播放量超过一百万次"
+  },
+  "Genius Fresh Pick features Juliet and a conversation with Lotus Flow about its production.": {
+    "en": "Genius Fresh Pick features Juliet and a conversation with Lotus Flow about its production.",
+    "zh": "Genius Fresh Pick 推荐 Juliet 并采访 Lotus Flow 介绍歌曲的制作过程"
+  },
+  "Apple Music’s Lotus Flow: The Songwriters playlist brings together selected songwriting credits.": {
+    "en": "Apple Music’s Lotus Flow: The Songwriters playlist brings together selected songwriting credits.",
+    "zh": "Apple Music 的 Lotus Flow 词曲作者歌单收录了她参与创作的作品"
+  },
+  "A VoyageLA interview with Lotus Flow about her life and creative work.": {
+    "en": "A VoyageLA interview with Lotus Flow about her life and creative work.",
+    "zh": "VoyageLA 对 Lotus Flow 的访谈 围绕她的生活与创作展开"
+  },
+  "A Bold Journey interview with Lotus Flow.": {
+    "en": "A Bold Journey interview with Lotus Flow.",
+    "zh": "Bold Journey 对 Lotus Flow 的访谈"
+  },
+  "Album, track & stage recognition. Streaming figures are dated snapshots.": {
+    "en": "Album, track & stage recognition. Streaming figures are dated snapshots.",
+    "zh": "专辑 单曲与舞台作品的荣誉及传播 播放量附快照时间"
+  },
+  "DATED SNAPSHOTS / UPDATED 13 OCT 2026": {
+    "en": "DATED SNAPSHOTS / UPDATED 13 OCT 2026",
+    "zh": "数据快照 / 页面更新于2026年10月13日"
+  },
+  "MUSIC PRODUCER · SONGWRITER · ARTIST": {
+    "en": "MUSIC PRODUCER · SONGWRITER · ARTIST",
+    "zh": "音乐制作人 · 词曲作者 · 艺术家"
+  },
+  "Lotus Flow: Co-production · Arrangement · Co-lyrics · Co-composition · Recording": {
+    "en": "Lotus Flow: Co-production · Arrangement · Co-lyrics · Co-composition · Recording",
+    "zh": "Lotus Flow：联合制作 · 编曲 · 共同作词 · 共同作曲 · 录音"
+  },
+  "No recognition is listed in this collection yet.": {
+    "en": "No recognition is listed in this collection yet.",
+    "zh": "这里暂未列入荣誉或媒体报道"
   }
-});
+};
+window.LotusTranslationTerms={
+  "Co-production": "联合制作",
+  "Production": "音乐制作",
+  "Co-arrangement": "共同编曲",
+  "Arrangement": "编曲",
+  "Co-composition": "共同作曲",
+  "Composition": "作曲",
+  "Co-lyrics": "共同作词",
+  "Lyrics": "作词",
+  "Songwriting": "词曲创作",
+  "Programming": "音乐编程",
+  "Recording engineering": "录音",
+  "Recording": "录音",
+  "Executive production": "执行制作",
+  "Vocal production": "人声制作",
+  "Backing vocals & supervision": "和声及指导",
+  "Backing vocals": "和声",
+  "Mixing": "混音",
+  "Mastering": "母带制作",
+  "Artist release": "个人作品",
+  "Artist": "艺人",
+  "Producer": "制作人",
+  "Songwriter": "词曲作者",
+  "Audio": "音频",
+  "Collaboration": "合作作品",
+  "Official music video": "官方音乐视频",
+  "Live performance": "现场表演",
+  "Animated music video": "动画音乐视频",
+  "Lyric video excerpt": "歌词视频片段",
+  "Official visualizer": "官方视觉视频",
+  "Record": "唱片",
+  "Year-end list": "年度榜单",
+  "Editorial": "编辑推荐",
+  "Vocal supervision": "人声监制",
+  "Music producer": "音乐制作人"
+};

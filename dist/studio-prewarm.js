@@ -1,3 +1,4 @@
+import {waitForIdentityMotion,identityMotionActive} from './chapter-priority.js';
 // Count the original texels without encoding or copying any source canvas.
 export function studioTextureFootprint(objects){
  const textures=new Set();
@@ -25,6 +26,7 @@ export async function warmStudioTextures(renderer,objects,{now=()=>performance.n
  });
  let sliceAt=now(),count=0,slices=0,longest=0;
  for(const texture of textures){
+  if(identityMotionActive())await waitForIdentityMotion();
   const image=texture.image;
   if(!image||image.complete===false)continue;
   renderer.initTexture(texture);count++;
@@ -43,6 +45,7 @@ export async function warmStudioGeometry(renderer,scene,camera,roots,target,{yie
  const previousTarget=renderer.getRenderTarget(),rootVisibility=roots.map(root=>root.visible),shadowUpdate=renderer.shadowMap.needsUpdate;
  try{
   for(let start=0;start<objects.length;start+=batchSize){
+   if(identityMotionActive())await waitForIdentityMotion();
    // Change visibility only during this offscreen render, never across a yield.
    roots.forEach(root=>root.visible=true);objects.forEach(object=>object.visible=false);
    for(const object of objects.slice(start,start+batchSize)){

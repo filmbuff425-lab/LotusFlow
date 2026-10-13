@@ -16,14 +16,14 @@ const airVoices=new Map();
 function stopAir(){for(const voice of airVoices.values())voice.stop();airVoices.clear()}
 try{enabled=localStorage.getItem('lotus-effects')!=='off'}catch{}
 const button=document.createElement('button');button.className='interaction-sound-toggle';button.type='button';document.body.append(button);
-function label(){const ready=enabled&&activated&&['playing','ducked'].includes(button.dataset.ambienceState);button.textContent=!enabled?'SOUND / OFF':ready?'SOUND / ON':'SOUND / ENABLE';button.setAttribute('aria-pressed',String(ready));button.setAttribute('aria-label',ready?'Mute ambience and interaction sounds':'Enable ambience and interaction sounds')};label();
+function label(){button.textContent=enabled?'SOUND / ON':'SOUND / OFF';button.setAttribute('aria-pressed',String(enabled));button.setAttribute('aria-label',enabled?'Mute ambience and interaction sounds':'Enable ambience and interaction sounds')};label();
 const ambience=document.createElement('audio');ambience.src=new URL('./assets/audio/space-exploration-soft.wav?v=20261006-lake-surface1',import.meta.url).href;ambience.loop=true;ambience.preload='none';ambience.volume=0;ambience.dataset.ambient='true';ambience.setAttribute('aria-hidden','true');document.body.append(ambience);
 let bedTimer=0,bedStarting=false;
 try{const state=JSON.parse(sessionStorage.getItem('lotus-ambient-position')||'null');if(state&&Date.now()-state.at<120000)ambience.currentTime=(state.time+(Date.now()-state.at)/1000)%64}catch{}
 function blendBed(){const target=enabled&&activated&&!document.hidden?(busy()?.008:.12):0;ambience.volume=Math.max(0,Math.min(1,ambience.volume+(target-ambience.volume)*.075));button.dataset.ambienceVolume=ambience.volume.toFixed(3);button.dataset.ambienceState=ambience.paused?'paused':busy()?'ducked':'playing';button.dataset.ambienceProgress=ambience.currentTime.toFixed(3);if(!enabled&&ambience.volume<.0005)ambience.pause()}
 async function startBed(){if(!enabled||document.hidden||bedStarting||!ambience.paused)return;bedStarting=true;try{await ambience.play();activated=true;button.dataset.ambienceState='playing';if(!bedTimer)bedTimer=setInterval(blendBed,80)}catch{button.dataset.ambienceState=ambience.error?'error':'needs-gesture'}finally{bedStarting=false;label()}}
 function init(){if(context)return context;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;context=new AC();master=context.createGain();master.gain.value=.43;compressor=context.createDynamicsCompressor();compressor.threshold.value=-18;compressor.knee.value=18;compressor.ratio.value=3;master.connect(compressor).connect(context.destination);context.addEventListener('statechange',()=>{unlocked=context.state==='running';if(unlocked)activated=true;button.dataset.audioState=context.state;label()});return context}
-async function arm(){const starting=startBed();try{if(!init()){await starting;return}const resuming=context.resume();await resuming;unlocked=context.state==='running';button.dataset.audioState=context.state;if(unlocked){try{sessionStorage.setItem('lotus-audio-unlocked','true')}catch{}}await starting;label()}catch{await starting;label()}}
+async function arm(){if(!enabled)return;const starting=startBed();try{if(!init()){await starting;return}const resuming=context.resume();await resuming;unlocked=context.state==='running';button.dataset.audioState=context.state;if(unlocked){try{sessionStorage.setItem('lotus-audio-unlocked','true')}catch{}}await starting;label()}catch{await starting;label()}}
 function busy(){
  if(window.lotusSession?.audioState?.playing||window.lotusIdentityAudio?.playing)return true;
  const audible=doc=>[...doc.querySelectorAll('audio:not([data-ambient]):not([data-heartbeat]),video')].some(el=>!el.paused&&!el.muted&&el.volume>.01);
@@ -98,7 +98,7 @@ async function playWater({x=0,value=.5,motion=.5,gesture=true}={}){
 }
 window.lotusSfx={play,playPercussion,playWater,arm,get enabled(){return enabled}};
 window.dispatchEvent(new CustomEvent('lotus-effects-change',{detail:enabled}));
-button.addEventListener('click',async()=>{if(enabled&&activated&&!ambience.paused)enabled=false;else enabled=true;if(!enabled)stopAir();try{localStorage.setItem('lotus-effects',enabled?'on':'off')}catch{}window.dispatchEvent(new CustomEvent('lotus-effects-change',{detail:enabled}));label();blendBed();if(enabled){await arm();play('glass')}});
+button.addEventListener('click',async()=>{enabled=!enabled;if(!enabled)stopAir();try{localStorage.setItem('lotus-effects',enabled?'on':'off')}catch{}window.dispatchEvent(new CustomEvent('lotus-effects-change',{detail:enabled}));label();blendBed();if(enabled){await arm();play('glass')}});
 document.addEventListener('pointerdown',e=>{if(e.target!==button)arm()},{passive:true,capture:true});document.addEventListener('keydown',e=>{if(e.target!==button&&(e.key==='Enter'||e.key===' '))arm()},{capture:true});
 const position=el=>{const b=el.getBoundingClientRect();return{x:(b.left+b.width/2-innerWidth/2)/innerWidth}};
 function cue(el){if(el.matches('.record-portal'))return 'portal';if(el.matches('#open-studio,#close-studio,.artist-gate,.prologue-enter,.identity-score-toggle'))return null;if(el.matches('.cd-spine,[data-pick-studio-record],.record-choice'))return 'case-lift';if(el.matches('.inspector-close,[data-close],.dialog-close'))return 'case-close';if(el.matches('[data-camera],[data-studio-zoom],#studio-reset-view'))return 'move';if(el.matches('[aria-pressed],input[type=checkbox]'))return 'toggle';if(el.matches('a[href^="#"]'))return 'move';return 'tap'}
@@ -117,6 +117,7 @@ for(const dialog of document.querySelectorAll('dialog'))dialogs.observe(dialog,{
 new MutationObserver(records=>{for(const r of records)for(const n of r.addedNodes)if(n.nodeType===1){if(n.matches('dialog'))dialogs.observe(n,{attributes:true,attributeFilter:['open','class']});n.querySelectorAll('dialog').forEach(d=>dialogs.observe(d,{attributes:true,attributeFilter:['open','class']}))}}).observe(document.body,{childList:true,subtree:true});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){stopAir();context?.suspend();ambience.pause()}else if(activated)arm()});addEventListener('pageshow',()=>{if(activated)arm()});addEventListener('pagehide',()=>{try{sessionStorage.setItem('lotus-ambient-position',JSON.stringify({time:ambience.currentTime,at:Date.now()}))}catch{}stopAir();ambience.pause();clearInterval(bedTimer);bedTimer=0;context?.suspend()});
 
+// Sound is enabled by default; the first gesture unlocks audible playback.
 try{if(enabled&&sessionStorage.getItem('lotus-audio-unlocked')==='true')arm()}catch{}
 
 }

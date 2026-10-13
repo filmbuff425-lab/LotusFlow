@@ -41,7 +41,12 @@ export function createRecordingRoom({root,renderer,texture,camera,scene}){
  function clearPane(w,h,x,y,z,rx,ry){const pane=mesh(new THREE.PlaneGeometry(w,h),clearGlass,architecture,x,y,z);pane.rotation.set(rx,ry,0);pane.castShadow=false;return pane}
  clearPane(34.9,20,0,9.92,14.47,0,Math.PI);
  clearPane(28.94,20,17.47,9.92,0,0,-Math.PI/2);
- clearPane(34.9,28.94,0,19.92,0,Math.PI/2,0);
+ const roof=clearPane(34.9,28.94,0,19.92,0,Math.PI/2,0);
+ // A broad clearcoat reflection reads as a grey film across the whole roof.
+ // Give only the roof a quieter optical surface; retain the pane and its edges.
+ roof.name='Optically clear studio roof';roof.material=clearGlass.clone();
+ Object.assign(roof.material,{opacity:.012,metalness:0,clearcoat:.12,specularIntensity:.12,forceSinglePass:true});
+ roof.receiveShadow=false;
  for(const x of [-17.47,17.47])for(const z of [-14.47,14.47])box(.035,20,.035,x,9.92,z,edgeLight,architecture);
  for(const z of [-14.47,14.47])box(34.94,.035,.035,0,19.92,z,edgeLight,architecture);
  for(const x of [-17.47,17.47])box(.035,.035,28.94,x,19.92,0,edgeLight,architecture);

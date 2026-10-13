@@ -5,10 +5,21 @@ import {createHash} from 'node:crypto';
 const {transform}=await import(process.env.LOTUS_ESBUILD_PATH?pathToFileURL(process.env.LOTUS_ESBUILD_PATH).href:'esbuild');
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const input=path.join(root,'dist'),output=path.join(root,'deploy');
-const revision='20261011-studio-release25';
+const revision='20261013-jewel-flow30';
+const duplicateAudio=[
+ ['news','news'],['great-bridge','bridge'],['juliet','juliet'],['airtight','airtight'],
+ ['lov','lov'],['adult','adult'],['flow','flow'],['feed-on','feed-on'],['show-me-love','show-me-love']
+].map(([original,canonical])=>[`assets/music/${original}.mp3`,`assets/music/${canonical}-20261006.mp3`]);
+// Omit an old filename only while its recording is exactly the same as the published copy.
+for(const [original,canonical] of duplicateAudio){
+ const a=await fs.readFile(path.join(input,original)),b=await fs.readFile(path.join(input,canonical));
+ if(!a.equals(b))throw new Error(`Audio copies differ; keep both recordings: ${original}, ${canonical}`);
+}
 // Unreferenced media stays local. Current recordings remain byte-for-byte intact.
-const omitted=new Set(['assets/brand-waterlight.svg','assets/mv/airtight.mp4','assets/mv/feed-on.mp4','assets/mv/flow.mp4','assets/mv/juliet.mp4','assets/mv/show-me-love.mp4','assets/mv/show-me-love-20261006.mp4',
- 'flow-transition.js','home-particles.js','impact-intro.js','living-membrane.js','red-universe.js','release-notes.js','sound-cells.js','studio-botanical.js','studio-cd-player.js','studio-city.js','supernatural-type.js','universe-flight.js','universe.js']);
+const omitted=new Set([...duplicateAudio.map(([original])=>original),'assets/brand-waterlight.svg','assets/mv/im-fine-20261006.mp4','assets/mv/airtight.mp4','assets/mv/feed-on.mp4','assets/mv/flow.mp4','assets/mv/juliet.mp4','assets/mv/show-me-love.mp4','assets/mv/show-me-love-20261006.mp4',
+ 'flow-transition.js','home-particles.js','impact-intro.js','living-membrane.js','red-universe.js','release-notes.js','sound-cells.js','studio-botanical.js','studio-cd-player.js','studio-city.js','supernatural-type.js','universe-flight.js','universe.js',
+ // A reverted phone-room experiment stays in source history, never in the public build.
+ 'mobile-room-profile.js','studio-mobile-room.js']);
 const studies=['_bar-study.html','design-review/','entry-study/','entry-visual/','home-demos/'];
 const sourceText=[];
 async function collect(directory){for(const entry of await fs.readdir(directory,{withFileTypes:true})){const file=path.join(directory,entry.name),relative=path.relative(input,file).split(path.sep).join('/');if(omitted.has(relative)||studies.some(study=>relative===study||relative.startsWith(study)))continue;if(entry.isDirectory())await collect(file);else if(/\.(js|html|css|json)$/.test(file))sourceText.push(await fs.readFile(file,'utf8'))}}
@@ -35,7 +46,7 @@ async function publish(directory){
    }
    // Every local module uses the release URL, including new helper modules.
    // A returning phone must never mix yesterday's loader with today's scene.
-   if(relative.endsWith('.js')||relative.endsWith('.html'))text=text.replace(/(["'])((?:\.{1,2}\/)?[\w./-]+\.js)(?:\?v=[\w-]+)?\1/g,`$1$2?v=${revision}$1`);
+   if(relative.endsWith('.js')||relative.endsWith('.html'))text=text.replace(/(["'])((?:\.{1,2}\/)?[\w./-]+\.(?:js|css))(?:\?v=[\w-]+)?\1/g,`$1$2?v=${revision}$1`);
    await fs.writeFile(to,text);
   }else{
    await fs.writeFile(to,bytes);integrity.push({path:relative,sha256:createHash('sha256').update(bytes).digest('hex')});

@@ -41,7 +41,7 @@ export function createIdentityScore({getContext,loadBuffer,announce,onState=()=>
   if(!buffer||getContext().state!=='running')return false;revision++;clearTimeout(loopTimer);const ctx=getContext(),when=Math.max(at,ctx.currentTime+.035),old=current;
   // Start 20 ms before the attack, and let the two short tails crossfade.
   phase='reveal';saved=identityBeat;announce();
-  current=layer(when-.02,identityBeat-.02,.29);
+  current=layer(when-.02,Math.min(buffer.duration-.1,identityBeat-.02+Math.max(0,ctx.currentTime-at)),.29);
   for(const item of layers)if(item!==current){item.gain.gain.cancelScheduledValues(ctx.currentTime);item.gain.gain.setValueAtTime(item===old ? .32 : 0,ctx.currentTime);item.gain.gain.linearRampToValueAtTime(0,when-.02);try{item.source.stop(when+.01)}catch{}}
   state('reveal-scheduled');onState('reveal-scheduled',{phase,cue:identityBeat,playing:true,at:when});return true;
  }

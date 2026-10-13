@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {waitForVisibleChapter,waitForIdentityMotion} from '../dist/chapter-priority.js';
+const classes=new Set(),listeners=new Map(),observers=[];
+globalThis.innerHeight=800;globalThis.document={hidden:false,body:{classList:{contains:k=>classes.has(k)}},addEventListener(k,f){listeners.set(k,f)},removeEventListener(k,f){if(listeners.get(k)===f)listeners.delete(k)}};
+globalThis.window={addEventListener:document.addEventListener,removeEventListener:document.removeEventListener};
+globalThis.IntersectionObserver=class{constructor(fn){this.fn=fn;observers.push(this)}observe(){}disconnect(){this.disconnected=true}};
+let top=1200;const element={getBoundingClientRect:()=>({top,bottom:top+400,width:800,height:400})};let ready=false;
+const deferred=waitForVisibleChapter(element).then(()=>ready=true);await Promise.resolve();assert.equal(ready,false,'Offscreen heavy scenes stay deferred');top=100;classes.add('prologue-open');observers.at(-1).fn();await Promise.resolve();assert.equal(ready,false,'The visible scene cannot compete with a cut');classes.delete('prologue-open');listeners.get('lotus-prologue-end')();await deferred;assert.ok(ready&&observers.at(-1).disconnected);assert.equal(listeners.size,0,'Resolved waits leave no observation callbacks');
+classes.add('prologue-open');let warmed=false;const warming=waitForIdentityMotion().then(()=>warmed=true);await Promise.resolve();assert.equal(warmed,false);classes.delete('prologue-open');listeners.get('lotus-prologue-end')();await warming;assert.equal(warmed,true);
+console.log('Chapter priority checks passed: defer hidden scenes and heavy uploads during the cut, then resume without polling.');

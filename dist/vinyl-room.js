@@ -1,3 +1,4 @@
+import {waitForVisibleChapter} from './chapter-priority.js';
 import {createVisibleFrameLoop} from './visible-frame-loop.js?v=20261007-deploy1';
 import {deviceProfile} from './device-profile.js';
 import {mountRecordingContext} from './recognition.js?v=20261006-lake-surface1';
@@ -16,6 +17,7 @@ function select(next){index=(next+items.length)%items.length;caption(items[index
 for(const [id,delta]of[['vinyl-prev',-1],['vinyl-next',1]])document.getElementById(id).addEventListener('click',()=>select(index+delta));
 document.getElementById('vinyl-open').addEventListener('click',e=>api.openTrack(captionId,e.currentTarget));
 window.addEventListener('lotus-filter-change',e=>{filter=e.detail;items=api.tracks.filter(t=>filter==='all'||t.categories.includes(filter));index=0;setFilter();select(0)});
+await waitForVisibleChapter(host);
 try{setup()}catch(error){fallback();console.warn('Vinyl room unavailable:',error.message)}
 function fallback(){api.setView('gallery');const b=document.querySelector('[data-view="vinyl"]');b.disabled=true;b.title='The vinyl view needs WebGL. Use Grid or List to explore every release.'}
 function setup(){

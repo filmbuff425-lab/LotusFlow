@@ -52,19 +52,20 @@ export function createSculpturalSpeakers({ root, texture }) {
   };
   // Reference 4722/4723: a quiet, tall frosted resin column with one narrow oval driver.
   const frostMap=texture(256,256,(g,w,h)=>{const im=g.createImageData(w,h);for(let i=0;i<w*h;i++){const v=190+rand()*23;im.data.set([v,v,v,255],i*4)}g.putImageData(im,0,0)});frostMap.colorSpace=THREE.NoColorSpace;
-  // A transmitting solid with a satin exterior, not an opaque white cabinet.
+  // Satin wax uses soft environmental scattering and the original enclosed light.
   // White attenuation preserves the milky body; the enclosed red light is
   // integrated along the view ray so its depth changes naturally when orbiting.
   const wax=new THREE.MeshPhysicalMaterial({
-    color:0xfafaf6,metalness:0,roughness:.52,transmission:handheld?0:.91,
+    color:0xfafaf6,metalness:0,roughness:.52,transmission:0,
     thickness:2.35,ior:1.42,attenuationColor:0xf8f6f0,attenuationDistance:14,
     bumpMap:frostMap,bumpScale:.002,clearcoat:.02,clearcoatRoughness:.56,
     specularIntensity:.38,transparent:handheld,opacity:handheld?.78:1,depthWrite:!handheld
   });
   wax.name='Translucent white wax · micro-etched exterior · enclosed red light';
-  // Mobile retains the etched shell and volumetric red light without rendering
-  // the whole studio a second time for refraction. Desktop optics stay intact.
-  wax.userData.preserveTransmission=!handheld;
+  // The frosted volume hides fine background detail. Screen-space refraction
+  // crossed hard scene boundaries while orbiting and flashed across the shell.
+  // Keep the white diffuse surface and enclosed red volume; never sample screen-space background colour.
+  wax.userData.preserveTransmission=false;
   const breathingGlow={value:1},reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   wax.onBeforeCompile=shader=>{
     shader.uniforms.uWaxGlow=breathingGlow;
@@ -93,7 +94,7 @@ export function createSculpturalSpeakers({ root, texture }) {
         totalEmissiveRadiance+=vec3(.78,.009,.002)*redDensity*uWaxGlow;
       `);
   };
-  wax.customProgramCacheKey=()=> 'frosted-wax-volume-v4';
+  wax.customProgramCacheKey=()=> 'frosted-white-volume-v6-'+(handheld?'mobile':'desktop');
   function createSpeaker(x){
     const speaker=new THREE.Group();speaker.name='White frosted wax-resin speaker';speaker.position.set(x,0,-13.6);speaker.rotation.y=x<0?.10:-.10;group.add(speaker);
     const shape=new THREE.Shape(),w=3.25,h=11.8,r=.045;shape.moveTo(-w/2+r,-h/2);shape.lineTo(w/2-r,-h/2);shape.quadraticCurveTo(w/2,-h/2,w/2,-h/2+r);shape.lineTo(w/2,h/2-r);shape.quadraticCurveTo(w/2,h/2,w/2-r,h/2);shape.lineTo(-w/2+r,h/2);shape.quadraticCurveTo(-w/2,h/2,-w/2,h/2-r);shape.lineTo(-w/2,-h/2+r);shape.quadraticCurveTo(-w/2,-h/2,-w/2+r,-h/2);

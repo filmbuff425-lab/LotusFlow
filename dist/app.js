@@ -67,6 +67,28 @@ document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click'
 const dialog=document.getElementById('track-dialog');let dialogTrigger=null;
 function openTrack(id,trigger){if(window.lotusReleasePlayer)return window.lotusReleasePlayer.open(id,trigger);const t=tracks.find(t=>t.id===id);if(!t)return;dialogTrigger=trigger;document.getElementById('dialog-content').innerHTML=`<span class="eyebrow mono">SELECTED FREQUENCY / ${t.year}</span>${t.image?`<img src="${t.image}" alt="${t.title} release artwork">`:`<div class="dialog-art" style="background:${t.color}" aria-hidden="true">LF✳︎</div>`}<h2 id="dialog-title">${t.title}</h2><p>${t.artist}</p><div class="dialog-credits"><span class="mono">LOTUS FLOW / CREDITS</span><p>${t.credits}</p></div><a class="solid-button" href="${t.url}" target="_blank" rel="noopener noreferrer">LISTEN / VIEW RELEASE <span>＋</span></a><p class="dialog-disclosure">Listen and explore the release on the music platform.</p>`;dialog.showModal()}
 document.querySelectorAll('.track').forEach(el=>{el.addEventListener('click',()=>openTrack(el.dataset.id,el));el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openTrack(el.dataset.id,el)}})});
+// Native-feeling sleeve feedback. Scrolling cancels the press; release opening keeps its existing gesture.
+let sleevePress=null;
+function releaseSleeve(){if(sleevePress){sleevePress.card.classList.remove('is-sleeve-pressed');sleevePress=null}}
+list.addEventListener('pointerdown',e=>{
+ if(!list.classList.contains('gallery')||!e.isPrimary||e.button!==0)return;
+ const card=e.target.closest('.track');if(!card||card.hidden)return;
+ releaseSleeve();sleevePress={card,id:e.pointerId,x:e.clientX,y:e.clientY};card.classList.add('is-sleeve-pressed');
+},{passive:true});
+window.addEventListener('pointermove',e=>{if(sleevePress&&e.pointerId===sleevePress.id&&Math.hypot(e.clientX-sleevePress.x,e.clientY-sleevePress.y)>10)releaseSleeve()},{passive:true});
+for(const name of ['pointerup','pointercancel'])window.addEventListener(name,e=>{if(sleevePress&&e.pointerId===sleevePress.id)releaseSleeve()},{passive:true});
+let sleeveHover=null,sleeveFrame=0;
+function clearSleeveHover(){cancelAnimationFrame(sleeveFrame);sleeveFrame=0;if(sleeveHover){sleeveHover.art.style.removeProperty('--sleeve-x');sleeveHover.art.style.removeProperty('--sleeve-y');sleeveHover=null}}
+list.addEventListener('pointermove',e=>{
+ if(e.pointerType==='touch'||!list.classList.contains('gallery')||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ const card=e.target.closest('.track');if(!card||card.hidden){clearSleeveHover();return}
+ if(sleeveHover?.card!==card){clearSleeveHover();const art=card.querySelector('.track-art');sleeveHover={card,art,rect:art.getBoundingClientRect()}}
+ const h=sleeveHover;h.x=e.clientX;h.y=e.clientY;if(sleeveFrame)return;
+ sleeveFrame=requestAnimationFrame(()=>{sleeveFrame=0;const h=sleeveHover;if(!h)return;const cap=n=>Math.max(-1,Math.min(1,n));h.art.style.setProperty('--sleeve-x',`${-cap((h.y-h.rect.top)/h.rect.height*2-1)*4}deg`);h.art.style.setProperty('--sleeve-y',`${cap((h.x-h.rect.left)/h.rect.width*2-1)*5}deg`)});
+},{passive:true});
+list.addEventListener('pointerleave',clearSleeveHover);
+for(const name of ['blur','pagehide','lotus-view-change','lotus-filter-change'])window.addEventListener(name,()=>{releaseSleeve();clearSleeveHover()});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseSleeve()});
 document.getElementById('close-dialog').addEventListener('click',()=>{if(window.lotusReleasePlayer)window.lotusReleasePlayer.close();else dialog.close()});dialog.addEventListener('click',e=>{const r=dialog.getBoundingClientRect();if(e.target===dialog&&e.detail>0&&(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom))(window.lotusReleasePlayer?window.lotusReleasePlayer.close():dialog.close())});dialog.addEventListener('close',()=>dialogTrigger?.focus());
 document.getElementById('year').textContent=new Date().getFullYear();
 
@@ -78,7 +100,7 @@ if(document.modelContext?.registerTool){const lifecycle=new AbortController();co
 
 // Local editorial assets: public artist portrait and official release artwork.
 
-tracks.forEach(t=>{const art=document.querySelector(`[data-id="${t.id}"] .track-art`);art.innerHTML=t.image?`<img src="${t.image}" alt="" loading="lazy" width="600" height="600">`:`<span class="art-type">${t.title}</span>`});
+tracks.forEach(t=>{const art=document.querySelector(`[data-id="${t.id}"] .track-art`);art.innerHTML=t.image?`<img src="${t.image}" alt="" loading="lazy" width="600" height="600">`:`<span class="art-type">${t.title}</span>`;const spine=document.createElement('span');spine.className='cd-spine';spine.textContent=t.title;const hinge=document.createElement('span');hinge.className='cd-hinge';art.append(spine,hinge)});
 function setPortfolioView(view){list.classList.toggle('gallery',view==='gallery');list.hidden=view==='vinyl';document.getElementById('work').classList.toggle('vinyl-mode',view==='vinyl');document.getElementById('vinyl-room').hidden=view!=='vinyl';document.getElementById('vinyl-caption').hidden=view!=='vinyl';document.querySelectorAll('[data-view]').forEach(v=>{v.classList.toggle('active',v.dataset.view===view);v.setAttribute('aria-pressed',String(v.dataset.view===view))});window.dispatchEvent(new CustomEvent('lotus-view-change',{detail:view}))}
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setPortfolioView(b.dataset.view)));
 async function playNote(note,instrument){try{if(!audioState.context)initAudio();await audioState.context.resume();if(instrument){const engine=await(synthEnginePromise??=import('./synth-voices.js').then(({createSynthVoices})=>createSynthVoices(audioState.context,audioState.inputs[4])));return engine.noteOn(note,instrument)}tone(midi(note),audioState.context.currentTime+.01,1.05,4,.22,'triangle');tone(midi(note+12),audioState.context.currentTime+.014,.7,4,.045)}catch(error){notify(error.message||'Audio is unavailable.')}}

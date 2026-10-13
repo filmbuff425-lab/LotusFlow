@@ -5,10 +5,10 @@ import * as THREE from 'three';
 const editions={
  flow:{title:'FLOW',artist:'REN KAI',year:'2024',credit:'CO-COMPOSITION / CO-LYRICS',ink:'#e5f0e4',accent:'#528d88',n:'11'},
  'feed-on':{title:'FEED ON',artist:'SULIANYA',year:'2025',credit:'PRODUCTION / ARRANGEMENT / MIX / MASTER',ink:'#e6ead4',accent:'#8d9f43',n:'12'},
- 'show-me-love':{title:'SHOW ME LOVE',artist:'WIZTHEMC / BEES & HONEY / TIA RAY',year:'2025',credit:'CO-WRITER / TIA RAY VERSION',ink:'#1a221a',accent:'#efd668',n:'13'},
+ 'show-me-love':{title:'SHOW ME LOVE',artist:'WIZTHEMC / BEES & HONEY / Tia Ray',year:'2025',credit:'CO-WRITER / Tia Ray VERSION',ink:'#1a221a',accent:'#efd668',n:'13'},
  airtight:{title:'MI BU TOU FENG',artist:'RIDE THE WIND 2024',year:'2024',credit:'CO-COMPOSITION / CO-ARRANGEMENT',ink:'#fae4c7',accent:'#cc423e',n:'10'},
  news:{title:'NEWs',artist:'BENZO',year:'2025',credit:'CO-PRODUCTION / ARRANGEMENT / PROGRAMMING',ink:'#eee9db',accent:'#ec481d',n:'01'},
- 'great-bridge':{title:'DA QIAO',artist:'WANG YITAI',year:'2024',credit:'CO-COMPOSITION / CO-ARRANGEMENT',ink:'#0d203b',accent:'#d2e6ed',n:'02'},
+ 'great-bridge':{title:'大桥',artist:'YITAI WANG',year:'2024',credit:'CO-COMPOSITION / CO-ARRANGEMENT',ink:'#0d203b',accent:'#d2e6ed',n:'02'},
  juliet:{title:'JULIET',artist:'AleXa',year:'2023',credit:'ADDITIONAL PRODUCTION / ARRANGEMENT',ink:'#f7eee1',accent:'#b83d63',n:'03'},
  'over-the-summer':{title:'OVER THE SUMMER',artist:'LOTUS FLOW × ADN LEWIS',year:'2024',credit:'ARTIST RELEASE / WITH ADN LEWIS',ink:'#232715',accent:'#ffe848',n:'04'},
  'imperfect-adult':{title:'BU WAN MEI DA REN',artist:'DUAN YIXUAN & HYBRIDGENE',year:'2025',credit:'PRODUCTION / VOCAL PRODUCTION / BACKING VOCALS',ink:'#f0eee8',accent:'#8a79be',n:'05'},
@@ -33,14 +33,14 @@ function print(g,key,e){
   fit(g,'FEED ON',231,230,570,94,E);text(g,'SULIANYA / 2025',253,264,22,E);
   g.save();g.translate(277,772);g.rotate(-.03);text(g,'PRODUCED BY LOTUS FLOW',0,0,25,E,'Arial',800);text(g,'ARRANGEMENT / MIX / MASTER',0,30,17,E);g.restore();break;
  case 'show-me-love':
-  fit(g,'SHOW ME LOVE',212,253,605,84,E);text(g,'TIA RAY VERSION',289,292,22,E);
+  fit(g,'SHOW ME LOVE',212,253,605,84,E);text(g,'Tia Ray VERSION',289,292,22,E);
   ticket(g,e,220,746,580,.025);break;
  case 'news':
   g.save();g.translate(181,701);g.rotate(-.075);g.fillStyle=A;g.fillRect(-12,-92,639,128);fit(g,'NEWs',0,11,470,126,'#141414','Arial',900);text(g,'BENZO',484,-47,24,'#161616');text(g,'2025',488,0,22,'#161616');g.restore();
   text(g,'01 / CO-PRODUCTION',230,275,17,E);text(g,'ARRANGEMENT + PROGRAMMING',230,302,15,E);rule(g,230,316,290,E);
   break;
  case 'great-bridge':
-  fit(g,'DA QIAO',244,198,580,94,E,'Arial',900);text(g,'WANG YITAI',260,231,23,E);
+  fit(g,'大桥',244,198,580,94,E,'Arial',900);text(g,'YITAI WANG',260,231,23,E);
   g.save();g.translate(785,695);g.rotate(-Math.PI/2);text(g,'02 / COMPOSITION + ARRANGEMENT',0,0,17,E);g.restore();
   ticket(g,e,235,741,334,-.035);break;
  case 'juliet':

@@ -48,3 +48,13 @@
 .publisher-credit>a:hover{transform:translateY(-2px);box-shadow:0 5px 15px #0003}
 .publisher-credit>a:active{transform:scale(.98)}
 @media(prefers-reduced-motion:reduce){.recognition-brand-mark,.publisher-credit>a{transition:none;transform:none!important}}
+
+/* Artist identity is a complete wordmark, not a square album crop. */
+.recognition-profile-art{width:130px;height:104px;transform:none;box-shadow:none}
+.recognition-profile-art:hover{transform:none}
+.recognition-profile-art .recognition-art{object-fit:contain;padding:5px 0 16px;box-sizing:border-box}
+.recognition-profile-art>span{background:transparent;color:var(--recognition-red)}
+.recognition-profile-select img{object-fit:contain;box-shadow:none}
+.recognition-profile-select:hover img{transform:none}
+.recognition-filters [hidden],.recognition-explorer[hidden],.recognition-more[hidden]{display:none!important}
+@media(max-width:600px){.recognition-profile-art{width:88px;height:88px}.recognition-profile-art .recognition-art{padding:4px 0 14px}}

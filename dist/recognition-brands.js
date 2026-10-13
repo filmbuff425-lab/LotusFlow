@@ -1,5 +1,6 @@
 // Asset provenance: research/recognition/brand-assets.json. Brand marks identify the source, not endorsement.
 const brands={
+ spotify:{name:"Spotify",role:"Streaming milestone"},genius:{name:"Genius",role:"Music publication"},voyage:{name:"VoyageLA",role:"Artist interview"},bold:{name:"Bold Journey",role:"Artist interview"},
  ifpi:{asset:'assets/recognition/ifpi.png',surface:'light',name:'IFPI Austria',role:'Recording certification'},
  netease:{form:'icon',asset:'assets/recognition/netease.jpg',surface:'dark',name:'网易云音乐',role:'Music awards / editorial'},
  mango:{form:'icon',asset:'assets/recognition/mango-tv.png',surface:'dark',name:'芒果TV · 乘风2024',role:'Official programme'},
@@ -16,5 +17,5 @@ const brands={
  envi:{asset:'assets/recognition/envi.svg',surface:'dark',name:'EnVi Media',role:'Music publication'}
 };
 export function recognitionBrand(f){
- const key=f.id==='original-ifpi-context'?'ifpi':f.id.includes('netease')||f.id==='love-me-later-public-choice'?'netease':f.id.includes('stage-award')?'mango':f.id.includes('mv-views')?'youtube':f.id.includes('circle')?'circle':f.id.includes('fma-')?'freshmusic':f.id.includes('douban')?'douban':f.id.includes('-wave')?'wave':f.id.includes('east-award')?'east':f.id.includes('-fusion')?'fusion':f.id==='prologue-15m'?'sunrise':f.id.includes('kraze')?'kraze':f.id.includes('envi')?'envi':'apple';return brands[key];
+ const key=f.id.includes('spotify-streams')?'spotify':f.id.includes('genius')?'genius':f.id.includes('voyage-la')?'voyage':f.id.includes('bold-journey')?'bold':f.id==='original-ifpi-context'?'ifpi':f.id.includes('netease')||f.id==='love-me-later-public-choice'?'netease':f.id.includes('stage-award')?'mango':f.id.includes('mv-views')?'youtube':f.id.includes('circle')?'circle':f.id.includes('fma-')?'freshmusic':f.id.includes('douban')?'douban':f.id.includes('-wave')?'wave':f.id.includes('east-award')?'east':f.id.includes('-fusion')?'fusion':f.id==='prologue-15m'?'sunrise':f.id.includes('kraze')?'kraze':f.id.includes('envi')?'envi':'apple';return brands[key];
 }

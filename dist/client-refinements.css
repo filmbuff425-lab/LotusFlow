@@ -1,0 +1,88 @@
+/* Client editorial typography; existing logo lettering and scene artwork keep their families. */
+@font-face{font-family:'Lotus Space Grotesk';src:url('assets/fonts/lotus-space-grotesk.woff2') format('woff2');font-weight:300 700;font-display:swap}
+@font-face{font-family:'Lotus Plex Mono';src:url('assets/fonts/lotus-plex-mono-400.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Lotus Plex Mono';src:url('assets/fonts/lotus-plex-mono-500.woff2') format('woff2');font-weight:500 900;font-display:swap}
+@font-face{font-family:'Lotus Sarasa Mono SC';src:url('assets/fonts/lotus-sarasa-mono-sc-400.woff2') format('woff2');font-weight:400;font-display:swap;unicode-range:U+3000-9FFF,U+FF00-FFEF}
+@font-face{font-family:'Lotus Sarasa Mono SC';src:url('assets/fonts/lotus-sarasa-mono-sc-600.woff2') format('woff2');font-weight:500 900;font-display:swap;unicode-range:U+3000-9FFF,U+FF00-FFEF}
+:root{--reading-font:'Lotus Space Grotesk','Lotus Sarasa Mono SC',sans-serif;--client-mono:'Lotus Plex Mono','Lotus Sarasa Mono SC',monospace;--mono:var(--client-mono)}
+:is(.mono,.eyebrow,header nav,.filters,.view-switch,.recognition-filters,.recognition-kind,.recognition-select-number,.recognition-page-count,.credit-year,.spine-number,.profile-tabs,.shop-kicker,.interaction-sound-toggle){font-family:var(--client-mono)!important}
+:is(h1,h2,h3,.track-title h3,.next-release strong).art-display:not(#about-title):not(.profile-name){font-family:'Lotus Space Grotesk','Lotus Sarasa Mono SC',sans-serif!important;font-variation-settings:normal!important;font-weight:600!important;letter-spacing:-.025em!important}
+#profile-bio p{font-family:var(--reading-font)!important;line-height:1.85}
+#profile-process p{font-family:var(--client-mono)!important;line-height:1.9}
+#profile-process .practice-motto{white-space:normal!important;font-weight:500}
+#profile-bio .bio-signature,#profile-process .bio-signature{font-size:13px;opacity:.8;margin-top:30px}
+html:lang(zh-CN) #profile-bio p{font-family:'Lotus Sarasa Mono SC','Lotus Space Grotesk',sans-serif!important}
+/* Clear jewel cases: original cover insert, smoked ribbed spine and polished edges. */
+.track-list.gallery{grid-template-columns:repeat(4,minmax(0,1fr));gap:42px 24px;margin-inline:-8px}
+.gallery .track{grid-template-columns:21px minmax(0,1fr) 28px;column-gap:8px;align-content:start;min-width:0;touch-action:pan-y pinch-zoom;-webkit-tap-highlight-color:transparent;perspective:900px}
+.gallery .track:hover,.gallery .track:focus-visible{padding:0 0 16px;background:none}
+.track-art :is(.cd-spine,.cd-hinge){display:none}
+.gallery .track-art{position:relative;isolation:isolate;box-sizing:border-box;width:100%;height:auto;aspect-ratio:1.04;overflow:visible;margin-bottom:20px;padding:5px 5px 5px 8.5%;border:1px solid #bfc8ca66;border-radius:3px;background:linear-gradient(110deg,#e3e9e536,#e9eff019 7%,#111519 8%,#17191be8 11%,#a0aeb52b 97%,#eff6ef60);box-shadow:inset 0 1px 1px #ffffff80,inset 0 -2px 1px #080a0bb3,1px 2px 0 #78848766,2px 4px 2px #040506c9,0 9px 10px -5px #000c,3px 24px 30px -15px #000e,0 10px 20px -12px #dce5eb47;transform:perspective(900px) translateY(0) rotateX(0deg) rotateY(0deg) scale(1);transition:transform .68s cubic-bezier(.18,.82,.22,1);transform-origin:50% 60%}
+.gallery .track-art img{display:block;width:100%;height:100%;object-fit:contain;min-width:0;aspect-ratio:1;border-radius:0;box-shadow:0 0 0 1px #06070799;transition:none;user-select:none;-webkit-user-drag:none}
+.gallery .track:hover .track-art img{transform:none;filter:none}
+.gallery .track-art:before{content:'';position:absolute;z-index:3;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(118deg,#ffffff17,transparent 32% 62%,#ecf7ff0a 63%,transparent 78%);box-shadow:inset 0 1px 0 #fff8,inset -1px 0 0 #fff4,inset 0 -1px 0 #e0e7e629}
+.gallery .track-art:after{content:'';position:absolute;z-index:4;inset:5px 5px 5px 8.5%;border:1px solid #dce6e92e;border-radius:0;background:none;pointer-events:none}
+.gallery .track-art .cd-spine{display:block;position:absolute;z-index:2;inset:10% auto 10% 1.8%;width:4%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;writing-mode:vertical-rl;transform:rotate(180deg);font:500 clamp(5px,.52vw,9px)/1.1 var(--client-mono);letter-spacing:.07em;color:#d7dfdfab;text-align:center}
+.gallery .track-art .cd-hinge{display:block;position:absolute;z-index:2;top:1px;bottom:1px;left:6.2%;width:1.8%;border-inline:1px solid #c9d3d347;background:repeating-linear-gradient(90deg,#121616 0 1px,#b4c1c226 1px 2px);box-shadow:1px 0 2px #0009}
+@media(hover:hover) and (pointer:fine){.gallery .track:hover .track-art{transform:perspective(900px) translateY(-10px) rotateX(var(--sleeve-x,2deg)) rotateY(var(--sleeve-y,-2deg)) scale(1.025)}}
+.gallery .track:focus-visible .track-art{transform:perspective(900px) translateY(-8px) rotateX(2deg) rotateY(-2deg) scale(1.025)}
+.gallery .track.is-sleeve-pressed .track-art{transform:perspective(900px) translateY(-2px) rotateX(0deg) rotateY(0deg) scale(.962);transition-duration:.2s;transition-timing-function:cubic-bezier(.2,.75,.3,1)}
+/* A soft lift into the release, animated only with transform and opacity. */
+.cinema .release-dialog.from-gallery[open]{animation:sleeve-detail-in .52s cubic-bezier(.16,1,.3,1) both}
+.cinema .release-dialog.from-gallery[open]::backdrop{animation:sleeve-backdrop-in .42s ease-out both}
+.cinema .release-dialog.from-gallery.is-closing{animation:sleeve-detail-out .32s cubic-bezier(.4,0,.7,1) both}
+.cinema .release-dialog.from-gallery.is-closing::backdrop{animation:sleeve-backdrop-out .32s ease-in both}
+@keyframes sleeve-detail-in{from{opacity:0;transform:translateY(28px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes sleeve-detail-out{from{opacity:1;transform:translateY(0) scale(1)}to{opacity:0;transform:translateY(20px) scale(.96)}}
+@keyframes sleeve-backdrop-in{from{opacity:0}to{opacity:1}}
+@keyframes sleeve-backdrop-out{from{opacity:1}to{opacity:0}}
+/* The larger detail retains the printed insert and a separate reflective CD. */
+.cinema .from-gallery .album-object{width:72%;margin:35px 0 70px 6%;align-self:start;transition:transform .7s cubic-bezier(.16,1,.3,1)}
+.cinema .from-gallery .release-orbit,.cinema .from-gallery .album-coordinate,.cinema .from-gallery .album-sleeve>span{display:none}
+.cinema .from-gallery .album-sleeve{padding:4px 4px 4px 7%;border:1px solid #c4d0d083;border-radius:3px;background:linear-gradient(90deg,#eff9ff3d,#101416 6%,#aebdbd38 7%);box-shadow:inset 0 1px 1px #fffa,1px 3px 0 #61737866,4px 9px 12px #0009,0 23px 32px -14px #000e;transition:transform 1s cubic-bezier(.16,1,.3,1)}
+.cinema .from-gallery .album-sleeve::after{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(117deg,#fff2,transparent 38% 66%,#fff1 67%,transparent 80%);box-shadow:inset -1px 0 0 #fff5;pointer-events:none}
+.cinema .from-gallery .album-sleeve>img{object-fit:contain!important}
+.cinema .from-gallery .album-disc{opacity:1;transition:transform 1s cubic-bezier(.16,1,.3,1);border:1px solid #d6e1e7a1;box-shadow:0 0 0 3px #d6e7ef42,0 12px 16px #0008}
+.cinema .from-gallery.album-open .album-sleeve{transform:translateX(-12%) rotateY(-24deg) rotateZ(-3deg)}
+.cinema .from-gallery.album-open .album-disc{transform:translateX(38%) translateY(1%) rotate(12deg)}
+.gallery .track-title h3{font-size:20px;line-height:1.25;letter-spacing:-.025em;margin-bottom:5px}
+.gallery .track-title p{font-size:11px;line-height:1.55;margin-top:4px}
+.gallery .track-num{font-size:9px;padding-top:5px}
+.gallery .track-open{width:28px;height:32px;font-size:18px}
+.gallery .track-meta{font-size:9px;margin-top:9px;line-height:1.65}
+.gallery .track-preview{top:27%;height:44px;width:50%}
+@media(max-width:1050px){.track-list.gallery{grid-template-columns:repeat(3,minmax(0,1fr));gap:34px 22px}}
+@media(max-width:700px){
+ .track-list.gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:30px 16px;margin-inline:-5px}
+ .gallery .track{grid-template-columns:minmax(0,1fr) 24px;column-gap:4px}
+ .gallery .track-art{margin-bottom:14px;padding-top:3px;padding-right:3px;padding-bottom:3px}
+ .gallery .track-art .cd-spine{font-size:5px}
+ .gallery .track-art:after{inset:3px 3px 3px 8.5%}
+ .gallery .track-num{display:none}
+ .gallery .track-title{grid-column:1}
+ .gallery .track-open{grid-column:2;width:24px;height:32px}
+ .gallery .track-title h3{font-size:16px;line-height:1.3;overflow-wrap:anywhere}
+ .gallery .track-title p{font-size:10px;line-height:1.5}
+ .gallery .track-meta{grid-column:1/-1;font-size:9px;margin-top:8px}
+ .gallery .track-preview{top:22%;height:34px}
+ .cinema .from-gallery .album-object{width:55%;max-width:240px;margin:22px auto 40px;transform:translateX(-10%)}
+}
+@media(prefers-reduced-motion:reduce){.gallery .track .track-art{transition:none!important;transform:none!important}.cinema .release-dialog.from-gallery,.cinema .release-dialog.from-gallery::backdrop{animation:none!important}.cinema .from-gallery :is(.album-object,.album-disc,.album-sleeve){transition:none!important}}
+
+.cinema #about-title.art-display{color:#e53325!important;text-shadow:0 0 18px #d42d1d1f}
+
+@media(min-width:751px){.contribution-grid:has(>article:nth-child(2):last-child){grid-template-columns:repeat(2,minmax(0,1fr))}}
+.cinema #about-title.art-display>span{color:inherit!important}
+
+.recognition-empty{padding:36px;min-height:220px;display:grid;align-content:center;gap:24px}.recognition-empty p{color:#b5a9a1}.recognition-empty a{font-family:var(--client-mono);font-size:12px}
+
+/* Final client font roles: the artwork/wordmark retains its dot-matrix treatment. */
+:is(h1,h2,h3,h4):not(#about-title):not(.profile-name):not(.brand-motion):not(.universe-heading h1){font-family:'Lotus Space Grotesk','Lotus Sarasa Mono SC',sans-serif!important;font-variation-settings:normal!important}
+:is(.about-copy,.release-intro,.release-description,.contribution,.recognition-feature-description,.recognition-fact>p,.credits-table,.collaborator-copy,.film-description){font-family:var(--reading-font)}
+html:lang(zh-CN) :is(.about-copy,.release-intro,.release-description,.contribution,.recognition-feature-description,.recognition-fact>p,.credits-table,.collaborator-copy,.film-description){font-family:'Lotus Sarasa Mono SC','Lotus Space Grotesk',sans-serif}
+:is(.track-num,.track-meta,.credit-year,.recognition-select-number,.recognition-source-date,.recognition-update,.spine-number,.spine-title,.shop-meta,.artist-window-bar){font-family:var(--client-mono)!important}
+
+:root{--body:var(--reading-font);--headline:var(--reading-font);--display:var(--client-mono)}
+body{font-family:var(--reading-font);font-variation-settings:normal}
+html:lang(zh-CN) body{font-family:'Lotus Sarasa Mono SC','Lotus Space Grotesk',sans-serif}
+:is(.profile-tabs button,.filters button,.view-switch button,.recognition-filters button,.header nav a,.studio-view-buttons button,.studio-hint,.studio-corner,.library-label,.library-caption,.inspector-meta,.recognition-eyebrow){font-family:var(--client-mono)!important}

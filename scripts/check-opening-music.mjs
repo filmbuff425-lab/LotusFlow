@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
-const scheduled=[];const context=vm.createContext({console,setTimeout(fn,delay){scheduled.push({fn,delay});return scheduled.length},clearTimeout(){}});
+const scheduled=[];const context=vm.createContext({console,window:{lotusSfx:{enabled:true}},setTimeout(fn,delay){scheduled.push({fn,delay});return scheduled.length},clearTimeout(){}});
 for(const file of ['studio-opening.js','identity-score.js'])vm.runInContext(fs.readFileSync('dist/'+file,'utf8').replaceAll('export function','function').replaceAll('export const','const'),context);
 const createOpening=vm.runInContext('createStudioOpening',context),createScore=vm.runInContext('createIdentityScore',context);
 const studioWarmupAt=vm.runInContext('studioWarmupAt',context);

@@ -1,4 +1,4 @@
-// Public-source snapshots; original recordings, albums and performances stay distinct.
+// Dated milestones and editorial sources; track, album and artist scopes stay distinct.
 export const recognitionData = {
   "bridge": {
     "facts": [
@@ -8,7 +8,7 @@ export const recognitionData = {
         "scopeLabel": "ALBUM",
         "value": "BEST ALBUM",
         "label": "年度最佳专辑 · 网易云音乐2024中文说唱音乐奖",
-        "description": "Love Me Later / Wang Yitai. “Da Qiao” is a track on the awarded album.",
+        "description": "Love Me Later / Yitai Wang. “大桥” is a track on the awarded album.",
         "dateLabel": "21 JAN 2025",
         "sources": [
           {
@@ -17,7 +17,7 @@ export const recognitionData = {
           }
         ],
         "shortLabel": "NetEase Chinese Hip-hop Music Awards / 2024",
-        "cardDescription": "Love Me Later · Wang Yitai\nAlbum recognition for the record featuring “Da Qiao”.",
+        "cardDescription": "Love Me Later · Yitai Wang\nAlbum recognition for the record featuring “大桥”.",
         "reviewedOn": "2026-10-04"
       },
       {
@@ -26,7 +26,7 @@ export const recognitionData = {
         "scopeLabel": "ALBUM",
         "value": "PUBLIC CHOICE",
         "label": "大众选择专辑 · 网易云音乐2024中文说唱音乐奖",
-        "description": "Love Me Later / Wang Yitai. Voted by listeners; an album award.",
+        "description": "Love Me Later / Yitai Wang. Voted by listeners; an album award.",
         "dateLabel": "21 JAN 2025",
         "sources": [
           {
@@ -42,7 +42,7 @@ export const recognitionData = {
         "scopeLabel": "ALBUM",
         "value": "BEST RAP ALBUM",
         "label": "最佳说唱专辑 · 第三届浪潮音乐大赏",
-        "description": "Awarded to Love Me Later / Wang Yitai, the album containing “Da Qiao”.",
+        "description": "Awarded to Love Me Later / Yitai Wang, the album containing “大桥”.",
         "dateLabel": "19 JUN 2025",
         "sources": [
           {
@@ -58,7 +58,7 @@ export const recognitionData = {
         "scopeLabel": "ALBUM",
         "value": "MOST POPULAR",
         "label": "最受欢迎说唱专辑 · 第32届东方风云榜",
-        "description": "Awarded to Love Me Later / Wang Yitai, the album containing “Da Qiao”.",
+        "description": "Awarded to Love Me Later / Yitai Wang, the album containing “大桥”.",
         "dateLabel": "25 AUG 2025",
         "sources": [
           {
@@ -74,7 +74,7 @@ export const recognitionData = {
         "scopeLabel": "ALBUM",
         "value": "BEST CHINESE RAP ALBUM",
         "label": "最佳华语说唱专辑 · 第十三届融合嘻哈盛典",
-        "description": "Awarded to Love Me Later / Wang Yitai, the album containing “Da Qiao”.",
+        "description": "Awarded to Love Me Later / Yitai Wang, the album containing “大桥”.",
         "dateLabel": "29 SEP 2025",
         "sources": [
           {
@@ -198,11 +198,43 @@ export const recognitionData = {
         "shortLabel": "Official MV views / YouTube",
         "cardDescription": "AleXa • ZB Label\nOriginal English-language music video.",
         "reviewedOn": "2026-10-04"
+      },
+      {
+        "id": "juliet-genius",
+        "type": "press",
+        "scopeLabel": "ARTIST INTERVIEW",
+        "value": "Genius",
+        "shortValue": "GENIUS",
+        "label": "FRESH PICK / JULIET",
+        "description": "Genius Fresh Pick features Juliet and a conversation with Lotus Flow about its production.",
+        "dateLabel": "EDITORIAL / OCT 2026",
+        "sources": [
+          {
+            "label": "GENIUS",
+            "url": "https://genius.com/discussions/469771-Fresh-pick-alexa-returns-with-a-softer-image-on-juliet-and-lotus-flow-talks-about-the-production-process"
+          }
+        ]
       }
     ]
   },
   "lov": {
     "facts": [
+      {
+        "id": "lov-spotify-streams",
+        "type": "reach",
+        "scopeLabel": "TRACK",
+        "value": "10M+",
+        "shortValue": "10M+ / SPOTIFY",
+        "label": "SPOTIFY STREAMS",
+        "description": "1 of LOV / XLOV. 10,118,462 streams in the October 2026 snapshot.",
+        "dateLabel": "SNAPSHOT / OCT 2026",
+        "sources": [
+          {
+            "label": "SPOTIFY / OFFICIAL RELEASE",
+            "url": "https://open.spotify.com/track/2TekqqBq25j4amuW6AAa2s"
+          }
+        ]
+      },
       {
         "id": "i-one-circle-debut",
         "type": "chart",
@@ -267,48 +299,6 @@ export const recognitionData = {
       }
     ]
   },
-  "summer": {
-    "facts": [
-      {
-        "id": "summer-editorial-profile",
-        "type": "editorial",
-        "scopeLabel": "RECORD / EDITORIAL",
-        "value": "APPLE MUSIC",
-        "label": "Lotus Flow: The Songwriters",
-        "description": "Featured in Apple Music’s dedicated songwriter editorial. One shared portfolio feature, not a competitive award.",
-        "dateLabel": "SOURCE REVIEW / 4 OCT 2026",
-        "sources": [
-          {
-            "label": "EDITORIAL FEATURE",
-            "url": "https://music.apple.com/us/playlist/lotus-flow-%E5%88%9B%E4%BD%9C%E4%BA%BA/pl.7901d1cc5091499e9eb215d33ebada63?l=zh-Hans-CN"
-          },
-          {
-            "label": "RECORD / FEATURE LISTING",
-            "url": "https://music.apple.com/us/playlist/lotus-flow-%E5%88%9B%E4%BD%9C%E4%BA%BA/pl.7901d1cc5091499e9eb215d33ebada63?l=zh-Hans-CN"
-          }
-        ],
-        "shortLabel": "Lotus Flow: The Songwriters",
-        "cardDescription": "Artist releases and songwriting featured by Apple Music.",
-        "reviewedOn": "2026-10-04"
-      },
-      {
-        "id": "summer-kraze-coverage",
-        "type": "press",
-        "scopeLabel": "RECORD",
-        "value": "THE KRAZE",
-        "label": "New-release feature",
-        "description": "Over the Summer / Lotus Flow & ADN Lewis. A dedicated release feature in The Kraze.",
-        "dateLabel": "6 JUL 2024",
-        "sources": [
-          {
-            "label": "THE KRAZE",
-            "url": "https://thekrazemag.com/latest-updates/2024/7/6/adn-lewis-and-lotus-flow-collaborate-with-summer-single-over-the-summer"
-          }
-        ],
-        "reviewedOn": "2026-10-04"
-      }
-    ]
-  },
   "runaway": {
     "facts": [
       {
@@ -361,150 +351,12 @@ export const recognitionData = {
       }
     ]
   },
-  "jellyfish": {
-    "facts": [
-      {
-        "id": "jellyfish-playlist-feature",
-        "type": "editorial",
-        "scopeLabel": "RECORD / EDITORIAL",
-        "value": "APPLE MUSIC",
-        "label": "Lotus Flow: The Songwriters",
-        "description": "Featured in Apple Music’s dedicated songwriter editorial. One shared portfolio feature, not a competitive award.",
-        "dateLabel": "SOURCE REVIEW / 4 OCT 2026",
-        "sources": [
-          {
-            "label": "EDITORIAL FEATURE",
-            "url": "https://music.apple.com/us/playlist/lotus-flow-%E5%88%9B%E4%BD%9C%E4%BA%BA/pl.7901d1cc5091499e9eb215d33ebada63?l=zh-Hans-CN"
-          },
-          {
-            "label": "RECORD / FEATURE LISTING",
-            "url": "https://www.shazam.com/song/1774454979/jellyfish"
-          }
-        ],
-        "shortLabel": "Lotus Flow: The Songwriters",
-        "cardDescription": "Artist releases and songwriting featured by Apple Music.",
-        "reviewedOn": "2026-10-04"
-      }
-    ]
-  },
-  "red-flag-101": {
-    "facts": [
-      {
-        "id": "red-flag-playlist-feature",
-        "type": "editorial",
-        "scopeLabel": "RECORD / EDITORIAL",
-        "value": "APPLE MUSIC",
-        "label": "Lotus Flow: The Songwriters",
-        "description": "Featured in Apple Music’s dedicated songwriter editorial. One shared portfolio feature, not a competitive award.",
-        "dateLabel": "SOURCE REVIEW / 4 OCT 2026",
-        "sources": [
-          {
-            "label": "EDITORIAL FEATURE",
-            "url": "https://music.apple.com/us/playlist/lotus-flow-%E5%88%9B%E4%BD%9C%E4%BA%BA/pl.7901d1cc5091499e9eb215d33ebada63?l=zh-Hans-CN"
-          },
-          {
-            "label": "RECORD / FEATURE LISTING",
-            "url": "https://music.apple.com/gb/album/red-flag-101-single/1782724558"
-          }
-        ],
-        "shortLabel": "Lotus Flow: The Songwriters",
-        "cardDescription": "Artist releases and songwriting featured by Apple Music.",
-        "reviewedOn": "2026-10-04"
-      }
-    ]
-  },
-  "rendezvous": {
-    "facts": [
-      {
-        "id": "rendezvous-playlist-feature",
-        "type": "editorial",
-        "scopeLabel": "RECORD / EDITORIAL",
-        "value": "APPLE MUSIC",
-        "label": "Lotus Flow: The Songwriters",
-        "description": "Featured in Apple Music’s dedicated songwriter editorial. One shared portfolio feature, not a competitive award.",
-        "dateLabel": "SOURCE REVIEW / 4 OCT 2026",
-        "sources": [
-          {
-            "label": "EDITORIAL FEATURE",
-            "url": "https://music.apple.com/us/playlist/lotus-flow-%E5%88%9B%E4%BD%9C%E4%BA%BA/pl.7901d1cc5091499e9eb215d33ebada63?l=zh-Hans-CN"
-          },
-          {
-            "label": "RECORD / FEATURE LISTING",
-            "url": "https://www.shazam.com/song/1814969675/rendezvous"
-          }
-        ],
-        "shortLabel": "Lotus Flow: The Songwriters",
-        "cardDescription": "Artist releases and songwriting featured by Apple Music.",
-        "reviewedOn": "2026-10-04"
-      }
-    ]
-  },
-  "flow": {
-    "facts": [
-      {
-        "id": "apple-songwriter-feature-flow",
-        "type": "editorial",
-        "scopeLabel": "RECORD / EDITORIAL",
-        "value": "APPLE MUSIC",
-        "label": "Lotus Flow: The Songwriters",
-        "description": "Discussed in Apple Music’s dedicated editorial profile of Lotus Flow’s production and songwriting.",
-        "dateLabel": "SOURCE REVIEW / 4 OCT 2026",
-        "sources": [
-          {
-            "label": "APPLE MUSIC / EDITORIAL",
-            "url": "https://music.apple.com/us/playlist/lotus-flow-%E5%88%9B%E4%BD%9C%E4%BA%BA/pl.7901d1cc5091499e9eb215d33ebada63?l=zh-Hans-CN"
-          }
-        ],
-        "reviewedOn": "2026-10-04"
-      }
-    ]
-  },
-  "news": {
-    "facts": [
-      {
-        "id": "news-editorial-feature",
-        "type": "editorial",
-        "scopeLabel": "RECORD / EDITORIAL",
-        "value": "APPLE MUSIC",
-        "label": "BENZO Essentials · Lotus Flow: The Songwriters",
-        "description": "The Shazam release page lists this recording in Apple Music’s editorial features.",
-        "dateLabel": "SOURCE REVIEW / 4 OCT 2026",
-        "sources": [
-          {
-            "label": "RECORD / FEATURE LISTING",
-            "url": "https://www.shazam.com/song/1807692099/news"
-          }
-        ],
-        "reviewedOn": "2026-10-04"
-      }
-    ]
-  },
-  "im-falling": {
-    "facts": [
-      {
-        "id": "falling-envi-feature",
-        "type": "press",
-        "scopeLabel": "RECORD",
-        "value": "SUNDAY SPIN",
-        "label": "EnVi Media / new music selection",
-        "description": "I’m Falling / Dena. Featured in EnVi’s weekly new-music showcase.",
-        "dateLabel": "30 NOV 2025",
-        "sources": [
-          {
-            "label": "ENVI MEDIA",
-            "url": "https://envimedia.co/sunday-spin-new-releases-from-dena-illit-billkin-hikaru-utada-and-heize/"
-          }
-        ],
-        "reviewedOn": "2026-10-04"
-      }
-    ]
-  },
   "show-me-love": {
     "facts": [],
     "context": {
       "value": "DOUBLE PLATINUM",
       "label": "IFPI AUSTRIA / ORIGINAL RECORDING",
-      "description": "The original “Show Me Love” is certified Double Platinum by IFPI Austria. Lotus Flow co-wrote the lyrics and composition for the TIA RAY version.",
+      "description": "The original “Show Me Love” is certified Double Platinum by IFPI Austria. Lotus Flow co-wrote the lyrics and composition for the Tia Ray version.",
       "dateLabel": "CERTIFIED / 6 AUG 2026",
       "sources": [
         {
@@ -513,5 +365,135 @@ export const recognitionData = {
         }
       ]
     }
+  },
+  "best-u-had": {
+    "facts": [
+      {
+        "id": "best-u-had-spotify-streams",
+        "type": "reach",
+        "scopeLabel": "TRACK",
+        "value": "1M+",
+        "shortValue": "1M+ / SPOTIFY",
+        "label": "SPOTIFY STREAMS",
+        "description": "Best U Had / Gloria Kim. More than one million streams on Spotify.",
+        "dateLabel": "SNAPSHOT / OCT 2026",
+        "sources": [
+          {
+            "label": "SPOTIFY / OFFICIAL RELEASE",
+            "url": "https://open.spotify.com/album/0vypwBdUnUDztd9obPk9mK"
+          }
+        ]
+      }
+    ]
+  },
+  "all-of-you": {
+    "facts": [
+      {
+        "id": "all-of-you-spotify-streams",
+        "type": "reach",
+        "scopeLabel": "TRACK",
+        "value": "1M+",
+        "shortValue": "1M+ / SPOTIFY",
+        "label": "SPOTIFY STREAMS",
+        "description": "All of You / Gloria Kim. More than one million streams on Spotify.",
+        "dateLabel": "SNAPSHOT / OCT 2026",
+        "sources": [
+          {
+            "label": "SPOTIFY / OFFICIAL RELEASE",
+            "url": "https://open.spotify.com/album/7qlUQ05TJEwQ0B98RIdHdZ"
+          }
+        ]
+      }
+    ]
+  },
+  "lotus-flow-profile": {
+    "facts": [
+      {
+        "id": "lotus-songwriters-apple",
+        "type": "editorial",
+        "scopeLabel": "SONGWRITER PLAYLIST",
+        "value": "THE SONGWRITERS",
+        "shortValue": "APPLE MUSIC",
+        "label": "LOTUS FLOW / APPLE MUSIC",
+        "description": "Apple Music’s Lotus Flow: The Songwriters playlist brings together selected songwriting credits.",
+        "dateLabel": "EDITORIAL / OCT 2026",
+        "sources": [
+          {
+            "label": "APPLE MUSIC / THE SONGWRITERS",
+            "url": "https://music.apple.com/us/playlist/lotus-flow-the-songwriters/pl.7901d1cc5091499e9eb215d33ebada63"
+          }
+        ]
+      },
+      {
+        "id": "lotus-voyage-la",
+        "type": "press",
+        "scopeLabel": "ARTIST INTERVIEW",
+        "value": "VoyageLA",
+        "shortValue": "VOYAGELA",
+        "label": "LIFE & WORK WITH LOTUS FLOW",
+        "description": "A VoyageLA interview with Lotus Flow about her life and creative work.",
+        "dateLabel": "EDITORIAL / OCT 2026",
+        "sources": [
+          {
+            "label": "VOYAGELA",
+            "url": "https://voyagela.com/interview/life-work-with-lotus-flow-of-burbank/"
+          }
+        ]
+      },
+      {
+        "id": "lotus-bold-journey",
+        "type": "press",
+        "scopeLabel": "ARTIST INTERVIEW",
+        "value": "Bold Journey",
+        "shortValue": "BOLD JOURNEY",
+        "label": "MEET LOTUS FLOW",
+        "description": "A Bold Journey interview with Lotus Flow.",
+        "dateLabel": "EDITORIAL / OCT 2026",
+        "sources": [
+          {
+            "label": "BOLD JOURNEY",
+            "url": "https://boldjourney.com/meet-lotus-flow-2/"
+          }
+        ]
+      }
+    ]
   }
 };
+export const recognitionExtraEntries = [
+  {
+    "id": "best-u-had",
+    "title": "Best U Had",
+    "artist": "Gloria Kim",
+    "image": "/assets/recognition/gloria-best-u-had.webp",
+    "url": "https://open.spotify.com/album/0vypwBdUnUDztd9obPk9mK",
+    "detailUrl": "https://open.spotify.com/album/0vypwBdUnUDztd9obPk9mK",
+    "categories": [
+      "production",
+      "writing"
+    ]
+  },
+  {
+    "id": "all-of-you",
+    "title": "All of You",
+    "artist": "Gloria Kim",
+    "image": "/assets/recognition/gloria-all-of-you.webp",
+    "url": "https://open.spotify.com/album/7qlUQ05TJEwQ0B98RIdHdZ",
+    "detailUrl": "https://open.spotify.com/album/7qlUQ05TJEwQ0B98RIdHdZ",
+    "categories": [
+      "production"
+    ]
+  },
+  {
+    "id": "lotus-flow-profile",
+    "title": "Lotus Flow",
+    "artist": "Interviews & editorial",
+    "image": "/assets/lotus-flow-wordmark-web.webp",
+    "artLabel": "Lotus Flow logo",
+    "url": "/#about",
+    "detailUrl": "/#about",
+    "categories": [
+      "artist"
+    ],
+    "profile": true
+  }
+];

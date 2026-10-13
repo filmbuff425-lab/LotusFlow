@@ -1,3 +1,4 @@
+import {waitForIdentityMotion,identityMotionActive} from './chapter-priority.js';
 import {prepareStudioClay,clayStats} from './studio-clay.js?v=20261007-mobile3';
 import {canvasScale} from './device-profile.js';
 import * as THREE from 'three';
@@ -15,7 +16,7 @@ import { createStudioDetails } from './studio-details.js?v=20261006-lake-surface
 import {createRecordingRoom} from './studio-room.js?v=20261007-mobile3';
 
 // Yield between model families so the cube, heartbeat and navigation keep responding.
-const yieldToPage=()=>new Promise(resolve=>setTimeout(resolve,0));
+const yieldToPage=async()=>{if(identityMotionActive())await waitForIdentityMotion();await new Promise(resolve=>setTimeout(resolve,0))};
 export async function createStudioInterior({scene,root,renderer,api,camera,soundcube,host,touchables,selected}) {
  await prepareStudioClay();
  const measured=new URLSearchParams(location.search).has('perf'),stages={};let phaseAt=performance.now();
