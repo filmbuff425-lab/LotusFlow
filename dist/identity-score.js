@@ -1,3 +1,9 @@
+// A short mobile Studio can expose the next chapter below it. The Identity
+// soundtrack belongs to the chapter at the reading focus, not any visible edge.
+export function identityHasFocus(rect,height,header=0){
+ const focus=header+(height-header)*.45;
+ return rect.top<=focus&&rect.bottom>focus;
+}
 // One clock for the approved blade mix and the musical reveal. The supplied
 // track's first strong drum transient is at 43.12 s; the visitor need not wait.
 export const identityBeat=43.12;

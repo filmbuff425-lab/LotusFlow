@@ -1,6 +1,6 @@
 import {timing} from './cut-timing.js?v=20261006-lake-surface1';
 import './blood-ink.js?v=20261007-mobile3';
-import {createIdentityScore,audioVisualTime} from './identity-score.js?v=20261007-mobile3';
+import {createIdentityScore,audioVisualTime,identityHasFocus} from './identity-score.js?v=20261007-mobile3';
 import {createInkFlow} from './identity-ink-flow.js?v=20261007-mobile3';
 import {scarThickness,bladeLength,fittedScar,followsScar,posterBleed} from './identity-gesture.js';
 import {createIdentityPeek} from './identity-peek.js';
@@ -42,7 +42,7 @@ musicToggle.addEventListener('click',()=>{if(identityScore.playing){scoreMuted=t
 let identityVisible=false,visibilityFrame=0,foregroundClaimed=false;
 const scoreEnabled=()=>!entryWaiting()&&!muted&&!scoreMuted&&window.lotusSfx?.enabled!==false;
 function syncIdentityVisibility(){
- visibilityFrame=0;if(entryWaiting()){identityVisible=false;gate.classList.remove('seam-awake');identityScore.pause();return}const r=artistSection.getBoundingClientRect();identityVisible=!document.hidden&&r.bottom>innerHeight*.2&&r.top<innerHeight*.75;
+ visibilityFrame=0;if(entryWaiting()){identityVisible=false;gate.classList.remove('seam-awake');identityScore.pause();return}const r=artistSection.getBoundingClientRect();identityVisible=!document.hidden&&identityHasFocus(r,innerHeight,document.querySelector('.header')?.getBoundingClientRect().bottom||0);
  gate.classList.toggle('seam-awake',!dialog.open&&identityVisible&&artistSection.dataset.artistLocked==='true');
  if(identityVisible&&artistSection.dataset.artistLocked==='true'){prepareBlade().catch(()=>{});if(scoreEnabled())identityScore.prepare().catch(()=>{})}
  if(dialog.open&&cutting)return;
@@ -54,7 +54,7 @@ document.addEventListener('pointerdown',e=>{const entering=e.target.closest('a[h
 document.addEventListener('keydown',e=>{if(identityVisible&&(e.key==='Enter'||e.key===' ')&&scoreEnabled())identityScore.enter(artistSection.dataset.artistLocked==='false')},{capture:true});
 window.addEventListener('lotus-effects-change',e=>{if(!e.detail)stopCutSound();syncIdentityVisibility()});
 window.addEventListener('lotus-audio-start',e=>{if(e.detail!=='identity-score'){foregroundClaimed=true;identityScore.pause()}});
-window.addEventListener('lotus-room-change',e=>{if(e.detail)identityScore.pause()});
+window.addEventListener('lotus-room-change',e=>{if(e.detail){foregroundClaimed=true;identityScore.pause()}});
 window.addEventListener('lotus-prologue-end',()=>{artistSection.dataset.identityScoreState=identityScore.playing?'reveal':'paused';syncIdentityVisibility()});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)identityScore.pause();else scheduleIdentityVisibility()});
 window.addEventListener('pagehide',()=>identityScore.pause());

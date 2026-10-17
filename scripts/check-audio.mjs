@@ -80,9 +80,9 @@ const subtleBed=()=>assert.ok(ambient.volume>.10&&ambient.volume<.13,'Ambient le
 for(let i=0;i<160;i++)a.intervals[0]();subtleBed();ambient.currentTime=2.5;a.intervals[0]();assert.equal(sound.dataset.ambienceProgress,'2.500');
 const companion=a.document.createElement('audio');companion.dataset.heartbeat='true';companion.paused=false;for(let i=0;i<160;i++)a.intervals[0]();subtleBed();
 const foreground=a.document.createElement('video');foreground.paused=false;
-for(let i=0;i<160;i++)a.intervals[0]();assert.ok(ambient.volume<.017,'Music ducks the ambience instead of stopping its loop');
-foreground.muted=true;for(let i=0;i<160;i++)a.intervals[0]();subtleBed();
-a.window.lotusIdentityAudio={playing:true};for(let i=0;i<160;i++)a.intervals[0]();assert.ok(ambient.volume<.017,'Identity score also ducks the ambient bed');
+for(let i=0;i<160;i++)a.intervals[0]();assert.equal(ambient.paused,true,'Foreground music fully pauses the ambient bed');assert.equal(ambient.muted,true,'Mute remains authoritative on phones that ignore .volume');
+foreground.muted=true;a.intervals[0]();await flush();for(let i=0;i<160;i++)a.intervals[0]();subtleBed();assert.equal(ambient.muted,false);
+a.window.lotusIdentityAudio={playing:true};for(let i=0;i<160;i++)a.intervals[0]();assert.equal(ambient.paused,true,'Identity Web Audio score also stops the ambient bed');
 a.window.lotusIdentityAudio.playing=false;
 a.window.dispatchEvent(new a.context.CustomEvent('lotus-room-change',{detail:true}));assert.equal(sound.dataset.airCue,'studio-wind','Wind starts on the actual camera entrance event');
 assert.equal(a.window.lotusSfx.play('seam-air'),true);assert.equal(sound.dataset.airDesign,'unpitched-soft-breath');
@@ -94,7 +94,8 @@ await sound.emit('click');for(let i=0;i<160;i++)a.intervals[0]();assert.equal(am
 assert.equal(scoreEnabled,false,'The global sound switch tells the Identity score to stop');
 assert.equal(a.window.lotusSfx.play('archive-invite'),false,'Discography honors global mute');
 const mutedSources=a.sources.length;assert.equal(a.window.lotusSfx.play('seam-air',{performanceAction:true}),false);assert.equal(a.sources.length,mutedSources,'The opening hint cannot bypass the visitor’s mute preference');
-await sound.emit('click');assert.equal(ambient.paused,false);assert.equal(sound.textContent,'SOUND / ON');
+await sound.emit('click');assert.equal(ambient.paused,true,'Enabling sound inside the room must not start a second soundtrack');assert.equal(sound.textContent,'SOUND / ON');
+await a.window.emit('lotus-room-change',{detail:false});await flush();assert.equal(ambient.paused,false,'Returning to the closed cube restores ambient playback');
 a.document.hidden=true;await a.document.emit('visibilitychange');assert.equal(ambient.paused,true);assert.equal(a.contexts[0].state,'suspended');
 a.document.hidden=false;await a.document.emit('visibilitychange');await flush();assert.equal(ambient.paused,false);assert.equal(a.contexts[0].state,'running');
 const embedded=environment();let parentUnlocks=0,parentCues=0;
@@ -150,3 +151,16 @@ assert.equal(gated.nodes.find(e=>e.dataset.ambient).paused,false);
 assert.equal(gated.nodes.find(e=>e.dataset.heartbeat).paused,false,'The trusted gate click can start the heartbeat before the first studio intersection');
 assert.equal(gated.host.dataset.ambientState,'playing');assert.equal(gated.host.dataset.heartbeatState,'playing');
 console.log('Passive sound entry guards passed: no pre-click playback; one explicit start unlocks both recordings before graphics visibility.');
+
+// A source announces before its async play()/decode resolves. Incidental gestures
+// in that gap cannot bring the bed back, and sound off must still mean OFF.
+const priority=environment();priority.load('interaction-sound.js');await flush();
+const priorityBed=priority.nodes.find(e=>e.dataset.ambient),priorityToggle=priority.nodes.find(e=>e.className==='interaction-sound-toggle');
+Object.defineProperty(priorityBed,'volume',{get:()=>1,set(){} });
+for(const source of ['studio-opening','studio-media','identity-score','phone-film','release']){
+ await priority.window.emit('lotus-audio-start',{detail:source});assert.equal(priorityBed.paused,true);assert.equal(priorityBed.muted,true,source+' suppresses ambient output even with immutable iPhone volume');
+ await priority.window.lotusSfx.arm();assert.equal(priorityBed.paused,true,'A tap during startup cannot restart the ambient bed');
+ assert.equal(priorityToggle.textContent,'SOUND / ON','Foreground priority is not a user mute');
+}
+await priorityToggle.emit('click');assert.equal(priorityToggle.textContent,'SOUND / OFF','The global switch can mute while ambience is deliberately paused');
+console.log('Foreground isolation passed: Studio, Identity, MV and records silence ambient playback before async starts, including iOS volume behavior.');

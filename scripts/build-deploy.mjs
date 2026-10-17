@@ -6,7 +6,7 @@ import {omitted,studies,excludeFromDeployment,auditDeploymentSource} from './dep
 const {transform}=await import(process.env.LOTUS_ESBUILD_PATH?pathToFileURL(process.env.LOTUS_ESBUILD_PATH).href:'esbuild');
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const input=path.join(root,'dist'),output=path.join(root,'deploy');
-const revision='20261017-phone-studio51';
+const revision='20261017-phone-touch52';
 const {omittedBytes}=await auditDeploymentSource(input);
 // Finish the entire build before touching a directory served by local previews.
 // Publish each file by rename, with new dependencies first and HTML last.
