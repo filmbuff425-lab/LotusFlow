@@ -3,7 +3,7 @@ const sections=[...document.querySelectorAll('#home,#about,#work,#studio,#contac
 let frame=0;
 function update(){
  frame=0;const h=innerHeight;
- for(const section of sections){const r=section.getBoundingClientRect();if(r.bottom<0||r.top>h)continue;const p=Math.max(-1,Math.min(1,(h*.45-r.top)/Math.max(h,r.height)));section.style.setProperty('--scene-drift',reduced.matches?'0':p.toFixed(4));section.dataset.scrollPosition=p.toFixed(2);}
+ for(const [section,r] of sections.map(section=>[section,section.getBoundingClientRect()])){if(r.bottom<0||r.top>h)continue;const p=Math.max(-1,Math.min(1,(h*.45-r.top)/Math.max(h,r.height)));section.style.setProperty('--scene-drift',reduced.matches?'0':p.toFixed(4));section.dataset.scrollPosition=p.toFixed(2);}
 
 }
 function schedule(){if(!frame)frame=requestAnimationFrame(update)}

@@ -119,3 +119,20 @@ footer .archive-home-link:active{background:#a3291c40}
  .archive-footer-signature{flex-direction:column;gap:4px;margin-top:22px;padding-top:18px;font-size:11px;letter-spacing:.035em}
  .archive-footer-brand{font-size:12px;letter-spacing:.08em}
 }
+
+/* Interaction rhythm: fast acknowledgment, soft settling, native scrolling. */
+:root{--ui-ease:cubic-bezier(.22,1,.36,1)}
+dialog[data-motion-phase][open]{animation:none!important}
+dialog[data-motion-phase="arriving"]::backdrop{animation:ui-backdrop-in .46s var(--ui-ease) both}
+dialog[data-motion-phase="leaving"]::backdrop{animation:ui-backdrop-out .25s ease both}
+@keyframes ui-backdrop-in{from{opacity:0}to{opacity:1}}
+@keyframes ui-backdrop-out{from{opacity:1}to{opacity:0}}
+:is(.studio-view-buttons,.studio-orbit-tools,.phone-studio-toolbar,.profile-tabs,.work-controls,.release-tabs) button{transition:color .22s ease,background-color .22s ease,border-color .22s ease,transform .32s var(--ui-ease)}
+:is(.studio-view-buttons,.studio-orbit-tools,.phone-studio-toolbar,.profile-tabs,.work-controls,.release-tabs) button:active{transform:scale(.97);transition-duration:.1s}
+:is(.phone-record-picker,.phone-film-viewer,.mac-content main){overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.phone-record-list button img{transition:transform .4s var(--ui-ease),opacity .22s ease}
+.phone-record-list button:active img{transform:scale(.97);opacity:.85;transition-duration:.12s}
+.mac-window{transition:max-width .6s var(--ui-ease),height .6s var(--ui-ease)}
+.mac-track:active{background:#ffffff12}
+@media(hover:hover){.phone-record-list button:hover img{transform:translateY(-3px)}}
+@media(prefers-reduced-motion:reduce){dialog[data-motion-phase]::backdrop{animation:none!important}:is(.studio-view-buttons,.studio-orbit-tools,.phone-studio-toolbar,.profile-tabs,.work-controls,.release-tabs) button,.phone-record-list button img,.mac-window{transition:none!important}}

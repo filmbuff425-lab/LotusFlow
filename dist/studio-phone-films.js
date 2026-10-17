@@ -1,3 +1,4 @@
+import {createDialogMotion} from './ui-motion.js';
 import {createPhoneFilmPlayback,screenTransform} from './studio-phone-interactions.js';
 
 let viewer;
@@ -18,6 +19,7 @@ export function createPhoneFilms(){
  const poster=film=>new URL(`./assets/phone-films53/${film.id}-mobile53.jpg`,import.meta.url).href;
  const dialog=document.createElement('dialog');dialog.className='phone-film-viewer';
  dialog.innerHTML='<header><span>LOTUS FLOW / ON SCREEN</span><button type="button" data-close>×</button></header><div class="phone-film-media"></div><div class="phone-film-caption"><h2></h2><p></p></div><select class="phone-film-select"></select><p class="phone-film-status" role="status"></p><button type="button" class="phone-film-retry" hidden>PLAY FILM</button><a class="phone-film-credit"></a>';
+ const motion=createDialogMotion(dialog);
  const video=document.createElement('video'),status=dialog.querySelector('[role=status]'),link=dialog.querySelector('a'),retry=dialog.querySelector('.phone-film-retry'),select=dialog.querySelector('select');
  video.className='phone-film-video';video.playsInline=true;video.loop=true;video.preload='none';video.muted=true;video.defaultMuted=true;video.volume=.7;video.disablePictureInPicture=true;video.setAttribute('playsinline','');video.setAttribute('webkit-playsinline','');
  video.poster=new URL('./assets/phone-films53/show-me-love-mobile53.jpg',import.meta.url).href;
@@ -69,8 +71,7 @@ export function createPhoneFilms(){
    }else playback.release();
    lastFocus?.focus({preventScroll:true});
   };
-  if(immediate||matchMedia('(prefers-reduced-motion: reduce)').matches){finish();return}
-  dialog.animate([{opacity:1,transform:'translateY(0)'},{opacity:0,transform:'translateY(8px)'}],{duration:220,easing:'ease-out'}).finished.then(finish,finish);
+  motion.depart(finish,immediate);
  }
  select.onchange=()=>{
   const film=films.find(f=>f.id===select.value);if(!film)return;
@@ -105,7 +106,7 @@ export function createPhoneFilms(){
    const film=wall?wallFilm:films.find(f=>f.id===libraryId)||wallFilm;
    dialog.setAttribute('aria-label',zh()?'音乐影像':'Music films');dialog.querySelector('[data-close]').setAttribute('aria-label',zh()?'关闭音乐影像':'Close music films');link.textContent=zh()?'作品与署名 ↗':'PROJECT & CREDITS ↗';select.hidden=wall;select.setAttribute('aria-label',zh()?'选择音乐影像':'Choose a music film');
    screen?.classList.remove('is-visible');dialog.querySelector('.phone-film-media').append(video);video.style.removeProperty('transform');video.controls=true;video.removeAttribute('aria-hidden');video.tabIndex=0;
-   document.body.classList.add('phone-film-open');dialog.showModal();video.muted=false;play(film);
+   document.body.classList.add('phone-film-open');dialog.showModal();motion.arrive();video.muted=false;play(film);
    // Unmuting an already-playing wall does not dispatch another native play.
    window.dispatchEvent(new CustomEvent('lotus-audio-start',{detail:'phone-film'}));
   }

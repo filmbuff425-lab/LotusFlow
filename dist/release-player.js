@@ -59,7 +59,7 @@ export function initReleasePlayer(api){
  new IntersectionObserver(([e])=>{if(!e.isIntersecting)stopPreview()}).observe(document.querySelector('#work'));
  document.querySelectorAll('#track-list .track').forEach(card=>{card.addEventListener('pointerenter',()=>preview(card.dataset.id));card.addEventListener('pointerleave',()=>preview(null));card.addEventListener('focus',()=>preview(card.dataset.id));card.addEventListener('blur',()=>preview(null))});
  window.addEventListener('lotus-view-change',stopPreview);window.addEventListener('lotus-filter-change',stopPreview);
- dialog.addEventListener('pointermove',e=>{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;const r=dialog.getBoundingClientRect();dialog.style.setProperty('--tilt-x',`${-(e.clientY-r.top-r.height/2)/r.height*7}deg`);dialog.style.setProperty('--tilt-y',`${(e.clientX-r.left-r.width/2)/r.width*7}deg`)});
+ dialog.addEventListener('pointermove',e=>{if(e.pointerType==='touch'||matchMedia('(prefers-reduced-motion: reduce)').matches)return;const r=dialog.getBoundingClientRect();dialog.style.setProperty('--tilt-x',`${-(e.clientY-r.top-r.height/2)/r.height*7}deg`);dialog.style.setProperty('--tilt-y',`${(e.clientX-r.left-r.width/2)/r.width*7}deg`)});
  dialog.addEventListener('pointerleave',()=>{dialog.style.setProperty('--tilt-x','0deg');dialog.style.setProperty('--tilt-y','0deg')});
  window.lotusReleasePlayer={open,close,preview,unlock,getSignal:()=>({...signal.read(),id:current?.id}),pause:()=>{cancel();audio.pause()}};
 }

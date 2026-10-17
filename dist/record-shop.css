@@ -13,7 +13,7 @@ body:has(.record-shop){background:#111112;color:#eeeae5}body:has(.record-shop) .
 .cd-spine.taken{opacity:.22;transform:none}.cd-spine.taken::after{display:none}
 .record-inspector{transition:none}.record-inspector .open-case{opacity:0}.record-inspector.case-arrived .open-case{opacity:1}
 .case-tray,.lid-front,.lid-inside{border:1px solid #b7bec478;border-radius:1px;box-shadow:inset 0 0 0 1px #bbb3,0 4px 12px #0008}
-.case-tray{background:linear-gradient(130deg,#292a2c,#090a0c)}.case-lid{transition:transform 1.1s cubic-bezier(.25,.7,.18,1)}
+.case-tray{background:linear-gradient(130deg,#292a2c,#090a0c)}.case-lid{transition:transform .62s cubic-bezier(.22,1,.36,1)}
 .case-disc{box-shadow:0 1px 2px #0009}.disc-hub{border-width:1px;box-shadow:0 0 0 2px #d6d6da33}
 .inspector-copy,.case-edition{opacity:0;transform:translateY(10px);transition:opacity .5s,transform .7s cubic-bezier(.2,.7,.2,1)}
 .case-unfolded .inspector-copy,.case-unfolded .case-edition{opacity:1;transform:none;transition-delay:.2s}

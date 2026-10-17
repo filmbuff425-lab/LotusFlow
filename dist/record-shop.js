@@ -23,6 +23,10 @@ for(const [index,group] of shelfGroups.entries()){
 // A decorative WebGL failure must not block the shelves or record controls.
 import('./record-shelf-objects.js?v=20261007-seam-soft11').then(({mountShelfObjects})=>mountShelfObjects(rack)).catch(error=>console.warn('Shelf decoration unavailable:',error));
 document.querySelector('.shelf-scroll').setAttribute('aria-label','Two shelves of CDs. Use arrow keys to browse the records, or scroll horizontally on a small screen.');
+let followFlight=true;
+const releaseScroll=()=>{followFlight=false};
+for(const type of ['wheel','touchstart','pointerdown'])window.addEventListener(type,releaseScroll,{passive:true});
+window.addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '].includes(e.key))releaseScroll()});
 let motion=0,flight=null,flightRaf=0,hoverId=null,hoverTimer=0,hoverTicket=0,hoverPlaying=false,hoverEnabled=true;
 const hoverButton=document.createElement('button');hoverButton.className='collection-hover-sound';hoverButton.textContent='HOVER SOUND / ON';hoverButton.setAttribute('aria-pressed','true');document.querySelector('.library-caption').append(hoverButton);
 const arm=()=>signal.arm();document.addEventListener('pointerdown',arm,{once:true,capture:true});document.addEventListener('keydown',arm,{once:true,capture:true});
@@ -62,22 +66,22 @@ function takeFromShelf(source,serial,returning=false,done){
  const target=document.querySelector('.case-tray'),sr=source.getBoundingClientRect(),tr=target.getBoundingClientRect(),scrollStart=scrollY;
  const shelf={x:sr.left+sr.width/2,y:sr.top+scrollY+sr.height/2},tray={x:tr.left+tr.width/2,y:tr.top+scrollY+tr.height/2};
  const destinationScroll=returning?Math.max(0,sr.top+scrollY-innerHeight*.37):Math.max(0,Math.min(document.documentElement.scrollHeight-innerHeight,panel.getBoundingClientRect().top+scrollY-116));
- const a=returning?tray:shelf,b=returning?shelf:tray,begin=performance.now(),duration=returning?1500:1850;
- flight?.remove();flight=makeFlight(active);const el=flight;panel.classList.remove('case-arrived');source.classList.add('taken');
+ const a=returning?tray:shelf,b=returning?shelf:tray,begin=performance.now(),duration=returning?900:1200;
+ flight?.remove();flight=makeFlight(active);const el=flight;followFlight=true;const base=Math.max(1,tr.width);el.style.width=base+'px';el.style.height=base+'px';panel.classList.remove('case-arrived');source.classList.add('taken');
  function frame(now){if(serial!==motion){el.remove();return}const q=clamp((now-begin)/duration),move=smooth(clamp((q-.16)/.84)),lift=Math.sin(Math.PI*q)*96;
-  window.scrollTo({top:scrollStart+(destinationScroll-scrollStart)*smooth(q),behavior:'instant'});
+  if(followFlight)window.scrollTo({top:scrollStart+(destinationScroll-scrollStart)*smooth(q),behavior:'instant'});
   const x=a.x+(b.x-a.x)*move,y=a.y+(b.y-a.y)*move-scrollY-lift;
   const size=returning?tr.width+(sr.height-tr.width)*move:sr.height+(tr.width-sr.height)*move;
   const rotate=returning?-82*move:-82*(1-move),roll=Math.sin(q*Math.PI)*(returning?5:-7);
-  el.style.width=size+'px';el.style.height=size+'px';el.style.transform=`translate3d(${x}px,${y}px,0) translate(-50%,-50%) perspective(1100px) rotateY(${rotate}deg) rotateZ(${roll}deg)`;
+  el.style.transform=`translate3d(${x}px,${y}px,0) translate(-50%,-50%) perspective(1100px) rotateY(${rotate}deg) rotateZ(${roll}deg) scale(${size/base})`;
   if(q<1)flightRaf=requestAnimationFrame(frame);else{el.remove();flight=null;if(returning){source.classList.remove('taken');done?.()}else{panel.classList.add('case-arrived');window.lotusSfx?.play('case-open');requestAnimationFrame(()=>panel.classList.add('case-unfolded'))}}
  }flightRaf=requestAnimationFrame(frame);
 }
 function closeRecord(returnFocus=true){
- if(!active)return;const serial=++motion;cancelAnimationFrame(flightRaf);flight?.remove();flight=null;audio.pause();panel.classList.remove('case-unfolded');panel.inert=true;
+ if(!active||panel.inert)return;const serial=++motion;cancelAnimationFrame(flightRaf);flight?.remove();flight=null;audio.pause();panel.classList.remove('case-unfolded');panel.inert=true;
  const finish=()=>{if(serial!==motion)return;active=null;panel.classList.remove('is-open','case-arrived');panel.setAttribute('aria-hidden','true');spines.forEach(s=>{s.setAttribute('aria-expanded','false');s.classList.remove('taken')});rack.dataset.activeRecord='';caption.textContent='Select a record to open.';const url=new URL(location.href);url.searchParams.delete('record');history.replaceState(null,'',url);if(returnFocus)lastFocus?.focus({preventScroll:true});cancelAnimationFrame(raf);raf=0;};
  if(reduced||!returnFocus){finish();return}
- setTimeout(()=>{if(serial===motion)takeFromShelf(lastFocus,serial,true,finish)},1250);
+ setTimeout(()=>{if(serial===motion)takeFromShelf(lastFocus,serial,true,finish)},650);
 }
 for(const [spineIndex,spine] of spines.entries()){
  spine.addEventListener('pointerenter',()=>spines.forEach((item,i)=>{const distance=item.parentElement===spine.parentElement?Math.abs(i-spineIndex):99;item.style.setProperty('--neighbor-lift',distance===1?14:distance===2?5:0);item.style.setProperty('--neighbor-roll',distance===1?(i<spineIndex?-1:1):0)}));
