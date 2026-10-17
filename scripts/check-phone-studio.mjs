@@ -26,10 +26,10 @@ function fixture(){const clock=new Clock(),video=new Video(),events=[];const sto
  const{clock,video,events}=fixture();assert.equal(video.src,'enter.mp4','Re-entry replaces the return clip');video.frameReady();for(let i=0;i<58;i++){video.currentTime=i/10;clock.advance(100)}video.dispatchEvent(new Event('ended'));clock.advance(5000);assert.equal(events.filter(e=>e==='end').length,1);assert.ok(!events.includes('fallback'));assert.equal(clock.tasks.size,0);assert.equal(video.paused,true);
 }
 {
- const{clock,video,events}=fixture();clock.advance(650);assert.deepEqual(events.filter(e=>typeof e==='string'),['fallback']);assert.equal(video.paused,true);video.frameReady();clock.advance(5000);assert.equal(clock.tasks.size,0);assert.equal(events.filter(e=>e==='fallback').length,1,'A late decoder cannot replay a timed-out transition');
+ const{clock,video,events}=fixture();clock.advance(650);assert.deepEqual(events.filter(e=>typeof e==='string'),[],'A cold phone decoder is not discarded after 650 ms');clock.advance(2150);assert.deepEqual(events.filter(e=>typeof e==='string'),['fallback']);assert.equal(video.paused,true);video.frameReady();clock.advance(5000);assert.equal(clock.tasks.size,0);assert.equal(events.filter(e=>e==='fallback').length,1,'A late decoder cannot replay a timed-out transition');
 }
 {
- const{clock,video,events}=fixture();video.frameReady();video.currentTime=.3;clock.advance(100);clock.advance(1200);assert.equal(events.at(-1),'fallback','A started but stalled decoder exits to the still image');assert.equal(clock.tasks.size,0);
+ const{clock,video,events}=fixture();video.frameReady();video.currentTime=.3;clock.advance(100);clock.advance(1700);assert.equal(events.at(-1),'fallback','A started but stalled decoder exits to the still image');assert.equal(clock.tasks.size,0);
 }
 {
  const clock=new Clock(),video=new Video(),events=[];const stop=playPhoneTransition(video,{src:'desk.mp4',clock,holdLastFrame:true,onStart:()=>events.push('start'),onEnd:()=>events.push('end'),onFallback:()=>events.push('fallback')});video.frameReady();video.dispatchEvent(new Event('ended'));assert.equal(video.paused,false,'A camera journey holds its decoded final frame during the still-image handoff');assert.equal(clock.tasks.size,0);assert.deepEqual(events,['start','end']);stop();assert.equal(video.paused,true,'The final frame is released only after the destination still is painted');
@@ -58,7 +58,10 @@ for(const name of ['overview-desk','desk-overview','overview-records','records-o
 const vm=await import('node:vm');
 const phoneSource=fs.readFileSync('dist/studio-phone.js','utf8');
 assert.ok(phoneSource.includes('holdLastFrame:true')&&phoneSource.includes('await painted()'),'Camera journeys hand off only after the destination still has painted');
-const recordCss=fs.readFileSync('dist/studio-phone.css','utf8');assert.ok(recordCss.includes('linear-gradient(145deg,#1a1d20f7')&&recordCss.includes('transition:flex-basis .56s'),'The lightweight record shelf uses static glass layers and a responsive pull');
+assert.ok(phoneSource.indexOf('preloadClip();decode(photo(\'overview\'))')>phoneSource.indexOf("if(!await decode(still))"),'The first entrance clip begins buffering as soon as the phone still is decoded');
+assert.ok(phoneSource.includes("fetch(asset(name),{cache:'force-cache'})"),'Short camera routes warm through the browser cache without creating extra decoders');
+const recordCss=fs.readFileSync('dist/studio-phone.css','utf8');assert.ok(recordCss.includes('linear-gradient(145deg,#1a1d20fa')&&recordCss.includes('transition:flex-basis .72s cubic-bezier(.16,1,.3,1)'),'The lightweight record shelf uses layered glass and one spring-like pull curve');
+const recordsSource=fs.readFileSync('dist/studio-phone-records.js','utf8');assert.ok(recordsSource.includes('centerCase(button)')&&!recordsSource.includes('button.scrollIntoView('),'The CD pull uses a cancellable Safari-safe scroll curve');
 const cancelled=[];const state={operation:3,wantedView:'desk',cancelViewClip:()=>cancelled.push('video'),finishViewClip:v=>cancelled.push(v),clip:{classList:{remove:v=>cancelled.push(v)}},viewAnimations:[{cancel:()=>cancelled.push('animation')}],viewLayer:{remove:()=>cancelled.push('layer')},changingView:true,phase:'open',view:'overview',still:{src:'desk.webp'},asset:n=>n};
 vm.createContext(state);vm.runInContext(phoneSource.slice(phoneSource.indexOf('function stopViewMotion('),phoneSource.indexOf('async function changeView(')),state);state.stopViewMotion();
 assert.equal(state.operation,4);assert.equal(state.changingView,false);assert.equal(state.still.src,'overview.webp');assert.deepEqual(cancelled,['video',false,'is-playing','animation','layer']);assert.equal(state.finishViewClip,null);

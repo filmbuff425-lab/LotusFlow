@@ -8,7 +8,7 @@ export function decodeImage(image,timeoutMs=4000){
  });
 }
 
-export function playPhoneTransition(video,{src,onStart=()=>{},onProgress=()=>{},onEnd,onFallback,holdLastFrame=false,clock=globalThis}={}){
+export function playPhoneTransition(video,{src,onStart=()=>{},onProgress=()=>{},onEnd,onFallback,holdLastFrame=false,firstFrameTimeout=2800,readyFrameTimeout=1400,stallTimeout=1600,clock=globalThis}={}){
  let active=true,started=false,lastTime=0,stalledAt=clock.performance.now(),frame=0;
  let timer=0,poll=0;
  const stop=()=>{
@@ -24,12 +24,15 @@ export function playPhoneTransition(video,{src,onStart=()=>{},onProgress=()=>{},
  const show=()=>{if(!active)return;started=true;clock.clearTimeout(timer);stalledAt=clock.performance.now();onStart()};
  const ready=video.getAttribute('src')===src&&video.readyState>=2;
  video.addEventListener('error',fail);video.addEventListener('ended',end);
- timer=clock.setTimeout(fail,ready?1000:650);
+ // A cold iPhone decoder can need well over 650 ms even after the file has
+ // reached the HTTP cache. Wait for an actual decoded frame instead of
+ // replacing the approved camera journey with the still-image fallback.
+ timer=clock.setTimeout(fail,ready?readyFrameTimeout:firstFrameTimeout);
  poll=clock.setInterval(()=>{
   if(!active)return;
   const time=video.currentTime,now=clock.performance.now();
   if(time>lastTime+.002){lastTime=time;stalledAt=now}
-  else if(started&&now-stalledAt>1100){fail();return}
+  else if(started&&now-stalledAt>stallTimeout){fail();return}
   onProgress(time);
  },100);
  try{

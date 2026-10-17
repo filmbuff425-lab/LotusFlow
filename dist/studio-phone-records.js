@@ -12,18 +12,25 @@ export function createPhoneRecordShelf(trigger){
  const caption=document.createElement('div');caption.className='phone-record-caption';caption.setAttribute('aria-live','polite');const name=document.createElement('strong'),artist=document.createElement('span');caption.append(name,artist);
  const hint=document.createElement('p');hint.className='phone-record-hint';
  dialog.append(header,rack,caption,hint);document.body.append(dialog);const motion=createDialogMotion(dialog);
- let active=null,flight=null,serial=0,closing=false,drag=null,suppress=0;
+ let active=null,flight=null,scrollFrame=0,serial=0,closing=false,drag=null,suppress=0;
  const tracks=window.lotusCatalog||[],buttons=[];
  function captionFor(track){name.textContent=track?.title||(zh()?'抽出一张唱片':'Take a record');artist.textContent=track?.artist||(zh()?'滑动浏览，轻点抽出':'Slide to browse · tap to pull out')}
- function reset(){serial++;clearTimeout(flight);flight=null;active?.classList.remove('is-taken');active?.setAttribute('aria-pressed','false');active=null;captionFor(null)}
+ function reset(){serial++;clearTimeout(flight);cancelAnimationFrame(scrollFrame);flight=scrollFrame=null;active?.classList.remove('is-taken');active?.setAttribute('aria-pressed','false');active=null;captionFor(null)}
+ function centerCase(button){
+  cancelAnimationFrame(scrollFrame);if(reduced){rack.scrollLeft=button.offsetLeft-(rack.clientWidth-button.offsetWidth)/2;return}
+  const from=rack.scrollLeft,to=Math.max(0,button.offsetLeft-(rack.clientWidth-button.offsetWidth)/2),delta=to-from,started=performance.now();
+  const move=now=>{const p=Math.min(1,(now-started)/560),ease=1-Math.pow(1-p,5);rack.scrollLeft=from+delta*ease;if(p<1)scrollFrame=requestAnimationFrame(move);else scrollFrame=0};
+  scrollFrame=requestAnimationFrame(move);
+ }
  function dismiss(){if(closing||!dialog.open)return;closing=true;reset();motion.depart(()=>{dialog.close();closing=false;trigger.focus({preventScroll:true})})}
  async function take(button,track){
   if(!dialog.open||performance.now()<suppress||active===button)return;
   if(active){serial++;clearTimeout(flight);flight=null;active.classList.remove('is-taken');active.setAttribute('aria-pressed','false')}
   active=button;const token=++serial;button.classList.add('is-taken');button.setAttribute('aria-pressed','true');captionFor(track);
-  // Scroll the jewel case into a generous pocket before turning its cover.
-  button.scrollIntoView({behavior:reduced?'instant':'smooth',block:'nearest',inline:'center'});
-  flight=setTimeout(()=>{if(token!==serial||!dialog.open)return;flight=null;window.lotusPortfolio?.openTrack(track.id,button)},reduced?0:620);
+  // The shelf and the selected case settle on one shared, interruptible curve.
+  // A custom scroll avoids Safari's abrupt native scrollIntoView handoff.
+  centerCase(button);
+  flight=setTimeout(()=>{if(token!==serial||!dialog.open)return;flight=null;window.lotusPortfolio?.openTrack(track.id,button)},reduced?0:760);
  }
  for(const [index,track]of tracks.entries()){
   const b=document.createElement('button');b.type='button';b.className='phone-record-case';b.setAttribute('aria-label',`Take ${track.title}`);b.setAttribute('aria-pressed','false');

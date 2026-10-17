@@ -117,9 +117,15 @@ function stop(){
  if(entryHeld||document.hidden||level===0){setLevel(0);heart.pause();return}
  if(heart.paused)return;
  if(outputGain){
-  const at=outputContext.currentTime;setLevel(level);outputGain.gain.linearRampToValueAtTime(0,at+.12);
-  fade=setInterval(()=>{reportGain();if(outputContext.currentTime>=at+.12){heart.pause();clearInterval(fade);fade=0}},20);
- }else fade=setInterval(()=>{heart.volume*=.5;reportGain();if(heart.volume<.006){heart.pause();clearInterval(fade);fade=0}},40);
+  // Phone speakers expose abrupt bass cuts much more clearly. Keep the
+  // desktop timing untouched, but give the phone recording a short continuous
+  // gain tail so entering Studio cannot click or crackle.
+  const phone=document.documentElement?.dataset?.studioRenderer==='prerendered',duration=phone ? .28 : .12,at=outputContext.currentTime;setLevel(level);outputGain.gain.linearRampToValueAtTime(0,at+duration);
+  fade=setInterval(()=>{reportGain();if(outputContext.currentTime>=at+duration){heart.pause();clearInterval(fade);fade=0}},20);
+ }else{
+  const phone=document.documentElement?.dataset?.studioRenderer==='prerendered',step=phone ? .82 : .5;
+  fade=setInterval(()=>{heart.volume*=step;reportGain();if(heart.volume<.006){heart.volume=0;heart.pause();clearInterval(fade);fade=0}},phone?20:40);
+ }
 }
 export function updateHeartbeat(t,amount){
  closed=amount;

@@ -18,7 +18,7 @@ const asset=name=>new URL('./assets/phone-studio62/'+name,import.meta.url).href;
 const zh=()=>html.lang.startsWith('zh');
 const surface=document.createElement('div');surface.className='phone-studio-surface';surface.dataset.phase='closed';surface.tabIndex=0;surface.setAttribute('data-sound-entry-focus','');
 const still=new Image();still.className='phone-studio-image';still.alt='Lotus Flow glass studio';still.decoding='async';still.fetchPriority='high';still.src=asset('closed.webp');
-const clip=document.createElement('video');clip.className='phone-studio-transition';clip.muted=true;clip.defaultMuted=true;clip.playsInline=true;clip.preload='none';clip.disablePictureInPicture=true;clip.setAttribute('aria-hidden','true');clip.tabIndex=-1;
+const clip=document.createElement('video');clip.className='phone-studio-transition';clip.muted=true;clip.defaultMuted=true;clip.playsInline=true;clip.preload='auto';clip.disablePictureInPicture=true;clip.setAttribute('aria-hidden','true');clip.tabIndex=-1;
 const contour=document.createElementNS('http://www.w3.org/2000/svg','svg');contour.classList.add('phone-studio-contour');contour.setAttribute('viewBox','0 0 720 900');contour.setAttribute('aria-hidden','true');
 const edgeIndices=[[7,6],[6,4],[4,5],[5,7],[7,3],[3,2],[2,6],[3,1],[1,5],[2,0],[0,4],[0,1]];
 const dims=[60.105,35.28,68.9535],span=dims.reduce((a,b)=>a+b,0),distance=i=>dims.reduce((sum,d,a)=>sum+((i&(1<<a))?0:d),0)/span;
@@ -108,11 +108,19 @@ async function leave(){
  playTransition(false,token);
 }
 let wantedView=null,viewAnimations=[],viewLayer=null,cancelViewClip=()=>{},finishViewClip=null;
-function preloadView(){if(reduced||phase!=='open'||changingView)return;clip.src=asset(`${view}-${view==='overview'?'desk':'overview'}.mp4`);clip.preload='auto';clip.load()}
+const warmedRoutes=new Set();
+function warmRoutes(from){
+ if(reduced||navigator.connection?.saveData)return;
+ for(const destination of ['overview','desk','records'])if(destination!==from){
+  const name=`${from}-${destination}.mp4`;if(warmedRoutes.has(name))continue;warmedRoutes.add(name);
+  fetch(asset(name),{cache:'force-cache'}).then(response=>response.ok?response.arrayBuffer():null).catch(()=>{});
+ }
+}
+function preloadView(){if(reduced||phase!=='open'||changingView)return;warmRoutes(view);clip.src=asset(`${view}-${view==='overview'?'desk':'overview'}.mp4`);clip.preload='auto';clip.load()}
 function travelView(destination){
  return new Promise(resolve=>{
   finishViewClip=resolve;
-  cancelViewClip=playPhoneTransition(clip,{src:asset(`${view}-${destination}.mp4`),holdLastFrame:true,onStart:()=>clip.classList.add('is-playing'),onEnd:()=>{finishViewClip=null;resolve(true)},onFallback:()=>{clip.classList.remove('is-playing');finishViewClip=null;resolve(false)}});
+  cancelViewClip=playPhoneTransition(clip,{src:asset(`${view}-${destination}.mp4`),firstFrameTimeout:1500,readyFrameTimeout:1000,stallTimeout:1400,holdLastFrame:true,onStart:()=>clip.classList.add('is-playing'),onEnd:()=>{finishViewClip=null;resolve(true)},onFallback:()=>{clip.classList.remove('is-playing');finishViewClip=null;resolve(false)}});
  });
 }
 const painted=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
@@ -120,9 +128,9 @@ async function blendView(image,destination){
  const from=objectBounds(phoneObjects[view].computer),to=objectBounds(phoneObjects[destination].computer),ratio=to.width/from.width,w=surface.clientWidth,h=surface.clientHeight;
  const x=(to.x+to.width/2-.5-(from.x+from.width/2-.5)*ratio)*w,y=(to.y+to.height/2-.5-(from.y+from.height/2-.5)*ratio)*h;
  const layer=image.cloneNode();viewLayer=layer;layer.className='phone-studio-image phone-studio-blend';layer.style.cssText='z-index:1;transition:none';surface.insertBefore(layer,clip);
- const options={duration:reduced?0:1100,easing:'cubic-bezier(.45,0,.2,1)',fill:'forwards'};
- const arrive=layer.animate([{opacity:0,transform:`translate(${-x/ratio}px,${-y/ratio}px) scale(${1/ratio})`},{opacity:0,offset:.28},{opacity:1,transform:'none'}],options);
- const depart=still.animate([{opacity:1,transform:'none'},{opacity:1,offset:.28},{opacity:0,transform:`translate(${x}px,${y}px) scale(${ratio})`}],options);viewAnimations=[arrive,depart];await arrive.finished.catch(()=>{});
+ const options={duration:reduced?0:940,easing:'cubic-bezier(.16,1,.3,1)',fill:'forwards'};
+ const arrive=layer.animate([{opacity:0,transform:`translate(${-x/ratio}px,${-y/ratio}px) scale(${1/ratio})`},{opacity:.08,offset:.16},{opacity:1,transform:'none'}],options);
+ const depart=still.animate([{opacity:1,transform:'none'},{opacity:.96,offset:.16},{opacity:0,transform:`translate(${x}px,${y}px) scale(${ratio})`}],options);viewAnimations=[arrive,depart];await arrive.finished.catch(()=>{});
 }
 function stopViewMotion(invalidate=true){
  if(invalidate)operation++;cancelViewClip();cancelViewClip=()=>{};finishViewClip?.(false);finishViewClip=null;clip.classList.remove('is-playing');wantedView=null;for(const animation of viewAnimations)animation.cancel();viewAnimations=[];viewLayer?.remove();viewLayer=null;changingView=false;if(phase==='open')still.src=asset(view+'.webp');
@@ -179,6 +187,10 @@ window.addEventListener('lotus-entry-complete',()=>{cancelAnimationFrame(gateFra
 document.addEventListener('visibilitychange',()=>{if(document.hidden){if(changingView){stopViewMotion();placeHotspots()}if(phase==='opening'||phase==='closing'){operation++;settled(phase==='opening')}cancelAnimationFrame(gateFrame)}ambient();pulse()});
 window.addEventListener('pageshow',pulse);
 window.addEventListener('pagehide',()=>{stopViewMotion();stopClip();cancelAnimationFrame(pulseFrame);cancelAnimationFrame(gateFrame)});
-if(!await decode(still))throw new Error('Studio image could not load');loading.hidden=true;host.dataset.firstFrameMs=performance.now().toFixed(0);window.dispatchEvent(new Event('lotus-studio-ready'));
-// Prepare one modest video and the destination still, never the original model.
-decode(photo('overview'));window.addEventListener('lotus-entry-audible',preloadClip,{once:true});if(html.dataset.soundEntry==='entered')preloadClip();
+if(!await decode(still))throw new Error('Studio image could not load');
+// Start the one approved entrance clip as soon as the phone still is ready.
+// This runs before the sound gate finishes, so the visitor's first Studio tap
+// gets the same decoded journey as every later visit.
+preloadClip();decode(photo('overview'));
+loading.hidden=true;host.dataset.firstFrameMs=performance.now().toFixed(0);window.dispatchEvent(new Event('lotus-studio-ready'));
+window.addEventListener('lotus-entry-audible',preloadClip,{once:true});
