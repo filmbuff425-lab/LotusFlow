@@ -103,3 +103,19 @@ html:lang(zh-CN) body{font-family:'Lotus Sarasa Mono SC','Lotus Space Grotesk',s
 footer .archive-home-link{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:8px 14px;border:1px solid #70413a;transition:color .2s,border-color .2s,background-color .2s}
 footer .archive-home-link:is(:hover,:focus-visible){color:#fff0df;border-color:#d33b29;background:#a3291c26}
 footer .archive-home-link:active{background:#a3291c40}
+
+/* Keep footer actions together and the fixed sound control clear of the signature. */
+.archive-footer{display:block;padding:28px 7% calc(80px + env(safe-area-inset-bottom,0px))}
+.archive-footer-links{display:flex;justify-content:space-between;align-items:center;gap:24px}
+.archive-footer-links a{flex:none;min-height:44px;display:inline-flex;align-items:center;font-size:12px;line-height:1.4;letter-spacing:.06em}
+.archive-contact-link{padding:8px 0 8px 12px;transition:color .2s}
+.archive-contact-link:is(:hover,:focus-visible){color:#fff0df}
+.archive-footer-signature{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 18px;margin-top:24px;padding-top:20px;border-top:1px solid #ffffff0e;color:#a9958e;font-size:11px;line-height:1.8;letter-spacing:.06em}
+.archive-footer-brand{color:#d2b8a8;white-space:nowrap}
+@media(max-width:700px){
+ .archive-footer{padding:24px 6% calc(80px + env(safe-area-inset-bottom,0px))}
+ .archive-footer-links{gap:16px}
+ .archive-footer-links a{font-size:12px;letter-spacing:.04em}
+ .archive-footer-signature{flex-direction:column;gap:4px;margin-top:22px;padding-top:18px;font-size:11px;letter-spacing:.035em}
+ .archive-footer-brand{font-size:12px;letter-spacing:.08em}
+}
