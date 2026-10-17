@@ -18,7 +18,7 @@ export const omitted=new Set([...duplicateAudio.map(([original])=>original),'ass
  // Original pixel masters stay editable locally; only the current compact atlases ship.
  'assets/pixel/yellow-sprites-v2.png','assets/pixel/black-sprites-v2.png','assets/pixel/frames.json','assets/mobile/yellow-sprites-v2-1385a4c2c9a5a64f.webp','assets/mobile/black-sprites-v2-925da115f8454bbe.webp',
  'logo-motion.js','logo-scene.js','logo-volume.js']);
-export const studies=['_bar-study.html','logo-motion.html','design-review/','entry-study/','entry-visual/','home-demos/','tests/','test/','scripts/','outputs/'];
+export const studies=['assets/phone-studio51/','_bar-study.html','logo-motion.html','design-review/','entry-study/','entry-visual/','home-demos/','tests/','test/','scripts/','outputs/'];
 
 export const excludeFromDeployment=relative=>path.posix.basename(relative)==='.DS_Store'||omitted.has(relative)||studies.some(study=>relative===study||relative.startsWith(study));
 export function assertNoOmittedReferences(source){

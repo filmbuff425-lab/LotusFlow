@@ -46,6 +46,15 @@ assert.equal(await decodeImage({decode:()=>new Promise(()=>{})},5),false,'Image 
 const seen=new Set();function visit(file){if(seen.has(file))return;seen.add(file);const source=fs.readFileSync(file,'utf8');for(const [,dep]of source.matchAll(/(?:from\s*|import\s*)['"]([^'"]+)['"]/g)){assert.notEqual(dep,'three','Phone must not import Three.js');if(dep.startsWith('.'))visit(path.resolve(path.dirname(file),dep.split('?')[0]))}}
 visit(path.resolve('dist/studio-phone.js'));assert.ok(![...seen].some(file=>/studio-interior|studio-room|soundcube\.js|vendor\//.test(file)));
 const html=fs.readFileSync('dist/index.html','utf8');assert.ok(html.includes('src="studio-loader.js'));assert.ok(!/<link[^>]*modulepreload[^>]*(?:three|studio\.js)/.test(html),'No eager model preload for phones');
-const assets=fs.readdirSync('dist/assets/phone-studio51');assert.deepEqual(assets.sort(),['closed.webp','desk.webp','enter.mp4','overview.webp','records.webp','return.mp4']);assert.ok(fs.statSync('dist/assets/phone-studio51/enter.mp4').size<2*1024*1024,'Entry clip stays below 2 MiB');
+const assets=fs.readdirSync('dist/assets/phone-studio62');assert.deepEqual(assets.sort(),['closed-glow.webp','closed.webp','desk-overview.mp4','desk-records.mp4','desk.webp','enter.mp4','overview-desk.mp4','overview-records.mp4','overview.webp','records-desk.mp4','records-overview.mp4','records.webp','return.mp4']);assert.ok(fs.statSync('dist/assets/phone-studio62/enter.mp4').size<2*1024*1024,'Entry clip stays below 2 MiB');
 assert.ok(!fs.readFileSync('dist/studio-synths.js','utf8').includes('touchables.push'),'Synth keys are visual only');
 console.log(`Phone Studio passed: independent ${seen.size}-module graph without Three.js, bounded media waits, decoder rejection/stall fallback, repeat entry and cancellation cleanup.`);
+for(const name of ['overview-desk','desk-overview','overview-records','records-overview','desk-records','records-desk']){
+ assert.ok(fs.statSync(`dist/assets/phone-studio62/${name}.mp4`).size<500*1024,'Short camera journeys stay below 500 KiB');
+}
+const vm=await import('node:vm');
+const phoneSource=fs.readFileSync('dist/studio-phone.js','utf8');
+const cancelled=[];const state={operation:3,wantedView:'desk',cancelViewClip:()=>cancelled.push('video'),finishViewClip:v=>cancelled.push(v),clip:{classList:{remove:v=>cancelled.push(v)}},viewAnimations:[{cancel:()=>cancelled.push('animation')}],viewLayer:{remove:()=>cancelled.push('layer')},changingView:true,phase:'open',view:'overview',still:{src:'desk.webp'},asset:n=>n};
+vm.createContext(state);vm.runInContext(phoneSource.slice(phoneSource.indexOf('function stopViewMotion('),phoneSource.indexOf('async function changeView(')),state);state.stopViewMotion();
+assert.equal(state.operation,4);assert.equal(state.changingView,false);assert.equal(state.still.src,'overview.webp');assert.deepEqual(cancelled,['video',false,'is-playing','animation','layer']);assert.equal(state.finishViewClip,null);
+console.log('Camera journeys passed: bounded payload, cancelled decoder and animations, resolved pending promise, consistent final still.');

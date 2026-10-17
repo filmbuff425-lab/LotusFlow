@@ -1,19 +1,6 @@
+import {phoneViews,phoneFilmCorners} from './studio-phone-data.js';
 // Object outlines in the approved 1080 × 1350 stills. No scene/model allocation.
-export const phoneObjects={
- overview:{
-  computer:[[.363,.411],[.639,.411],[.633,.524],[.369,.524]],
-  records:[[.324,.326],[.647,.324],[.649,.373],[.325,.373]],
-  film:[[.849,.235],[1,.299],[.965,.598],[.827,.456]]
- },
- desk:{
-  computer:[[.275,.329],[.726,.329],[.718,.512],[.282,.512]],
-  records:[[.238,.235],[.722,.232],[.721,.297],[.241,.297]]
- },
- records:{
-  computer:[[.088,.78],[.911,.78],[.9,1],[.101,1]],
-  records:[[.105,.578],[.833,.572],[.835,.675],[.113,.675]]
- }
-};
+export const phoneObjects=phoneViews;
 export function objectBounds(points){
  const xs=points.map(p=>p[0]),ys=points.map(p=>p[1]);
  const x=Math.min(...xs),y=Math.min(...ys),width=Math.max(...xs)-x,height=Math.max(...ys)-y;
@@ -28,7 +15,7 @@ export function phoneHeartbeatScale(time,gain=1){
 
 // Project the native video onto the approved screen plane without rendering a
 // 3D scene. Unit-square homography, expressed as a CSS matrix for a 640×360 video.
-export const phoneFilmQuad=[[924/1080,322/1350],[1118/1080,426/1350],[1039/1080,794/1350],[889/1080,608/1350]];
+export const phoneFilmQuad=phoneFilmCorners;
 export function screenTransform(width,height){
  const [[x0,y0],[x1,y1],[x2,y2],[x3,y3]]=phoneFilmQuad.map(([x,y])=>[x*width,y*height]);
  const dx1=x1-x2,dx2=x3-x2,dx3=x0-x1+x2-x3,dy1=y1-y2,dy2=y3-y2,dy3=y0-y1+y2-y3;

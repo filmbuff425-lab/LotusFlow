@@ -1,4 +1,5 @@
-import {createDialogMotion,revealContent} from './ui-motion.js';
+import {createPhoneRecordShelf} from './studio-phone-records.js';
+import {revealContent} from './ui-motion.js';
 import {scrollToPosition} from './scroll-motion.js';
 import {entryRevealFrame} from './entry-reveal.js';
 import {heartbeatTime,heartbeatEntryGain} from './cube-heartbeat.js?v=20261007-mobile3';
@@ -13,7 +14,7 @@ html.dataset.studioRenderer='prerendered';
 host.dataset.deviceProfile='phone';host.dataset.roomState='waiting';host.dataset.loadingProfile='prerendered';
 host.setAttribute('aria-label','Lotus Flow studio');
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-const asset=name=>new URL('./assets/phone-studio51/'+name,import.meta.url).href;
+const asset=name=>new URL('./assets/phone-studio62/'+name,import.meta.url).href;
 const zh=()=>html.lang.startsWith('zh');
 const surface=document.createElement('div');surface.className='phone-studio-surface';surface.dataset.phase='closed';surface.tabIndex=0;surface.setAttribute('data-sound-entry-focus','');
 const still=new Image();still.className='phone-studio-image';still.alt='Lotus Flow glass studio';still.decoding='async';still.fetchPriority='high';still.src=asset('closed.webp');
@@ -26,13 +27,9 @@ const hotspots=document.createElement('div');hotspots.className='phone-studio-ho
 const computer=document.createElement('button'),records=document.createElement('button'),film=document.createElement('button');
 const objects={computer,records,film};
 for(const [name,b] of Object.entries(objects)){b.type='button';b.className='phone-studio-object';b.dataset.object=name;const light=document.createElement('span');light.className='phone-object-light';light.setAttribute('aria-hidden','true');const dot=document.createElement('span');dot.className='phone-object-dot';dot.setAttribute('aria-hidden','true');b.append(light,dot);hotspots.append(b)}
-// A few optical highlights follow the original projected shell; no new scene or decoder.
-const shellLight=document.createElementNS(contour.namespaceURI,'svg');shellLight.classList.add('phone-shell-light');shellLight.setAttribute('viewBox','0 0 720 900');shellLight.setAttribute('aria-hidden','true');
-for(const [i,indices]of [[2,3,7,6,2],[6,4,5,1,3],[7,5]].entries()){
- const d=indices.map((n,j)=>`${j?'L':'M'}${phoneStudio.corners[n][0]*720},${phoneStudio.corners[n][1]*900}`).join(' ');
- for(const glint of [false,true]){const path=document.createElementNS(contour.namespaceURI,'path');path.setAttribute('d',d);path.setAttribute('pathLength','1');path.setAttribute('class',glint?'phone-shell-glint':'phone-shell-edge');path.style.setProperty('--shell-delay',`${-i*2.1}s`);shellLight.append(path)}
-}
-surface.append(still,clip,contour,shellLight,hotspots);host.append(surface);
+// Separate transparent pulse render preserves the desktop material response.
+const shellGlow=new Image();shellGlow.className='phone-shell-glow';shellGlow.alt='';shellGlow.decoding='async';shellGlow.src=asset('closed-glow.webp');
+surface.append(still,shellGlow,clip,contour,hotspots);host.append(surface);
 const wallFilm=mountPhoneFilmScreen(surface);
 const header=document.querySelector('.header');
 if(header)new ResizeObserver(()=>section.style.setProperty('--phone-header-height',`${header.getBoundingClientRect().height}px`)).observe(header);
@@ -68,9 +65,9 @@ function ambient(){const awake=visible&&!document.hidden&&!document.querySelecto
 window.addEventListener('lotus-phone-film-close',ambient);
 new MutationObserver(ambient).observe(document.body,{subtree:true,attributes:true,attributeFilter:['open']});
 
-function setPhase(value){phase=value;if(value==='open'||value==='closed')surface.style.setProperty('--phone-shell-form',value==='open'?'1':'0');if(value==='open'||value==='closed')stage.style.setProperty('--phone-room-mix',value==='open'?'1':'0');surface.style.setProperty('--phone-cube-scale','1');surface.dataset.phase=value;host.dataset.roomState=value;const busy=value==='opening'||value==='closing';openButton.disabled=busy;closeButton.disabled=busy;toolbar.inert=busy;placeHotspots();labels()}
+function setPhase(value){phase=value;if(value==='open'||value==='closed')stage.style.setProperty('--phone-room-mix',value==='open'?'1':'0');surface.style.setProperty('--phone-cube-scale','1');surface.dataset.phase=value;host.dataset.roomState=value;const busy=value==='opening'||value==='closing';openButton.disabled=busy;closeButton.disabled=busy;toolbar.inert=busy;placeHotspots();labels()}
 function stopClip(){cancelClip();cancelClip=()=>{};clip.pause();clip.classList.remove('is-playing');}
-function settled(open){stopClip();stopViewMotion(false);surface.querySelectorAll('.phone-studio-blend').forEach(layer=>layer.remove());buttons.forEach((b,name)=>b.setAttribute('aria-pressed',String(name===view)));still.style.opacity='1';still.style.transform='';still.src=asset((open?view:'closed')+'.webp');setPhase(open?'open':'closed');stage.classList.toggle('is-room-open',open);stage.classList.remove('is-opening-room');section.classList.toggle('room-is-open',open);entry.hidden=open;closeButton.hidden=!open;toolbar.hidden=!open;if(open){revealContent(toolbar);decode(photo('desk'));decode(photo('records'))}if(heading)heading.style.opacity=open?'0':'1';window.dispatchEvent(new Event('lotus-room-settled'));pulse();}
+function settled(open){stopClip();stopViewMotion(false);surface.querySelectorAll('.phone-studio-blend').forEach(layer=>layer.remove());buttons.forEach((b,name)=>b.setAttribute('aria-pressed',String(name===view)));still.style.opacity='1';still.style.transform='';still.src=asset((open?view:'closed')+'.webp');setPhase(open?'open':'closed');stage.classList.toggle('is-room-open',open);stage.classList.remove('is-opening-room');section.classList.toggle('room-is-open',open);entry.hidden=open;closeButton.hidden=!open;toolbar.hidden=!open;if(open){revealContent(toolbar);decode(photo('desk'));decode(photo('records'));preloadView()}if(heading)heading.style.opacity=open?'0':'1';window.dispatchEvent(new Event('lotus-room-settled'));pulse();}
 function frame(){const height=header?.getBoundingClientRect().height||112,top=stage.getBoundingClientRect().top;if(top<height-80||top>height+80)scrollToPosition(top+scrollY-height)}
 function preloadClip(){if(phase==='closed'&&clip.getAttribute('src')!==asset('enter.mp4')){clip.src=asset('enter.mp4');clip.preload='auto';clip.load()}}
 async function fallback(open,token){
@@ -81,7 +78,7 @@ async function fallback(open,token){
  const duration=reduced?0:780,options={duration,easing:'cubic-bezier(.22,.61,.36,1)',fill:'forwards'};
  const arrive=layer.animate([{opacity:0,transform:'scale(1.035)'},{opacity:1,transform:'scale(1)'}],options),depart=still.animate([{opacity:1},{opacity:0}],options);
  const start=performance.now(),from=Number(stage.style.getPropertyValue('--phone-room-mix'))||0,target=open?1:0;
- let fadeFrame=0;const blend=now=>{if(token!==operation)return;const p=duration?Math.min(1,(now-start)/duration):1,ease=1-Math.pow(1-p,3);surface.style.setProperty('--phone-shell-form',String(from+(target-from)*ease));stage.style.setProperty('--phone-room-mix',String(from+(target-from)*ease));if(p<1)fadeFrame=requestAnimationFrame(blend)};fadeFrame=requestAnimationFrame(blend);
+ let fadeFrame=0;const blend=now=>{if(token!==operation)return;const p=duration?Math.min(1,(now-start)/duration):1,ease=1-Math.pow(1-p,3);stage.style.setProperty('--phone-room-mix',String(from+(target-from)*ease));if(p<1)fadeFrame=requestAnimationFrame(blend)};fadeFrame=requestAnimationFrame(blend);
  await arrive.finished.catch(()=>{});cancelAnimationFrame(fadeFrame);if(token===operation)settled(open);arrive.cancel();depart.cancel();layer.remove();
 }
 function playTransition(open,token){
@@ -93,7 +90,6 @@ function playTransition(open,token){
   onFallback:()=>{if(token===operation)fallback(open,token).then(()=>{if(open&&phase==='open'&&token===operation)window.dispatchEvent(new Event('lotus-studio-reveal'))})},
   onProgress:t=>{
    if(token!==operation)return;
-   const form=Math.max(0,Math.min(1,open?t/1.8:(5.8-t)/1.8));surface.style.setProperty('--phone-shell-form',String(form*form*(3-2*form)));
    const mix=Math.max(0,Math.min(1,(t-1.7)/1.8));stage.style.setProperty('--phone-room-mix',String(open?mix:1-mix));
    if(open&&t>=1.148&&!warm){warm=true;window.lotusStudioMedia?.warmupEntrance()}
    if(open&&t>=2.015&&!blue){blue=true;window.dispatchEvent(new Event('lotus-studio-reveal'))}
@@ -111,9 +107,24 @@ async function leave(){
  if(reduced||view!=='overview'){view='overview';await fallback(false,token);return}
  playTransition(false,token);
 }
-let wantedView=null,viewAnimations=[],viewLayer=null;
+let wantedView=null,viewAnimations=[],viewLayer=null,cancelViewClip=()=>{},finishViewClip=null;
+function preloadView(){if(reduced||phase!=='open'||changingView)return;clip.src=asset(`${view}-${view==='overview'?'desk':'overview'}.mp4`);clip.preload='auto';clip.load()}
+function travelView(destination){
+ return new Promise(resolve=>{
+  finishViewClip=resolve;
+  cancelViewClip=playPhoneTransition(clip,{src:asset(`${view}-${destination}.mp4`),onStart:()=>clip.classList.add('is-playing'),onEnd:()=>{finishViewClip=null;resolve(true)},onFallback:()=>{clip.classList.remove('is-playing');finishViewClip=null;resolve(false)}});
+ });
+}
+async function blendView(image,destination){
+ const from=objectBounds(phoneObjects[view].computer),to=objectBounds(phoneObjects[destination].computer),ratio=to.width/from.width,w=surface.clientWidth,h=surface.clientHeight;
+ const x=(to.x+to.width/2-.5-(from.x+from.width/2-.5)*ratio)*w,y=(to.y+to.height/2-.5-(from.y+from.height/2-.5)*ratio)*h;
+ const layer=image.cloneNode();viewLayer=layer;layer.className='phone-studio-image phone-studio-blend';layer.style.cssText='z-index:1;transition:none';surface.insertBefore(layer,clip);
+ const options={duration:reduced?0:1100,easing:'cubic-bezier(.45,0,.2,1)',fill:'forwards'};
+ const arrive=layer.animate([{opacity:0,transform:`translate(${-x/ratio}px,${-y/ratio}px) scale(${1/ratio})`},{opacity:0,offset:.28},{opacity:1,transform:'none'}],options);
+ const depart=still.animate([{opacity:1,transform:'none'},{opacity:1,offset:.28},{opacity:0,transform:`translate(${x}px,${y}px) scale(${ratio})`}],options);viewAnimations=[arrive,depart];await arrive.finished.catch(()=>{});
+}
 function stopViewMotion(invalidate=true){
- if(invalidate)operation++;wantedView=null;for(const animation of viewAnimations)animation.cancel();viewAnimations=[];viewLayer?.remove();viewLayer=null;changingView=false;
+ if(invalidate)operation++;cancelViewClip();cancelViewClip=()=>{};finishViewClip?.(false);finishViewClip=null;clip.classList.remove('is-playing');wantedView=null;for(const animation of viewAnimations)animation.cancel();viewAnimations=[];viewLayer?.remove();viewLayer=null;changingView=false;if(phase==='open')still.src=asset(view+'.webp');
 }
 async function changeView(next){
  if(phase!=='open')return;
@@ -125,17 +136,14 @@ async function changeView(next){
   const ready=await decode(image);if(token!==operation)return;
   if(!ready){wantedView=view;break}
   if(destination!==wantedView)continue;
-  const direction=['overview','desk','records'].indexOf(destination)>['overview','desk','records'].indexOf(view)?1:-1;
-  const layer=image.cloneNode();viewLayer=layer;layer.className='phone-studio-image phone-studio-blend';layer.style.cssText='z-index:1;transition:none';surface.insertBefore(layer,clip);
-  const options={duration:reduced?0:540,easing:'cubic-bezier(.22,1,.36,1)',fill:'forwards'};
-  const arrive=layer.animate([{opacity:0,transform:`translateX(${direction*7}px) scale(1.018)`},{opacity:1,transform:'translateX(0) scale(1)'}],options);
-  const depart=still.animate([{opacity:1,transform:'scale(1)'},{opacity:.18,transform:`translateX(${-direction*4}px) scale(.994)`}],options);viewAnimations=[arrive,depart];
-  await arrive.finished.catch(()=>{});if(token!==operation)return;
+  const travelled=!reduced&&await travelView(destination);if(token!==operation)return;
+  if(!travelled)await blendView(image,destination);if(token!==operation)return;
   still.src=image.src;await decode(still);if(token!==operation)return;
-  view=destination;surface.dataset.view=view;arrive.cancel();depart.cancel();layer.remove();viewLayer=null;viewAnimations=[];
+  view=destination;surface.dataset.view=view;cancelViewClip();cancelViewClip=()=>{};clip.classList.remove('is-playing');
+  for(const animation of viewAnimations)animation.cancel();viewAnimations=[];viewLayer?.remove();viewLayer=null;
  }
  if(token!==operation)return;
- changingView=false;buttons.forEach((b,name)=>b.setAttribute('aria-pressed',String(name===view)));placeHotspots();
+ changingView=false;buttons.forEach((b,name)=>b.setAttribute('aria-pressed',String(name===view)));placeHotspots();preloadView();
 }
 // Native vertical scrolling remains untouched; a deliberate horizontal gesture
 // changes the room view and must never activate the object under the finger.
@@ -151,20 +159,9 @@ surface.addEventListener('pointercancel',()=>{pointer=null;suppressClickUntil=pe
 surface.addEventListener('click',e=>{if(performance.now()<suppressClickUntil){e.preventDefault();e.stopImmediatePropagation()}},true);
 openButton.addEventListener('click',enter);surface.addEventListener('click',event=>{if(event.target.closest('button'))return;enter()});surface.addEventListener('keydown',event=>{if(event.target!==surface)return;if(event.key==='Enter'||event.key===' '){event.preventDefault();enter()}});closeButton.addEventListener('click',leave);
 computer.onclick=()=>window.lotusDesktop?.open();
-let recordDialog,recordMotion,recordClosing=false;
-function closeRecords(){if(recordClosing||!recordDialog?.open)return;recordClosing=true;recordMotion.depart(()=>{recordDialog.close();recordClosing=false;records.focus({preventScroll:true})})}
-records.onclick=()=>{
- if(!recordDialog){
-  recordDialog=document.createElement('dialog');recordDialog.className='phone-record-picker';recordDialog.setAttribute('aria-label',zh()?'唱片收藏':'Studio records');
-  const header=document.createElement('header'),title=document.createElement('h2'),close=document.createElement('button');title.textContent='CD collection';const heading=document.createElement('div'),eyebrow=document.createElement('p');eyebrow.className='phone-record-eyebrow';heading.append(eyebrow,title);close.className='phone-record-close';close.textContent='×';close.type='button';close.setAttribute('aria-label','Close record collection');close.onclick=closeRecords;header.append(heading,close);
-  const list=document.createElement('div');list.className='phone-record-list';
-  for(const track of window.lotusCatalog||[]){const b=document.createElement('button');b.type='button';const img=new Image();img.src=mobileAsset(track.image);img.alt='';img.loading='lazy';img.decoding='async';img.width=320;img.height=320;const t=document.createElement('strong'),a=document.createElement('small');t.textContent=track.title;a.textContent=track.artist;b.append(img,t,a);b.onclick=()=>{recordMotion.depart(()=>recordDialog.close(),true);recordClosing=false;window.lotusPortfolio?.openTrack(track.id,records)};list.append(b)}
-  recordDialog.append(header,list);document.body.append(recordDialog);recordMotion=createDialogMotion(recordDialog);recordDialog.addEventListener('cancel',e=>{e.preventDefault();closeRecords()});recordDialog.addEventListener('click',e=>{if(e.target===recordDialog){const r=recordDialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)closeRecords()}});
- }
- recordDialog.querySelector('h2').textContent=zh()?'唱片收藏':'CD collection';recordDialog.querySelector('.phone-record-eyebrow').textContent=zh()?`工作室 / ${window.lotusCatalog?.length||0} 张唱片`:`STUDIO / ${window.lotusCatalog?.length||0} RECORDS`;recordDialog.querySelector('header button').setAttribute('aria-label',zh()?'关闭唱片收藏':'Close record collection');recordDialog.showModal();recordMotion.arrive();
-};
+let recordShelf;records.onclick=()=>{recordShelf??=createPhoneRecordShelf(records);recordShelf.open()};
 function pulse(){cancelAnimationFrame(pulseFrame);pulseFrame=0;if(!visible||document.hidden||phase!=='closed'||html.dataset.soundEntry!=='entered'||reduced)return;
- const tick=now=>{if(!visible||document.hidden||phase!=='closed'||html.dataset.soundEntry!=='entered'){pulseFrame=0;return}if(now-lastPulse>=24){surface.style.setProperty('--phone-cube-scale',String(phoneHeartbeatScale(heartbeatTime(),heartbeatEntryGain())));lastPulse=now}pulseFrame=requestAnimationFrame(tick)};pulseFrame=requestAnimationFrame(tick);
+ const tick=now=>{if(!visible||document.hidden||phase!=='closed'||html.dataset.soundEntry!=='entered'){pulseFrame=0;return}if(now-lastPulse>=24){const scale=phoneHeartbeatScale(heartbeatTime(),heartbeatEntryGain());surface.style.setProperty('--phone-cube-scale',String(scale));surface.style.setProperty('--phone-beat',String((scale-1)/.038));lastPulse=now}pulseFrame=requestAnimationFrame(tick)};pulseFrame=requestAnimationFrame(tick);
 }
 new IntersectionObserver(([e])=>{visible=e.isIntersecting;ambient();pulse()}).observe(stage);
 window.addEventListener('lotus-entry-reveal',event=>{
