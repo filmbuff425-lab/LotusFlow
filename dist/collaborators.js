@@ -54,12 +54,61 @@ const fifteenafter={portrait:'/assets/artists/fifteenafter-spotify-portrait.webp
 const caelan={portrait:'/assets/artists/caelan-official-portrait.webp',portraitPosition:'50% 32%',name:'Caelan',sub:'RECORDING ARTIST',bio:'CAELAN is the recording artist behind Cassette, included on The Letter I Never Sent. My contribution spans production, arrangement, composition and recording.',facts:[['WITH LOTUS','Cassette'],['PROJECT','The Letter I Never Sent / 2026']],sources:[['ARTIST CATALOGUE','https://music.apple.com/tr/artist/caelan/1588169709']],socials:[['WEIBO','https://weibo.com/u/7534227906']]};
 Object.assign(collaboratorFiles,{'im-fine':[newArtists.laurie,fifteenafter],wya:[newArtists.laurie],cassette:[caelan],'unnamed-relationship':[duan,hybrid]});
 
+// On phones the dialog chrome stays outside the only scrolling surface.
+// Moving the same nodes preserves focus, tab handlers and the desktop layout.
+const releaseLayouts=new WeakMap();
+function syncReleaseLayout(content,dialog){
+ let state=releaseLayouts.get(dialog);
+ if(!state){
+  const media=matchMedia('(max-width:700px)'),head=document.createElement('header');
+  head.className='release-mobile-header';dialog.prepend(head);
+  state={media,head};releaseLayouts.set(dialog,state);
+  media.addEventListener('change',()=>syncReleaseLayout(content,dialog));
+ }
+ const {media,head}=state,close=dialog.querySelector('#close-dialog');
+ const tabs=content.querySelector('.release-tabs')||head.querySelector('.release-tabs');
+ if(!tabs)return;
+ const fold=content.querySelector('.fold-album')||head.querySelector('.fold-album');
+ if(media.matches){
+  head.replaceChildren(tabs,close);
+  if(fold)content.prepend(fold);
+ }else{
+  dialog.insertBefore(close,content);content.prepend(tabs);
+  if(fold)tabs.append(fold);
+ }
+}
+function revealReleasePanel(element){
+ if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ element.animate?.([{opacity:0,transform:'translateY(7px)'},{opacity:1,transform:'translateY(0)'}],{duration:320,easing:'cubic-bezier(.2,.75,.25,1)'});
+}
 export function mountCollaborators(content,dialog,track){
  const people=collaboratorFiles[track.id]||[lotus];dialog.classList.remove('is-artist-file');
  const tabs=document.createElement('div');tabs.className='release-tabs';tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Release details');tabs.innerHTML='<button role="tab" id="release-record-tab" aria-controls="release-record-view" aria-selected="true">01 / RECORD</button><button role="tab" id="release-artists-tab" aria-controls="release-artists-view" aria-selected="false" tabindex="-1">02 / COLLABORATORS</button>';content.prepend(tabs);
  const copy=content.querySelector('.release-copy');copy.id='release-record-view';copy.setAttribute('role','tabpanel');copy.setAttribute('aria-labelledby','release-record-tab');
  const panel=document.createElement('section');panel.className='collaborator-panel';panel.id='release-artists-view';panel.setAttribute('role','tabpanel');panel.setAttribute('aria-labelledby','release-artists-tab');panel.hidden=true;content.append(panel);
- function render(index){const a=people[index];panel.innerHTML=`<div class="artist-file-nav" role="group" aria-label="Select collaborating artist">${people.map((p,i)=>`<button data-person="${i}" aria-pressed="${i===index}">${p.name}</button>`).join('')}</div><article class="artist-file">${artistPortrait(a)}<div><span class="artist-file-sub">${a.sub}</span><h3 class="artist-file-name">${a.name}</h3>${artistSocials(a)}<p class="artist-file-bio">${a.bio}</p><dl>${a.facts.map(([key,value])=>`<div class="artist-file-detail"><dt>${key}</dt><dd>${value}</dd></div>`).join('')}<div class="artist-file-detail"><dt>LOTUS CREDIT</dt><dd>${track.credits}</dd></div></dl><div class="artist-sources">${a.sources.map(([label,url])=>`<a href="${url}" target="_blank" rel="noopener noreferrer">${label} ↗</a>`).join('')}</div></div></article>`;panel.querySelectorAll('[data-person]').forEach(b=>b.addEventListener('click',()=>{render(Number(b.dataset.person));panel.querySelector(`[data-person="${b.dataset.person}"]`).focus()}))}
- render(0);const buttons=[...tabs.querySelectorAll('button')];function change(i){dialog.scrollTop=0;panel.hidden=i===0;copy.hidden=i===1;dialog.classList.toggle('is-artist-file',i===1);if(i===1)dialog.removeAttribute('aria-labelledby');else dialog.setAttribute('aria-labelledby','dialog-title');dialog.setAttribute('aria-label',i===1?`${track.title} collaborating artists`:`${track.title} release`);buttons.forEach((b,k)=>{b.setAttribute('aria-selected',String(i===k));b.tabIndex=i===k?0:-1})}
+ const peopleNav=document.createElement('div');peopleNav.className='artist-file-nav';peopleNav.setAttribute('role','group');peopleNav.setAttribute('aria-label','Select collaborating artist');
+ peopleNav.innerHTML=people.map((p,i)=>`<button data-person="${i}" aria-pressed="${i===0}">${p.name}</button>`).join('');panel.append(peopleNav);
+ let selected=0;
+ function render(index,animate=false){
+  selected=index;const a=people[index],article=document.createElement('article');article.className='artist-file';
+  article.innerHTML=`${artistPortrait(a)}<div><span class="artist-file-sub">${a.sub}</span><h3 class="artist-file-name">${a.name}</h3>${artistSocials(a)}<p class="artist-file-bio">${a.bio}</p><dl>${a.facts.map(([key,value])=>`<div class="artist-file-detail"><dt>${key}</dt><dd>${value}</dd></div>`).join('')}<div class="artist-file-detail"><dt>LOTUS CREDIT</dt><dd>${track.credits}</dd></div></dl><div class="artist-sources">${a.sources.map(([label,url])=>`<a href="${url}" target="_blank" rel="noopener noreferrer">${label} ↗</a>`).join('')}</div></div>`;
+  const previous=panel.querySelector('.artist-file');if(previous)previous.replaceWith(article);else panel.append(article);
+  peopleNav.querySelectorAll('button').forEach((b,i)=>b.setAttribute('aria-pressed',String(i===index)));
+  if(animate)revealReleasePanel(article);
+ }
+ peopleNav.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+  const index=Number(b.dataset.person);if(index===selected)return;
+  render(index,true);
+ }));
+ render(0);const buttons=[...tabs.querySelectorAll('button')];
+ function change(i){
+  dialog.scrollTop=0;content.scrollTop=0;panel.hidden=i===0;copy.hidden=i===1;
+  dialog.classList.toggle('is-artist-file',i===1);
+  if(i===1)dialog.removeAttribute('aria-labelledby');else dialog.setAttribute('aria-labelledby','dialog-title');
+  dialog.setAttribute('aria-label',i===1?`${track.title} collaborating artists`:`${track.title} release`);
+  buttons.forEach((b,k)=>{b.setAttribute('aria-selected',String(i===k));b.tabIndex=i===k?0:-1});
+  revealReleasePanel(i===1?panel:copy);
+ }
  buttons.forEach((b,i)=>{b.addEventListener('click',()=>change(i));b.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();const n=e.key==='Home'?0:e.key==='End'?1:1-i;change(n);buttons[n].focus()}})});
+ return {syncLayout:()=>syncReleaseLayout(content,dialog)};
 }

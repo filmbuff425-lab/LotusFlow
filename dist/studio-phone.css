@@ -1,26 +1,34 @@
-html[data-studio-renderer="prerendered"] .studio.studio-home{min-height:calc(100svh + 112px);padding-block:32px 64px;background:#000;display:flex;flex-direction:column;justify-content:center}
-html[data-studio-renderer="prerendered"] .studio-home #studio-stage{height:auto!important;min-height:0!important;width:100%;flex-shrink:0;aspect-ratio:4/5;max-width:600px;margin-inline:auto;background:#000;isolation:isolate}
-html[data-studio-renderer="prerendered"] #studio-stage::before,html[data-studio-renderer="prerendered"] #studio-stage::after{display:none}
-html[data-studio-renderer="prerendered"] #studio-canvas{overflow:hidden;touch-action:pan-y}
-.phone-studio-surface{position:absolute;inset:0;overflow:hidden;outline:none;background:#000}
+/* One continuous mobile stage: extra scroll room belongs to the scene itself. */
+html[data-studio-renderer="prerendered"] .studio.studio-home{min-height:0;padding:var(--phone-header-height,112px) 0 0!important;background:#030000;display:block}
+html[data-studio-renderer="prerendered"] .studio-home #studio-stage{height:max(620px,calc(100svh - var(--phone-header-height,112px) + 56px))!important;min-height:0!important;width:100%;max-width:none;margin:0;background:#020203;isolation:isolate;overflow:hidden}
+html[data-studio-renderer="prerendered"] #studio-stage::before,html[data-studio-renderer="prerendered"] #studio-stage::after{content:'';display:block;position:absolute;inset:0;pointer-events:none;z-index:0}
+html[data-studio-renderer="prerendered"] #studio-stage::before{background:radial-gradient(ellipse 100% 72% at 50% 55%,#a21007 0%,#620800 29%,#240100 61%,#050000 84%,#000 100%);opacity:calc(1 - var(--phone-room-mix,0))}
+html[data-studio-renderer="prerendered"] #studio-stage::after{background:radial-gradient(ellipse 115% 58% at 65% 26%,#243e5c99,transparent 78%),linear-gradient(#03060c,#172024 68%,#030506);opacity:var(--phone-room-mix,0)}
+html[data-studio-renderer="prerendered"] body.sound-entry-open #studio-stage::before{opacity:var(--phone-entry-glow,0)}
+html[data-studio-renderer="prerendered"] #studio-canvas{overflow:hidden;touch-action:pan-y;z-index:1}
+.phone-studio-surface{position:absolute;left:50%;top:50%;width:min(100%,600px);height:auto;aspect-ratio:4/5;transform:translate(-50%,-50%);overflow:hidden;outline:none;background:transparent;mask-image:linear-gradient(transparent,#000 18%,#000 82%,transparent);-webkit-mask-image:linear-gradient(transparent,#000 18%,#000 82%,transparent)}
 .phone-studio-image,.phone-studio-transition{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;pointer-events:none}
 .phone-studio-image{opacity:1;transform:scale(1);transition:opacity .65s ease,transform 1.1s cubic-bezier(.2,.7,.2,1)}
 .phone-studio-transition{opacity:0;z-index:2;transition:opacity .24s ease}
 .phone-studio-transition.is-playing{opacity:1}
 .phone-studio-surface[data-phase="closed"] .phone-studio-image{transform:scale(var(--phone-cube-scale,1));transform-origin:49% 51%;transition:opacity .65s ease;will-change:transform}
-.phone-studio-surface[data-phase="closed"]::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(transparent 88%,#000);z-index:1}
 .phone-studio-contour{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;opacity:0}
 .phone-studio-contour path{fill:none;stroke:#ffc2ad;stroke-width:.8;stroke-linecap:round;filter:drop-shadow(0 0 2px #ff3b24)}
 .phone-studio-hotspots{position:absolute;inset:0;z-index:3;pointer-events:none;opacity:0;transition:opacity .55s ease}
 .phone-studio-hotspots.is-visible{opacity:1}
 .phone-studio-object{position:absolute;display:block;border:0!important;border-radius:0;padding:0!important;background:transparent!important;pointer-events:auto;color:#fff;cursor:pointer;touch-action:pan-y;-webkit-tap-highlight-color:transparent}
 .phone-studio-object[hidden]{display:none}
-.phone-object-dot{position:absolute;left:50%;top:50%;width:5px;height:5px;border-radius:50%;background:#fff5df;box-shadow:0 0 5px 2px #fff4dc88,0 0 13px 4px #ffb98a30;pointer-events:none;animation:phone-object-beacon 3.8s ease-in-out infinite;animation-play-state:paused}
-.phone-object-dot::after{content:'';position:absolute;inset:-7px;border:1px solid #fbe0c13b;border-radius:50%}
-.phone-studio-object[data-object="records"] .phone-object-dot{animation-delay:-1.2s}
-.phone-studio-object[data-object="film"] .phone-object-dot{animation-delay:-2.4s}
-.phone-studio-hotspots.is-visible.is-awake .phone-object-dot{animation-play-state:running}
-@keyframes phone-object-beacon{0%,100%{opacity:.42;transform:translate(-50%,-50%) scale(.8)}50%{opacity:.95;transform:translate(-50%,-50%) scale(1.08)}}
+/* Tiny warm lights drift independently, rather than reading as target rings. */
+.phone-object-dot{--light-delay:0s;position:absolute;left:50%;top:50%;width:4px;height:4px;border-radius:50%;background:#fff8e9;box-shadow:0 0 3px 1px #fff4daab,0 0 9px 3px #ffbb9155;pointer-events:none;animation:phone-object-beacon 5.6s cubic-bezier(.45,0,.3,1) infinite;animation-delay:var(--light-delay);animation-play-state:paused}
+.phone-object-dot::before{content:'';position:absolute;inset:-12px;border-radius:50%;background:radial-gradient(ellipse at 47% 45%,#fff4d72e,#ffad7620 27%,transparent 68%);animation:phone-light-bloom 4.7s ease-in-out infinite;animation-delay:var(--light-delay);animation-play-state:paused}
+.phone-object-dot::after{content:'';position:absolute;width:1.5px;height:1.5px;left:8px;top:-5px;border-radius:50%;background:#f9d9b6b3;box-shadow:-13px 11px 0 -.25px #f5cba26b;animation:phone-light-dust 6.9s ease-in-out infinite;animation-delay:var(--light-delay);animation-play-state:paused}
+.phone-studio-object[data-object="records"] .phone-object-dot{--light-delay:-1.8s}
+.phone-studio-object[data-object="film"] .phone-object-dot{--light-delay:-3.7s}
+.phone-studio-hotspots.is-visible.is-awake .phone-object-dot,.phone-studio-hotspots.is-visible.is-awake .phone-object-dot::before,.phone-studio-hotspots.is-visible.is-awake .phone-object-dot::after{animation-play-state:running}
+.phone-studio-object:active .phone-object-dot{background:#fff;box-shadow:0 0 4px 2px #fff4dac9,0 0 13px 4px #ffc5a180}
+@keyframes phone-object-beacon{0%,100%{opacity:.6;transform:translate(-50%,-50%) scale(.88)}28%{opacity:.92;transform:translate(calc(-50% + 1.3px),calc(-50% - 1.8px)) scale(1.08)}53%{opacity:.7;transform:translate(calc(-50% - .7px),calc(-50% - .8px)) scale(.94)}74%{opacity:1;transform:translate(calc(-50% - 1.4px),calc(-50% + .8px)) scale(1.04)}}
+@keyframes phone-light-bloom{0%,100%{opacity:.48;transform:scale(.78)}43%{opacity:1;transform:scale(1.15)}70%{opacity:.67;transform:scale(.96)}}
+@keyframes phone-light-dust{0%,100%{opacity:.15;transform:translate(0,1px)}38%{opacity:.72;transform:translate(1px,-1.5px)}72%{opacity:.3;transform:translate(-1px,-.4px)}}
 .phone-studio-object::before{content:'';position:absolute;inset:-11px -4px}
 .phone-object-light{position:absolute;inset:0;display:block;overflow:hidden;clip-path:var(--object-shape);pointer-events:none;background:linear-gradient(145deg,#e4ecff05,#e4ecff00 60%);transition:background-color .45s ease}
 .phone-object-light::after{content:'';position:absolute;inset:0;background:linear-gradient(108deg,transparent 28%,#d5e5ff05 40%,#eff4ff28 50%,#ffe0b511 55%,transparent 68%);transform:translateX(-120%);animation:phone-object-sheen 9s cubic-bezier(.22,.6,.3,1) infinite;animation-play-state:paused}
@@ -31,16 +39,16 @@ html[data-studio-renderer="prerendered"] #studio-canvas{overflow:hidden;touch-ac
 .phone-studio-object:focus-visible{outline:1px solid #e9e1d6!important;outline-offset:4px}
 @media(hover:hover){.phone-studio-object:hover .phone-object-light{background-color:#e6efff14}}
 @keyframes phone-object-sheen{0%,8%{transform:translateX(-120%);opacity:0}14%{opacity:1}42%{transform:translateX(120%);opacity:0}100%{transform:translateX(120%);opacity:0}}
-html[data-studio-renderer="prerendered"] .studio-home .studio-heading{top:12%!important;transition:opacity .7s ease}
+html[data-studio-renderer="prerendered"] .studio-home .studio-heading{top:clamp(76px,calc(50% - 60vw),180px)!important;transition:opacity .7s ease}
 html[data-studio-renderer="prerendered"] .studio-home .studio-hero-logo{width:clamp(120px,34vw,180px);height:auto}
-html[data-studio-renderer="prerendered"] .studio-home .studio-entry{bottom:10%;gap:8px}
+html[data-studio-renderer="prerendered"] .studio-home .studio-entry{bottom:clamp(76px,calc(50% - 58vw),150px);gap:12px;z-index:4}
 html[data-studio-renderer="prerendered"] #studio-entry-note{font-size:9px;line-height:1.5}
 html[data-studio-renderer="prerendered"] .studio-home :is(.studio-orbit-tools,.studio-hint,.studio-view-buttons,.studio-object-note){display:none!important}
 html[data-studio-renderer="prerendered"] .studio-video-controls{display:none!important}
 html[data-studio-renderer="prerendered"] #close-studio{top:14px;right:14px;min-height:40px;font-size:9px;padding:10px 12px}
-.phone-studio-toolbar{display:flex;justify-content:center;column-gap:6px;padding:10px 14px 0;width:100%;max-width:600px;margin:0 auto;flex-wrap:wrap;opacity:1}
+.phone-studio-toolbar{position:absolute;z-index:4;left:50%;bottom:clamp(70px,calc(50% - 62vw),150px);transform:translateX(-50%);display:flex;justify-content:center;column-gap:6px;padding:16px 14px 0;width:100%;max-width:600px;margin:0 auto;flex-wrap:wrap;opacity:1}
 .phone-studio-toolbar[hidden]{display:none}
-.phone-studio-toolbar button{position:relative;flex:1 1 0;border:0;background:transparent;color:#999b9f;font:9px/1.4 var(--client-mono,monospace);padding:10px 3px;min-height:44px;white-space:nowrap;touch-action:manipulation;transition:color .3s ease}
+.phone-studio-toolbar button{position:relative;flex:1 1 0;border:0;background:transparent;color:#999b9f;font:9px/1.4 var(--client-mono,monospace);padding:12px 3px;min-height:44px;white-space:nowrap;touch-action:manipulation;transition:color .3s ease}
 .phone-studio-toolbar button::after{content:'';position:absolute;bottom:3px;left:30%;right:30%;height:1px;background:#e34b35;transform:scaleX(0);transition:transform .4s ease}
 .phone-studio-toolbar button[aria-pressed="true"]{color:#efe7df}
 .phone-studio-toolbar button[aria-pressed="true"]::after{transform:scaleX(1)}
@@ -79,3 +87,15 @@ html[data-studio-renderer="prerendered"] body.sound-entry-open .phone-studio-con
 .phone-studio-film{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none;opacity:0;transition:opacity .4s ease}
 .phone-studio-film.is-visible{opacity:1}
 .phone-studio-film .phone-film-video{position:absolute;left:0;top:0;width:640px;height:360px;max-width:none;object-fit:fill;transform-origin:0 0;pointer-events:none;background:#050709}
+
+.phone-film-select{display:block;width:100%;min-height:44px;margin:0 0 12px;padding:10px 12px;border:1px solid #64534a66;border-radius:5px;background:#141518;color:#e8e2da;font:13px/1.5 var(--reading-font,sans-serif)}
+.phone-film-select[hidden]{display:none}
+.phone-studio-toolbar button:active{color:#fff;transform:translateY(1px)}
+html[data-studio-renderer="prerendered"] .studio-corner{z-index:3}
+html[data-studio-renderer="prerendered"] #close-studio{z-index:5}
+@media(prefers-reduced-motion:reduce){.phone-studio-film{transition:none}}
+
+html[data-studio-renderer="prerendered"] #open-studio{position:relative}
+html[data-studio-renderer="prerendered"] #open-studio>.phone-object-dot{left:auto;right:22px;top:50%}
+html[data-studio-renderer="prerendered"][data-sound-entry="entered"] .phone-stage-awake #open-studio>.phone-object-dot,html[data-studio-renderer="prerendered"][data-sound-entry="entered"] .phone-stage-awake #open-studio>.phone-object-dot::before,html[data-studio-renderer="prerendered"][data-sound-entry="entered"] .phone-stage-awake #open-studio>.phone-object-dot::after{animation-play-state:running}
+@media(prefers-reduced-motion:reduce){.phone-object-dot,.phone-object-dot::before,.phone-object-dot::after{animation:none!important}}

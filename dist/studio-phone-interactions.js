@@ -54,6 +54,7 @@ export function createPhoneFilmPlayback(video,{announce=()=>{},onState=()=>{},cl
   },350);
  }
  function release(){request++;active=false;stopWatch();video.pause();video.removeAttribute('src');video.load();state('idle')}
+ function pause(){request++;stopWatch();video.pause();if(active)state('paused')}
  function play(src){
   const token=++request;active=true;stopWatch();video.pause();video.preload='auto';video.src=src;
   // Load and play in the same tap. Do not cross an awaited fade or animation.
@@ -70,7 +71,8 @@ export function createPhoneFilmPlayback(video,{announce=()=>{},onState=()=>{},cl
  function resume(){
   if(!active||!video.getAttribute('src'))return;
   const token=++request;announce();state('loading');watch();
-  Promise.resolve(video.play()).catch(error=>{if(active&&token===request){stopWatch();state(error.name==='NotAllowedError'?'gesture':'error')}});
+  const failed=error=>{if(active&&token===request){stopWatch();state(error.name==='NotAllowedError'?'gesture':'error')}};
+  try{Promise.resolve(video.play()).catch(failed)}catch(error){failed(error)}
  }
- return{play,resume,release,pause:()=>video.pause()};
+ return{play,resume,release,pause};
 }

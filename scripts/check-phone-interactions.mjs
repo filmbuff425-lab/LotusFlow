@@ -64,6 +64,14 @@ for(const [width,height] of [[390,487.5],[430,537.5]]){
  assert.equal(states.at(-1),'playing','A loop rewind is advancing video, not a stall');
  p.pause();const loads=loop.loads;p.resume();assert.equal(loop.loads,loads,'Enlarging reuses the active decoder');assert.equal(loop.currentTime,.7,'Enlarging continues the current moment');p.release();assert.equal(tick,null);
 }
-const film=fs.readFileSync('dist/studio-phone-films.js','utf8');assert.ok(film.includes('video.loop=true'));assert.ok(!film.includes('<select>'),'No phone film carousel');
-assert.deepEqual(fs.readdirSync('dist/assets/phone-films53').sort(),['show-me-love-mobile53.jpg','show-me-love-mobile53.mp4'],'Only the requested MV is packaged for phones');
-console.log('Show Me Love wall passed: responsive perspective, loop reset, shared decoder and one-film payload.');
+const film=fs.readFileSync('dist/studio-phone-films.js','utf8');assert.ok(film.includes('video.loop=true'));
+const films=['show-me-love','mirror','juliet','say-it-to-me','feed-on','airtight','wya'];
+assert.deepEqual(fs.readdirSync('dist/assets/phone-films53').sort(),films.flatMap(id=>[`${id}-mobile53.jpg`,`${id}-mobile53.mp4`]).sort(),'The original seven selected films remain available on phones');
+for(const id of films)assert.ok(fs.statSync(`dist/assets/phone-films53/${id}-mobile53.mp4`).size<18*1024*1024,`${id} retains the lightweight phone stream`);
+{
+ let tick=null;const clock={performance:{now:()=>0},setInterval:fn=>(tick=fn,1),clearInterval:()=>tick=null};
+ const v=new Media(),states=[],p=createPhoneFilmPlayback(v,{clock,onState:s=>states.push(s)});
+ p.play('wall.mp4');p.pause();v.pending[0].reject(new Error('interrupted'));await Promise.resolve();assert.equal(states.at(-1),'paused','A superseded play rejection must not turn a deliberate pause into an error');assert.equal(tick,null);
+ v.play=()=>{throw Object.assign(new Error('gesture'),{name:'NotAllowedError'})};p.resume();assert.equal(states.at(-1),'gesture','Synchronous native failures expose retry instead of escaping');assert.equal(tick,null);p.release();
+}
+console.log('Phone films passed: seven lightweight choices, responsive wall perspective, shared decoder, loop reset, pause cancellation and synchronous resume rejection.');

@@ -26,11 +26,14 @@ const objects={computer,records,film};
 for(const [name,b] of Object.entries(objects)){b.type='button';b.className='phone-studio-object';b.dataset.object=name;const light=document.createElement('span');light.className='phone-object-light';light.setAttribute('aria-hidden','true');const dot=document.createElement('span');dot.className='phone-object-dot';dot.setAttribute('aria-hidden','true');b.append(light,dot);hotspots.append(b)}
 surface.append(still,clip,contour,hotspots);host.append(surface);
 const wallFilm=mountPhoneFilmScreen(surface);
+const header=document.querySelector('.header');
+if(header)new ResizeObserver(()=>section.style.setProperty('--phone-header-height',`${header.getBoundingClientRect().height}px`)).observe(header);
 const entry=document.getElementById('studio-entry'),openButton=document.getElementById('open-studio'),closeButton=document.getElementById('close-studio'),heading=stage.querySelector('.studio-brand-heading');
 stage.classList.add('has-glass-entry');entry.hidden=false;
-const toolbar=document.createElement('nav');toolbar.className='phone-studio-toolbar';toolbar.hidden=true;toolbar.setAttribute('aria-label','Studio views');stage.after(toolbar);
+const entryLight=openButton.querySelector('[aria-hidden]');entryLight.textContent='';entryLight.className='phone-object-dot';
+const toolbar=document.createElement('nav');toolbar.className='phone-studio-toolbar';toolbar.hidden=true;toolbar.setAttribute('aria-label','Studio views');stage.append(toolbar);
 const buttons=new Map();for(const name of ['overview','desk','records']){const b=document.createElement('button');b.type='button';b.dataset.phoneView=name;b.setAttribute('aria-pressed',String(name==='overview'));b.onclick=()=>changeView(name);buttons.set(name,b);toolbar.append(b)}
-const openFilm=()=>{if(phase==='open')openPhoneFilms()};film.onclick=openFilm;
+const openFilm=()=>{if(phase==='open')openPhoneFilms()};film.onclick=()=>{if(phase==='open')openPhoneFilms({wall:true})};
 const filmButton=document.createElement('button');filmButton.type='button';filmButton.className='phone-film-button';filmButton.onclick=openFilm;toolbar.append(filmButton);
 const hint=document.createElement('p');hint.className='phone-studio-touch-hint';toolbar.append(hint);
 let phase='closed',view='overview',operation=0,gateFrame=0,pulseFrame=0,visible=false,lastPulse=0,changingView=false,cancelClip=()=>{};
@@ -53,21 +56,25 @@ function placeHotspots(){
  }
  hotspots.inert=phase!=='open'||changingView;hotspots.classList.toggle('is-visible',phase==='open'&&!changingView);ambient();
 }
-function ambient(){const awake=visible&&!document.hidden&&!document.querySelector('dialog[open]');hotspots.classList.toggle('is-awake',awake);wallFilm.setActive(awake&&phase==='open'&&view==='overview'&&!changingView)}
+function ambient(){const awake=visible&&!document.hidden&&!document.querySelector('dialog[open]');stage.classList.toggle('phone-stage-awake',awake);hotspots.classList.toggle('is-awake',awake);wallFilm.setActive(awake&&phase==='open'&&view==='overview'&&!changingView)}
+window.addEventListener('lotus-phone-film-close',ambient);
 new MutationObserver(ambient).observe(document.body,{subtree:true,attributes:true,attributeFilter:['open']});
 
-function setPhase(value){phase=value;surface.style.setProperty('--phone-cube-scale','1');surface.dataset.phase=value;host.dataset.roomState=value;const busy=value==='opening'||value==='closing';openButton.disabled=busy;closeButton.disabled=busy;toolbar.inert=busy;placeHotspots();labels()}
+function setPhase(value){phase=value;if(value==='open'||value==='closed')stage.style.setProperty('--phone-room-mix',value==='open'?'1':'0');surface.style.setProperty('--phone-cube-scale','1');surface.dataset.phase=value;host.dataset.roomState=value;const busy=value==='opening'||value==='closing';openButton.disabled=busy;closeButton.disabled=busy;toolbar.inert=busy;placeHotspots();labels()}
 function stopClip(){cancelClip();cancelClip=()=>{};clip.pause();clip.classList.remove('is-playing');}
 function settled(open){stopClip();surface.querySelectorAll('.phone-studio-blend').forEach(layer=>layer.remove());buttons.forEach((b,name)=>b.setAttribute('aria-pressed',String(name===view)));still.style.opacity='1';still.style.transform='';still.src=asset((open?view:'closed')+'.webp');setPhase(open?'open':'closed');stage.classList.toggle('is-room-open',open);stage.classList.remove('is-opening-room');section.classList.toggle('room-is-open',open);entry.hidden=open;closeButton.hidden=!open;toolbar.hidden=!open;if(heading)heading.style.opacity=open?'0':'1';window.dispatchEvent(new Event('lotus-room-settled'));pulse();}
-function frame(){const height=document.querySelector('.header')?.getBoundingClientRect().height||112;window.scrollTo({top:stage.getBoundingClientRect().top+scrollY-height,behavior:reduced?'instant':'smooth'})}
+function frame(){const height=header?.getBoundingClientRect().height||112,top=stage.getBoundingClientRect().top;if(top<height-80||top>height+80)window.scrollTo({top:top+scrollY-height,behavior:reduced?'instant':'smooth'})}
 function preloadClip(){if(phase==='closed'&&clip.getAttribute('src')!==asset('enter.mp4')){clip.src=asset('enter.mp4');clip.preload='auto';clip.load()}}
 async function fallback(open,token){
  stopClip();const next=open?photo('overview'):photo('closed'),ready=await decode(next);if(token!==operation)return;
  if(!ready){settled(false);document.getElementById('studio-entry-note').textContent=zh()?'画面尚未加载，轻点重试':'IMAGE NOT READY — TAP TO RETRY';return}
  // Already-decoded layers keep slow video downloads from blocking navigation.
- const layer=next.cloneNode();layer.className='phone-studio-image phone-studio-blend';layer.style.cssText='opacity:0;transform:scale(1.035);z-index:1';surface.insertBefore(layer,clip);
- requestAnimationFrame(()=>{layer.style.opacity='1';layer.style.transform='scale(1)';still.style.opacity='0'});
- await new Promise(resolve=>setTimeout(resolve,reduced?0:700));if(token===operation)settled(open);layer.remove();
+ const layer=next.cloneNode();layer.className='phone-studio-image phone-studio-blend';layer.style.cssText='z-index:1;transition:none';surface.insertBefore(layer,clip);
+ const duration=reduced?0:780,options={duration,easing:'cubic-bezier(.22,.61,.36,1)',fill:'forwards'};
+ const arrive=layer.animate([{opacity:0,transform:'scale(1.035)'},{opacity:1,transform:'scale(1)'}],options),depart=still.animate([{opacity:1},{opacity:0}],options);
+ const start=performance.now(),from=Number(stage.style.getPropertyValue('--phone-room-mix'))||0,target=open?1:0;
+ let fadeFrame=0;const blend=now=>{if(token!==operation)return;const p=duration?Math.min(1,(now-start)/duration):1,ease=1-Math.pow(1-p,3);stage.style.setProperty('--phone-room-mix',String(from+(target-from)*ease));if(p<1)fadeFrame=requestAnimationFrame(blend)};fadeFrame=requestAnimationFrame(blend);
+ await arrive.finished.catch(()=>{});cancelAnimationFrame(fadeFrame);if(token===operation)settled(open);arrive.cancel();depart.cancel();layer.remove();
 }
 function playTransition(open,token){
  stopClip();let warm=false,blue=false;
@@ -78,6 +85,7 @@ function playTransition(open,token){
   onFallback:()=>{if(token===operation)fallback(open,token).then(()=>{if(open&&phase==='open'&&token===operation)window.dispatchEvent(new Event('lotus-studio-reveal'))})},
   onProgress:t=>{
    if(token!==operation)return;
+   const mix=Math.max(0,Math.min(1,(t-1.7)/1.8));stage.style.setProperty('--phone-room-mix',String(open?mix:1-mix));
    if(open&&t>=1.148&&!warm){warm=true;window.lotusStudioMedia?.warmupEntrance()}
    if(open&&t>=2.015&&!blue){blue=true;window.dispatchEvent(new Event('lotus-studio-reveal'))}
   }
@@ -85,7 +93,7 @@ function playTransition(open,token){
 }
 async function enter(){
  if(phase!=='closed'||['waiting','starting','preparing','retry','revealing'].includes(html.dataset.soundEntry))return;
- const token=++operation;setPhase('opening');entry.hidden=true;stage.classList.add('is-opening-room');if(heading)heading.style.opacity='0';frame();window.dispatchEvent(new CustomEvent('lotus-room-change',{detail:true}));window.lotusStudioMedia?.armEntrance();view='overview';
+ wallFilm.prime();const token=++operation;setPhase('opening');entry.hidden=true;stage.classList.add('is-opening-room');if(heading)heading.style.opacity='0';frame();window.dispatchEvent(new CustomEvent('lotus-room-change',{detail:true}));window.lotusStudioMedia?.armEntrance();view='overview';
  if(reduced){settled(true);window.dispatchEvent(new Event('lotus-studio-reveal'));return}
  playTransition(true,token);
 }
@@ -95,11 +103,20 @@ async function leave(){
  playTransition(false,token);
 }
 async function changeView(next){
- if(phase!=='open'||next===view||changingView)return;changingView=true;ambient();const token=++operation;const image=photo(next);if(!await decode(image)||token!==operation){changingView=false;ambient();return}
+ if(phase!=='open'||next===view||changingView)return;
+ changingView=true;ambient();const token=++operation,image=photo(next);
+ if(!await decode(image)||token!==operation){changingView=false;ambient();return}
  hotspots.inert=true;hotspots.classList.remove('is-visible');
- const layer=image.cloneNode();layer.className='phone-studio-image phone-studio-blend';layer.style.cssText='opacity:0;transform:scale(1.025);z-index:1';surface.insertBefore(layer,clip);
- requestAnimationFrame(()=>{layer.style.opacity='1';layer.style.transform='scale(1)'});
- await new Promise(resolve=>setTimeout(resolve,reduced?0:700));if(token!==operation){layer.remove();changingView=false;ambient();return}view=next;still.src=image.src;await decode(still);layer.remove();changingView=false;if(token!==operation)return;buttons.forEach((b,name)=>b.setAttribute('aria-pressed',String(name===view)));placeHotspots();
+ const direction=['overview','desk','records'].indexOf(next)>['overview','desk','records'].indexOf(view)?1:-1;
+ const layer=image.cloneNode();layer.className='phone-studio-image phone-studio-blend';layer.style.cssText='z-index:1;transition:none';surface.insertBefore(layer,clip);
+ const options={duration:reduced?0:760,easing:'cubic-bezier(.22,.61,.36,1)',fill:'forwards'};
+ const arrive=layer.animate([{opacity:0,transform:`translateX(${direction*9}px) scale(1.025)`},{opacity:1,transform:'translateX(0) scale(1)'}],options);
+ const depart=still.animate([{opacity:1,transform:'scale(1)'},{opacity:.15,transform:`translateX(${-direction*5}px) scale(.99)`}],options);
+ await arrive.finished.catch(()=>{});
+ if(token===operation){view=next;still.src=image.src;await decode(still)}
+ arrive.cancel();depart.cancel();layer.remove();changingView=false;
+ if(token!==operation){ambient();return}
+ buttons.forEach((b,name)=>b.setAttribute('aria-pressed',String(name===view)));placeHotspots();
 }
 // Native vertical scrolling remains untouched; a deliberate horizontal gesture
 // changes the room view and must never activate the object under the finger.
@@ -132,7 +149,7 @@ function pulse(){cancelAnimationFrame(pulseFrame);pulseFrame=0;if(!visible||docu
 new IntersectionObserver(([e])=>{visible=e.isIntersecting;ambient();pulse()}).observe(stage);
 window.addEventListener('lotus-entry-reveal',event=>{
  const at=performance.now(),duration=event.detail.durationMs;
- const animate=now=>{const p=Math.min(1,(now-at)/duration),f=entryRevealFrame(p),scale=.66+.34*f.approach;surface.style.setProperty('--phone-entry-red',f.red);surface.style.setProperty('--phone-entry-scale',scale);surface.style.setProperty('--phone-entry-contour',f.outline*(1-Math.min(1,f.red/.22)));html.style.setProperty('--entry-ui',f.copy);
+ const animate=now=>{const p=Math.min(1,(now-at)/duration),f=entryRevealFrame(p),scale=.66+.34*f.approach;surface.style.setProperty('--phone-entry-red',f.red);stage.style.setProperty('--phone-entry-glow',f.red);surface.style.setProperty('--phone-entry-scale',scale);surface.style.setProperty('--phone-entry-contour',f.outline*(1-Math.min(1,f.red/.22)));html.style.setProperty('--entry-ui',f.copy);
  for(const {p:path,start,end} of paths)path.style.strokeDashoffset=String(1-Math.max(0,Math.min(1,(f.trace-start)/(end-start))));
  const bounds=surface.getBoundingClientRect(),corner=phoneStudio.corners[7];window.dispatchEvent(new CustomEvent('lotus-entry-target',{detail:{x:bounds.left+((corner[0]-.5)*scale+.5)*bounds.width,y:bounds.top+((corner[1]-.5)*scale+.5)*bounds.height,seed:f.seed,trace:f.trace}}));if(p<1)gateFrame=requestAnimationFrame(animate);
  };if(!reduced)gateFrame=requestAnimationFrame(animate);
