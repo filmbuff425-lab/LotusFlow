@@ -7,12 +7,12 @@ const editions={
  'feed-on':{title:'FEED ON',artist:'SULIANYA',year:'2025',credit:'PRODUCTION / ARRANGEMENT / MIX / MASTER',ink:'#e6ead4',accent:'#8d9f43',n:'12'},
  'show-me-love':{title:'SHOW ME LOVE',artist:'WIZTHEMC / BEES & HONEY / Tia Ray',year:'2025',credit:'CO-WRITER / Tia Ray VERSION',ink:'#1a221a',accent:'#efd668',n:'13'},
  airtight:{title:'MI BU TOU FENG',artist:'RIDE THE WIND 2024',year:'2024',credit:'CO-COMPOSITION / CO-ARRANGEMENT',ink:'#fae4c7',accent:'#cc423e',n:'10'},
- news:{title:'NEWs',artist:'BENZO',year:'2025',credit:'CO-PRODUCTION / ARRANGEMENT / PROGRAMMING',ink:'#eee9db',accent:'#ec481d',n:'01'},
+ news:{title:'NEWs',artist:'BENZO',year:'2025',credit:'PRODUCTION / SONGWRITING / RECORDING',ink:'#eee9db',accent:'#ec481d',n:'01'},
  'great-bridge':{title:'大桥',artist:'YITAI WANG',year:'2024',credit:'CO-COMPOSITION / CO-ARRANGEMENT',ink:'#0d203b',accent:'#d2e6ed',n:'02'},
  juliet:{title:'JULIET',artist:'AleXa',year:'2023',credit:'ADDITIONAL PRODUCTION / ARRANGEMENT',ink:'#f7eee1',accent:'#b83d63',n:'03'},
  'over-the-summer':{title:'OVER THE SUMMER',artist:'LOTUS FLOW × ADN LEWIS',year:'2024',credit:'ARTIST RELEASE / WITH ADN LEWIS',ink:'#232715',accent:'#ffe848',n:'04'},
  'imperfect-adult':{title:'BU WAN MEI DA REN',artist:'DUAN YIXUAN & HYBRIDGENE',year:'2025',credit:'PRODUCTION / VOCAL PRODUCTION / BACKING VOCALS',ink:'#f0eee8',accent:'#8a79be',n:'05'},
- '1-of-lov':{title:'1 OF LOV',artist:'XLOV',year:'2025',credit:'CO-LYRICS / LOTUS FLOW',ink:'#192319',accent:'#d1ec96',n:'06'},
+ '1-of-lov':{title:'1 OF LOV',artist:'XLOV',year:'2025',credit:'LYRICS / COMPOSITION / LOTUS FLOW',ink:'#192319',accent:'#d1ec96',n:'06'},
  'runaway-bride':{title:'RUNAWAY BRIDE',artist:'LOTUS FLOW',year:'2023',credit:'ARTIST RELEASE',ink:'#edeee0',accent:'#81cec2',n:'07'},
  casual:{title:'CASUAL',artist:'LOTUS FLOW',year:'2024',credit:'ARTIST RELEASE',ink:'#eef1f0',accent:'#bcbecb',n:'08'},
  'only-you':{title:'ONLY YOU',artist:'LOTUS FLOW',year:'2024',credit:'ARTIST RELEASE',ink:'#fce8dc',accent:'#cb274d',n:'09'}
@@ -55,7 +55,7 @@ function print(g,key,e){
   ticket(g,e,321,747,446,.045);text(g,'PRODUCTION / VOCAL PRODUCTION',303,250,17,E);text(g,'BACKING VOCALS & SUPERVISION',303,277,16,E);break;
  case '1-of-lov':
   fit(g,'1 / LOV',220,218,588,112,E);text(g,'XLOV   /   I ONE',224,251,22,E);
-  g.fillStyle=E;g.fillRect(653,717,141,115);text(g,'06',667,788,78,A,'Arial',900);text(g,'CO-LYRICS',238,771,31,E,'Arial',900);text(g,'LOTUS FLOW / 2025',238,806,18,E);break;
+  g.fillStyle=E;g.fillRect(653,717,141,115);text(g,'06',667,788,78,A,'Arial',900);fit(g,'LYRICS / COMPOSITION',238,771,390,31,E,'Arial',900);text(g,'LOTUS FLOW / 2025',238,806,18,E);break;
  case 'runaway-bride':
   g.save();g.translate(284,194);g.rotate(-.05);text(g,'RUNAWAY',0,0,57,E,'Georgia',700);text(g,'BRIDE',108,57,65,E,'Georgia',700);g.restore();
   ticket(g,e,230,748,308,.055);text(g,'07',681,812,73,E,'Arial',900);break;

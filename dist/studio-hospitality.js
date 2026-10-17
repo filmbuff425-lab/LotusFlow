@@ -8,7 +8,7 @@ import {createReferenceCoffeeCup} from './studio-coffee-cup.js?v=20261006-lake-s
 import {createConsoleObjects} from './studio-console-objects.js?v=20261006-lake-surface1';
 import {createReferenceObjects} from './studio-reference-objects.js?v=20261007-mobile3';
 
-export function createStudioHospitality({root,texture}){
+export async function createStudioHospitality({yieldToPage=()=>Promise.resolve(),root,texture}){
  const group=new THREE.Group();group.name='Left wall modular glass console, circular coffee table and recording microphone';root.add(group);
  // Thin glass sheets stay optically clear; grazing reflections carry the material.
  const glass=new THREE.MeshPhysicalMaterial({color:0xd8e4df,roughness:.12,metalness:0,transparent:true,opacity:.105,depthWrite:false,ior:1.5,clearcoat:.42,clearcoatRoughness:.10,envMapIntensity:.65,side:THREE.DoubleSide});
@@ -31,25 +31,33 @@ export function createStudioHospitality({root,texture}){
  cyl(table,3.25,.17,0,2.62,0,glass);for(const y of[2.539,2.701]){const r=add(new THREE.TorusGeometry(3.24,.014,6,96),edge,table,0,y,0);r.rotation.x=Math.PI/2;}
  lathe(table,[[1.26,.09],[1.27,2.525],[1.18,2.525],[1.18,.09]],glass);for(const y of[.09,2.525]){const r=add(new THREE.TorusGeometry(1.23,.018,6,64),edge,table,0,y,0);r.rotation.x=Math.PI/2;}
  cyl(table,1.34,.035,0,.065,0,chrome);createWhiskyOnIce({parent:table,texture,x:.85,y:2.715,z:.28,scale:1.38});const book=box(table,1.8,.12,1.4,-1.2,2.77,-.23,paper);book.rotation.y=-.13;box(book,1.82,.019,1.42,0,.07,0,dark);
+ await yieldToPage();
  // Two low tiers, six open bays. Long axis follows the left wall and vinyl display.
  const cabinet=new THREE.Group();cabinet.name='Low modular glass television console along the left wall';cabinet.position.set(studioLayout.mediaConsoleX,0,studioLayout.listeningZ);cabinet.rotation.y=Math.PI/2;group.add(cabinet);
  const span=4.8,levels=[.30,3.72,7.14],xs=Array.from({length:7},(_,i)=>-14.4+i*span);
  for(let bay=0;bay<6;bay++)for(const y of levels){const x=-12+bay*span;box(cabinet,4.73,.10,4.42,x,y,0,glass);outline(cabinet,4.73,.10,4.42,x,y,0);}
  for(const x of xs)for(const z of[-2.15,2.15])for(const offset of[-.062,.062]){rod(cabinet,[x+offset,.12,z],[x+offset,7.38,z],.032,chrome);for(const y of levels){cyl(cabinet,.072,.055,x+offset,y-.075,z,chrome);cyl(cabinet,.062,.075,x+offset,y+.085,z,chrome);}ball(cabinet,.069,x+offset,7.42,z,chrome);cyl(cabinet,.089,.08,x+offset,.08,z,dark);}
  for(const x of[-14.36,14.36]){box(cabinet,.07,6.83,4.36,x,3.72,0,glass);outline(cabinet,.07,6.83,4.36,x,3.72,0)}
+ await yieldToPage();
  const machine=createSculpturalEspresso({parent:cabinet,texture});machine.position.set(-11.8,7.20,0);machine.scale.setScalar(.83);cup(cabinet,-7.6,7.20,.40,.90);
+ await yieldToPage();
  const {radio,lamp}=createConsoleObjects({cabinet,texture});
+ await yieldToPage();
  const objects=createReferenceObjects(texture);
  objects.pistachio(cabinet,-5.55,7.20,.16,.84,-.18);
  objects.crystal(cabinet,12.0,3.79,.16,1.27,-.15);
+ await yieldToPage();
  const collection=createCuratedObjects(texture);
  collection.records(cabinet,-12.0,3.79,.05,{count:9,angle:.02});
  collection.records(cabinet,-7.2,3.79,-.17,{vinyl:true,count:7,angle:-.06});
+ await yieldToPage();
  collection.spirits(cabinet,-2.4,3.79,-.15);
  collection.medal(cabinet,2.10,.37,.10,-.12);
  collection.records(cabinet,-12.0,.37,.04,{vinyl:true,count:10,angle:.04});
+ await yieldToPage();
  collection.luxury(cabinet,-2.4,.37,.0);
  collection.records(cabinet,7.2,.37,-.10,{count:8,angle:.04});
+ await yieldToPage();
  const mic=createRecordingMic({parent:group,texture});
  return{group,table,cabinet,mic,machine,radio,lamp};
 }

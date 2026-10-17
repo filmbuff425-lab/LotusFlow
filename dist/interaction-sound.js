@@ -6,6 +6,7 @@ try{if(new URLSearchParams(location.search).has('embed')&&window.parent&&window.
 if(soundHost){
  window.lotusSfx={play:(...args)=>soundHost.lotusSfx?.play(...args),playPercussion:(...args)=>soundHost.lotusSfx?.playPercussion(...args),playWater:(...args)=>soundHost.lotusSfx?.playWater(...args),arm:()=>soundHost.lotusSfx?.arm(),get enabled(){return soundHost.lotusSfx?.enabled??false}};
  document.addEventListener('pointerdown',()=>window.lotusSfx.arm(),{passive:true,capture:true});
+ let moved=false;document.addEventListener('pointermove',e=>{if(moved||e.pointerType==='touch'||!window.lotusSfx.enabled)return;moved=true;window.lotusSfx.arm()},{passive:true});
  document.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')window.lotusSfx.arm()},{capture:true});
  document.addEventListener('click',e=>{const el=e.target.closest('button,a,[role=button]');if(!el||el.disabled)return;const isCase=el.matches('#case-stage,#toggle-case');window.lotusSfx.play(isCase?(el.getAttribute('aria-expanded')==='true'?'case-close':'case-open'):'tap')},{capture:true});
 }else{
@@ -14,16 +15,41 @@ if(soundHost){
 let context,master,compressor,enabled=true,unlocked=false,activated=false,lastHover=0,lastSlide=0,lastType=0,lastPercussion=0,lastWater=0,waterOutput=null;
 const airVoices=new Map();
 function stopAir(){for(const voice of airVoices.values())voice.stop();airVoices.clear()}
+const entryWaiting=()=>['waiting','retry'].includes(document.documentElement?.dataset?.soundEntry);
+let entryQuietUntil=0;
+const entryQuiet=()=>['waiting','starting','retry','preparing','revealing'].includes(document.documentElement?.dataset?.soundEntry)||performance.now()<entryQuietUntil;
+window.addEventListener('lotus-entry-complete',event=>{if(!event.detail?.restored)entryQuietUntil=performance.now()+850});
 try{enabled=localStorage.getItem('lotus-effects')!=='off'}catch{}
 const button=document.createElement('button');button.className='interaction-sound-toggle';button.type='button';document.body.append(button);
-function label(){button.textContent=enabled?'SOUND / ON':'SOUND / OFF';button.setAttribute('aria-pressed',String(enabled));button.setAttribute('aria-label',enabled?'Mute ambience and interaction sounds':'Enable ambience and interaction sounds')};label();
-const ambience=document.createElement('audio');ambience.src=new URL('./assets/audio/space-exploration-soft.wav?v=20261006-lake-surface1',import.meta.url).href;ambience.loop=true;ambience.preload='none';ambience.volume=0;ambience.dataset.ambient='true';ambience.setAttribute('aria-hidden','true');document.body.append(ambience);
-let bedTimer=0,bedStarting=false;
+function label(){const on=enabled&&activated&&!ambience.paused;button.textContent=enabled?(on?'SOUND / ON':'SOUND / ENABLE'):'SOUND / OFF';button.setAttribute('aria-pressed',String(on));button.setAttribute('aria-label',on?'Mute ambience and interaction sounds':'Enable ambience and interaction sounds')}
+const ambience=document.getElementById?.('lotus-ambience')||document.createElement('audio'),ambienceUrl=new URL('./assets/audio/space-exploration-soft.m4a',import.meta.url).href;
+// Reassigning src, even to the same URL, discards the HTML preload and decoder.
+if(ambience.src!==ambienceUrl)ambience.src=ambienceUrl;ambience.loop=true;ambience.preload=enabled?'auto':'none';ambience.volume=.001;ambience.dataset.ambient='true';ambience.setAttribute('aria-hidden','true');if(!ambience.isConnected)document.body.append(ambience);label();
+let bedTimer=0,bedStarting=false,bedAttempt=0;
 try{const state=JSON.parse(sessionStorage.getItem('lotus-ambient-position')||'null');if(state&&Date.now()-state.at<120000)ambience.currentTime=(state.time+(Date.now()-state.at)/1000)%64}catch{}
 function blendBed(){const target=enabled&&activated&&!document.hidden?(busy()?.008:.12):0;ambience.volume=Math.max(0,Math.min(1,ambience.volume+(target-ambience.volume)*.075));button.dataset.ambienceVolume=ambience.volume.toFixed(3);button.dataset.ambienceState=ambience.paused?'paused':busy()?'ducked':'playing';button.dataset.ambienceProgress=ambience.currentTime.toFixed(3);if(!enabled&&ambience.volume<.0005)ambience.pause()}
-async function startBed(){if(!enabled||document.hidden||bedStarting||!ambience.paused)return;bedStarting=true;try{await ambience.play();activated=true;button.dataset.ambienceState='playing';if(!bedTimer)bedTimer=setInterval(blendBed,80)}catch{button.dataset.ambienceState=ambience.error?'error':'needs-gesture'}finally{bedStarting=false;label()}}
+function reportBed(state,error=''){
+ button.dataset.ambienceState=state;button.dataset.ambienceError=error;
+ const host=document.getElementById?.('studio-canvas');if(host){host.dataset.ambientState=state;host.dataset.ambientError=error;host.dataset.ambientAttempts=String(bedAttempt)}
+}
+async function startBed({gesture=false}={}){
+ if(!enabled||entryWaiting()||document.hidden||(bedStarting&&!gesture)||!ambience.paused)return;
+ const attempt=++bedAttempt,at=performance.now();let timer;bedStarting=true;ambience.volume=Math.max(.001,ambience.volume);reportBed('starting');
+ try{
+  // A stalled decoder/network request must release the mouse-movement retry.
+  await Promise.race([ambience.play(),new Promise((_,reject)=>{timer=setTimeout(()=>{if(attempt===bedAttempt)ambience.pause();const error=new Error('Ambient playback timed out');error.name='TimeoutError';reject(error)},2400)})]);
+  if(attempt!==bedAttempt)return;if(!enabled||document.hidden){ambience.pause();return}
+  activated=true;reportBed('playing');const host=document.getElementById?.('studio-canvas');if(host)host.dataset.ambientStartMs=(performance.now()-at).toFixed(1);
+  if(!bedTimer)bedTimer=setInterval(blendBed,80);
+ }catch(error){if(attempt===bedAttempt)reportBed(error.name==='TimeoutError'?'unavailable':ambience.error?'error':'needs-gesture',error.name||'Error')}
+ finally{clearTimeout(timer);if(attempt===bedAttempt)bedStarting=false;label()}
+}
 function init(){if(context)return context;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;context=new AC();master=context.createGain();master.gain.value=.43;compressor=context.createDynamicsCompressor();compressor.threshold.value=-18;compressor.knee.value=18;compressor.ratio.value=3;master.connect(compressor).connect(context.destination);context.addEventListener('statechange',()=>{unlocked=context.state==='running';if(unlocked)activated=true;button.dataset.audioState=context.state;label()});return context}
-async function arm(){if(!enabled)return;const starting=startBed();try{if(!init()){await starting;return}const resuming=context.resume();await resuming;unlocked=context.state==='running';button.dataset.audioState=context.state;if(unlocked){try{sessionStorage.setItem('lotus-audio-unlocked','true')}catch{}}await starting;label()}catch{await starting;label()}}
+async function arm(){if(!enabled||entryWaiting())return;
+ // The explicit entrance installs the heartbeat's zero-gain route before its
+ // media starts. Passive visits retain the independent native-audio path.
+ if(['starting','preparing','revealing'].includes(document.documentElement?.dataset?.soundEntry))try{init()}catch{}
+ window.dispatchEvent(new CustomEvent('lotus-sound-unlock'));const starting=startBed({gesture:true});try{if(!init()){await starting;return}if(context.state!=='running')await context.resume();unlocked=context.state==='running';button.dataset.audioState=context.state;if(unlocked){try{sessionStorage.setItem('lotus-audio-unlocked','true')}catch{}}await starting;label()}catch{await starting;label()}}
 function busy(){
  if(window.lotusSession?.audioState?.playing||window.lotusIdentityAudio?.playing)return true;
  const audible=doc=>[...doc.querySelectorAll('audio:not([data-ambient]):not([data-heartbeat]),video')].some(el=>!el.paused&&!el.muted&&el.volume>.01);
@@ -41,7 +67,8 @@ function noise(out,duration,level,frequency,offset=0,shape='bandpass'){
 }
 function play(kind='tap',{x=0,value=.5,motion=.5,voice='kick',performanceAction=false,delay=0}={}){
  if((!enabled&&!performanceAction)||!unlocked||context?.state!=='running'||document.hidden)return false;
- const now=performance.now();if(kind==='type'&&now-lastType<90)return;if(kind==='type')lastType=now;if(kind==='hover'&&now-lastHover<100)return;if(kind==='slider'&&now-lastSlide<110)return;if(kind==='hover')lastHover=now;if(kind==='slider')lastSlide=now;
+ if(entryQuiet()&&['hover','tap','type','glass'].includes(kind))return false;
+ const now=performance.now();if(kind==='archive-invite'&&busy())return false;if(kind==='type'&&now-lastType<90)return;if(kind==='type')lastType=now;if(kind==='hover'&&now-lastHover<100)return;if(kind==='slider'&&now-lastSlide<110)return;if(kind==='hover')lastHover=now;if(kind==='slider')lastSlide=now;
  const air=kind==='seam-air'||kind==='studio-wind';
  if(air&&!enabled)return false;
  const {g,pan}=output(x,performanceAction||air);let tail=1.8;
@@ -57,7 +84,13 @@ function play(kind='tap',{x=0,value=.5,motion=.5,voice='kick',performanceAction=
  else if(kind==='case-open'){tone(g,880,.16,.025);tone(g,1320,.15,.012,.025);noise(g,.055,.012,2500);tail=.23}
  else if(kind==='case-close'){tone(g,660,.105,.025,0,580);noise(g,.050,.016,1500);tail=.16}
  else if(kind==='glass'){tone(g,1046.5,.35,.022);tone(g,1569.8,.28,.008,.016);tail=.44}
- else if(kind==='room-open'||kind==='portal'){noise(g,.8,.075,470);tone(g,146.832,.70,.028,.05,110);tone(g,587.33,.68,.013,.17);tone(g,880,.58,.007,.25);tail=1.2}
+ else if(kind==='archive-invite'||kind==='portal'){
+  // A soft inhalation with two glass partials: no heartbeat or low drum impact.
+  const opening=kind==='portal';noise(g,.85,opening?.025:.014,1700);
+  tone(g,783.99,.75,opening?.024:.014,.18);tone(g,1174.66,.8,opening?.012:.007,.34);
+  if(opening)tone(g,1567.98,.6,.008,.47);tail=1.2;
+ }
+ else if(kind==='room-open'){noise(g,.8,.075,470);tone(g,146.832,.70,.028,.05,110);tone(g,587.33,.68,.013,.17);tone(g,880,.58,.007,.25);tail=1.2}
  else if(kind==='drag'){noise(g,.20,.039,700);tail=.28}
  else if(kind==='move'){noise(g,.28,.025,650);tone(g,660,.18,.010,0,740);tail=.37}
  else if(kind==='arrive'){tone(g,392,.38,.020);tone(g,784,.32,.010,.04);tail=.5}
@@ -96,15 +129,26 @@ async function playPercussion(voice='kick',{x=0,gesture=true}={}){
 async function playWater({x=0,value=.5,motion=.5,gesture=true}={}){
  try{if(!gesture&&(!enabled||context?.state!=='running'))return false;if(!init())return false;if(gesture)await context.resume();unlocked=context.state==='running';return play('water',{x,value,motion,performanceAction:gesture})}catch{return false}
 }
-window.lotusSfx={play,playPercussion,playWater,arm,get enabled(){return enabled}};
+window.lotusSfx={play,playPercussion,playWater,arm,get enabled(){return enabled},get audioContext(){return context||null}};
 window.dispatchEvent(new CustomEvent('lotus-effects-change',{detail:enabled}));
-button.addEventListener('click',async()=>{enabled=!enabled;if(!enabled)stopAir();try{localStorage.setItem('lotus-effects',enabled?'on':'off')}catch{}window.dispatchEvent(new CustomEvent('lotus-effects-change',{detail:enabled}));label();blendBed();if(enabled){await arm();play('glass')}});
+button.addEventListener('click',async()=>{enabled=!enabled||!activated||ambience.paused;if(!enabled)stopAir();try{localStorage.setItem('lotus-effects',enabled?'on':'off')}catch{}window.dispatchEvent(new CustomEvent('lotus-effects-change',{detail:enabled}));label();blendBed();if(enabled){await arm();play('glass')}});
 document.addEventListener('pointerdown',e=>{if(e.target!==button)arm()},{passive:true,capture:true});document.addEventListener('keydown',e=>{if(e.target!==button&&(e.key==='Enter'||e.key===' '))arm()},{capture:true});
+// Pointer movement is not browser user activation. Try once without clicks
+// where playback is allowed; a policy rejection must keep the enable control.
+let motionAttemptAt=-Infinity;
+document.addEventListener('pointermove',e=>{
+ if(e.pointerType==='touch'||!enabled||entryWaiting()||document.hidden)return;
+ const now=performance.now();if(now-motionAttemptAt<1500)return;motionAttemptAt=now;
+ // Do not queue suspended AudioContext resumes on every mouse movement.
+ // The ambient recording and heartbeat start independently of WebGL/effects.
+ window.dispatchEvent(new CustomEvent('lotus-sound-unlock'));
+ startBed();
+},{passive:true});
 const position=el=>{const b=el.getBoundingClientRect();return{x:(b.left+b.width/2-innerWidth/2)/innerWidth}};
 function cue(el){if(el.matches('.record-portal'))return 'portal';if(el.matches('#open-studio,#close-studio,.artist-gate,.prologue-enter,.identity-score-toggle'))return null;if(el.matches('.cd-spine,[data-pick-studio-record],.record-choice'))return 'case-lift';if(el.matches('.inspector-close,[data-close],.dialog-close'))return 'case-close';if(el.matches('[data-camera],[data-studio-zoom],#studio-reset-view'))return 'move';if(el.matches('[aria-pressed],input[type=checkbox]'))return 'toggle';if(el.matches('a[href^="#"]'))return 'move';return 'tap'}
 document.addEventListener('click',e=>{const el=e.target.closest('button,a,summary,input[type=checkbox]');if(!el||el===button||el.disabled||el.matches('.contact h2')||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;const kind=cue(el);if(kind)play(kind,position(el))},{capture:true});
-document.addEventListener('pointerover',e=>{const el=e.target.closest('a,button,summary,.elastic-letter');if(!el||el===button||el.closest('#noise-title,.artist-gate,#film-prologue')||el.contains(e.relatedTarget)||el.disabled)return;play(el.matches('.elastic-letter')?'type':'hover',position(el))},{passive:true});
-document.addEventListener('focusin',e=>{if(e.target.matches('a,button,summary')&&!e.target.closest('#noise-title,.artist-gate,#film-prologue'))play('hover',position(e.target))});
+document.addEventListener('pointerover',e=>{const el=e.target.closest('a,button,summary,.elastic-letter');if(!el||el===button||el.closest('#noise-title,.artist-gate,#film-prologue,.record-portal')||el.contains(e.relatedTarget)||el.disabled)return;play(el.matches('.elastic-letter')?'type':'hover',position(el))},{passive:true});
+document.addEventListener('focusin',e=>{if(e.target.matches('a,button,summary')&&!e.target.closest('#noise-title,.artist-gate,#film-prologue,.record-portal'))play('hover',position(e.target))});
 document.addEventListener('input',e=>{const el=e.target;if(!el.matches('input[type=range]'))return;play('slider',{...position(el),value:(Number(el.value)-Number(el.min||0))/(Number(el.max||100)-Number(el.min||0))})});
 let canvasDrag=null,lastDrag=0;
 document.addEventListener('pointerdown',e=>{if(!e.target.closest('#noise-title')&&(e.target.matches('canvas')||e.target.closest('#portrait-wrap')))canvasDrag={id:e.pointerId,x:e.clientX,y:e.clientY}},{capture:true,passive:true});
@@ -117,7 +161,8 @@ for(const dialog of document.querySelectorAll('dialog'))dialogs.observe(dialog,{
 new MutationObserver(records=>{for(const r of records)for(const n of r.addedNodes)if(n.nodeType===1){if(n.matches('dialog'))dialogs.observe(n,{attributes:true,attributeFilter:['open','class']});n.querySelectorAll('dialog').forEach(d=>dialogs.observe(d,{attributes:true,attributeFilter:['open','class']}))}}).observe(document.body,{childList:true,subtree:true});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){stopAir();context?.suspend();ambience.pause()}else if(activated)arm()});addEventListener('pageshow',()=>{if(activated)arm()});addEventListener('pagehide',()=>{try{sessionStorage.setItem('lotus-ambient-position',JSON.stringify({time:ambience.currentTime,at:Date.now()}))}catch{}stopAir();ambience.pause();clearInterval(bedTimer);bedTimer=0;context?.suspend()});
 
-// Sound is enabled by default; the first gesture unlocks audible playback.
-try{if(enabled&&sessionStorage.getItem('lotus-audio-unlocked')==='true')arm()}catch{}
+// Attempt a quiet, genuinely audible fade on arrival. If the browser blocks it,
+// the existing white sound control offers an honest first-gesture fallback.
+if(enabled)startBed();
 
 }

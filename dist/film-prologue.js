@@ -17,11 +17,14 @@ dialog.innerHTML='<div class="poster-half poster-left"><canvas></canvas></div><d
 const flight=document.createElement('canvas');flight.className='blood-flight';flight.setAttribute('aria-hidden','true');dialog.append(flight);
 document.body.append(dialog);const canvases=[...dialog.querySelectorAll('.poster-half canvas')],effects=dialog.querySelector('.blade-effects'),glint=dialog.querySelector('.edge-glint'),incision=dialog.querySelector('.cut-incision'),steel=dialog.querySelector('.blade-steel'),white=dialog.querySelector('.blade-white'),afterimage=dialog.querySelector('.blade-afterimage'),impact=dialog.querySelector('.blade-impact');
 const openingInk=canvases.map(canvas=>{const ink=createInkFlow();canvas.after(ink.svg);return ink});
-const gatePeek=createIdentityPeek({gate,canvases,liquids:openingInk.map(ink=>ink.svg)});
+let openingViewport=null,posterResizePending=false;
+const identityViewport=()=>openingViewport??{width:innerWidth,height:innerHeight};
+const gatePeek=createIdentityPeek({gate,canvases,liquids:openingInk.map(ink=>ink.svg),getViewport:identityViewport});
 let cutting=false,openedAt=0,animation=0;
 const measureCut=new URLSearchParams(location.search).has('perf');let frameIntervals=[],previousCutFrame=0,cutLongFrames=[];
 const katana=dialog.querySelector('.katana-motion');
-const katanaAsset=new Image();katanaAsset.src='assets/cinema/katana.png';
+const katanaAsset=new Image();katanaAsset.decoding='async';katanaAsset.src='assets/cinema/katana.png';
+const katanaReady=katanaAsset.decode?.().catch(()=>false)??Promise.resolve(false);
 const bevel=dialog.querySelector('.steel-bevel'),spine=dialog.querySelector('.steel-spine'),soundToggle=dialog.querySelector('.cut-sound-toggle');
 let audioContext,muted=false,scoreMuted=false,knifeBuffer,decodeTask,activeSource,activeGain,preparing=false;
 const musicToggle=document.createElement('button');musicToggle.className='identity-score-toggle';musicToggle.type='button';musicToggle.setAttribute('aria-pressed','false');artistSection.append(musicToggle);
@@ -32,13 +35,14 @@ const identityScore=createIdentityScore({
  announce:()=>window.dispatchEvent(new CustomEvent('lotus-audio-start',{detail:'identity-score'})),
  onState:(state,info)=>{artistSection.dataset.identityScoreState=state;artistSection.dataset.identityMusicPhase=info.phase;artistSection.dataset.identityBeatCue=String(info.cue);if(info.at)artistSection.dataset.identityBeatAt=String(info.at);musicLabel();}
 });
+const entryWaiting=()=>['waiting','starting','preparing','retry','revealing'].includes(document.documentElement.dataset.soundEntry);
 window.lotusIdentityAudio=identityScore;
 musicLabel();new MutationObserver(musicLabel).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
 musicToggle.addEventListener('click',()=>{if(identityScore.playing){scoreMuted=true;identityScore.pause()}else{scoreMuted=false;foregroundClaimed=false;if(window.lotusSfx?.enabled===false)document.querySelector('.interaction-sound-toggle')?.click();identityScore.enter(artistSection.dataset.artistLocked==='false')}});
 let identityVisible=false,visibilityFrame=0,foregroundClaimed=false;
-const scoreEnabled=()=>!muted&&!scoreMuted&&window.lotusSfx?.enabled!==false;
+const scoreEnabled=()=>!entryWaiting()&&!muted&&!scoreMuted&&window.lotusSfx?.enabled!==false;
 function syncIdentityVisibility(){
- visibilityFrame=0;const r=artistSection.getBoundingClientRect();identityVisible=!document.hidden&&r.bottom>innerHeight*.2&&r.top<innerHeight*.75;
+ visibilityFrame=0;if(entryWaiting()){identityVisible=false;gate.classList.remove('seam-awake');identityScore.pause();return}const r=artistSection.getBoundingClientRect();identityVisible=!document.hidden&&r.bottom>innerHeight*.2&&r.top<innerHeight*.75;
  gate.classList.toggle('seam-awake',!dialog.open&&identityVisible&&artistSection.dataset.artistLocked==='true');
  if(identityVisible&&artistSection.dataset.artistLocked==='true'){prepareBlade().catch(()=>{});if(scoreEnabled())identityScore.prepare().catch(()=>{})}
  if(dialog.open&&cutting)return;
@@ -54,12 +58,12 @@ window.addEventListener('lotus-room-change',e=>{if(e.detail)identityScore.pause(
 window.addEventListener('lotus-prologue-end',()=>{artistSection.dataset.identityScoreState=identityScore.playing?'reveal':'paused';syncIdentityVisibility()});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)identityScore.pause();else scheduleIdentityVisibility()});
 window.addEventListener('pagehide',()=>identityScore.pause());
-let knifeTask;const knifeBytes=()=>knifeTask??=fetch('./assets/audio/knife-A-blood-approved.wav').then(r=>{if(!r.ok)throw new Error('Knife sound unavailable');return r.arrayBuffer()}).catch(()=>null);
+let knifeTask;const knifeBytes=()=>knifeTask??=fetch('./assets/audio/knife-A-blood-approved.wav').then(r=>{if(!r.ok)throw new Error('Knife sound unavailable');return r.arrayBuffer()}).catch(()=>{knifeTask=null;return null});
 dialog.dataset.audioMix='A-blood-approved';
 async function prepareBlade(){
  audioContext??=new(window.AudioContext||window.webkitAudioContext)();
  if(knifeBuffer)return knifeBuffer;
- decodeTask??=knifeBytes().then(data=>data?audioContext.decodeAudioData(data.slice(0)):null).then(buffer=>knifeBuffer=buffer).catch(error=>{decodeTask=null;throw error});
+ decodeTask??=knifeBytes().then(data=>data?audioContext.decodeAudioData(data.slice(0)):null).then(buffer=>{if(!buffer)decodeTask=null;return knifeBuffer=buffer}).catch(error=>{decodeTask=null;throw error});
  return decodeTask;
 }
 async function armSound(){
@@ -90,11 +94,11 @@ soundToggle.addEventListener('click',()=>{
  else{muted=false;armSound();syncIdentityVisibility()}
 });
 const clamp=x=>Math.max(0,Math.min(1,x)),easeOut=x=>1-Math.pow(1-clamp(x),4);
-function geometry(){const w=innerWidth,h=innerHeight,thick=scarThickness(w),a={x:w*.836+thick*.05,y:-h*.12},b={x:w*.154+thick*.05,y:h*1.12},dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy);return{a,b,dx,dy,len,nx:-dy/len,ny:dx/len}}
+function geometry(){const {width:w,height:h}=identityViewport(),thick=scarThickness(w),a={x:w*.836+thick*.05,y:-h*.12},b={x:w*.154+thick*.05,y:h*1.12},dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy);return{a,b,dx,dy,len,nx:-dy/len,ny:dx/len,width:w,height:h}}
 function point(g,t,n=0){return `${g.a.x+g.dx*t+g.nx*n} ${g.a.y+g.dy*t+g.ny*n}`}
 function blade(g,p,length,width){return `M ${point(g,p)} L ${point(g,p-length,width)} L ${point(g,p-length*.77,0)} L ${point(g,p-length,-width*.18)} Z`}
 let posterSize='';
-function draw(){const w=innerWidth,h=innerHeight,scale=Math.min(devicePixelRatio,1.5),stamp=`${w}/${h}/${scale}`;if(posterSize===stamp)return;posterSize=stamp;const source=document.createElement('canvas');source.width=(w+posterBleed*2)*scale;source.height=(h+posterBleed*2)*scale;const c=source.getContext('2d');c.scale(scale,scale);c.translate(posterBleed,posterBleed);let seed=1973;const rand=()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646};const bg=c.createRadialGradient(w*.28,h*.4,0,w*.6,h*.4,w*.9);bg.addColorStop(0,'#40110f');bg.addColorStop(.48,'#160908');bg.addColorStop(1,'#060606');c.fillStyle=bg;c.fillRect(-posterBleed,-posterBleed,w+posterBleed*2,h+posterBleed*2);
+function draw(){const {width:w,height:h}=identityViewport(),scale=Math.min(devicePixelRatio,1.5),stamp=`${w}/${h}/${scale}`;if(posterSize===stamp)return;posterSize=stamp;const source=document.createElement('canvas');source.width=(w+posterBleed*2)*scale;source.height=(h+posterBleed*2)*scale;const c=source.getContext('2d');c.scale(scale,scale);c.translate(posterBleed,posterBleed);let seed=1973;const rand=()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646};const bg=c.createRadialGradient(w*.28,h*.4,0,w*.6,h*.4,w*.9);bg.addColorStop(0,'#40110f');bg.addColorStop(.48,'#160908');bg.addColorStop(1,'#060606');c.fillStyle=bg;c.fillRect(-posterBleed,-posterBleed,w+posterBleed*2,h+posterBleed*2);
  for(let i=0;i<15000;i++){c.fillStyle=rand()>.48?'#8d292515':'#eee0c608';c.fillRect(rand()*w,rand()*h,rand()*1.8+.4,rand()*1.8+.4)}
  const atY=y=>w*(.77-.55*y/h),thick=scarThickness(w);dialog.style.setProperty("--seam-top",`${atY(0)+thick*.05}px`);dialog.style.setProperty("--seam-bottom",`${atY(h)+thick*.05}px`);
  // Dry ink, red flecks and the very thin white cut follow the supplied poster's diagonal.
@@ -108,13 +112,13 @@ function draw(){const w=innerWidth,h=innerHeight,scale=Math.min(devicePixelRatio
  for(const ink of [gateInk,...openingInk])ink.update({width:w,height:h,spine,thickness:thick*.48,falls});
 }
 function open(){
- if(dialog.open)return;gatePeek.close();gate.classList.remove('seam-awake');cancelAnimationFrame(animation);cutting=false;openedAt=performance.now();dialog.classList.remove('cutting','blade-near');dialog.dataset.phase='waiting';dialog.style.setProperty('--cut-progress',0);dialog.style.setProperty('--cut-shock',0);effects.removeAttribute('style');katana.style.opacity='0';[incision,steel,white,afterimage,impact,bevel,spine].forEach(p=>p.setAttribute('d',''));dialog.showModal();document.body.classList.add('prologue-open');draw();gatePeek.carry(dialog,artistSection);dialog.querySelector('.prologue-enter').focus({preventScroll:true});idle(openedAt);
+ if(dialog.open)return;openingViewport={width:innerWidth,height:innerHeight};gatePeek.close();gate.classList.remove('seam-awake');cancelAnimationFrame(animation);cutting=false;openedAt=performance.now();dialog.classList.remove('cutting','blade-near');dialog.dataset.phase='waiting';dialog.style.setProperty('--cut-progress',0);dialog.style.setProperty('--cut-shock',0);effects.removeAttribute('style');katana.style.opacity='0';[incision,steel,white,afterimage,impact,bevel,spine].forEach(p=>p.setAttribute('d',''));dialog.showModal();document.body.classList.add('prologue-open');draw();gatePeek.carry(dialog,artistSection);dialog.querySelector('.prologue-enter').focus({preventScroll:true});idle(openedAt);
 }
 function idle(now){
  if(cutting||!dialog.open)return;const g=geometry(),p=((now-openedAt)/4400)%1;
  glint.setAttribute('d',`M ${point(g,clamp(p-.075))} L ${point(g,p)}`);glint.style.opacity=String(Math.sin(p*Math.PI)*.85);animation=requestAnimationFrame(idle);
 }
-function finish(){if(measureCut&&frameIntervals.length){const sorted=frameIntervals.slice().sort((a,b)=>a-b);dialog.dataset.frameTiming=JSON.stringify({frames:sorted.length,medianMs:+sorted[Math.floor(sorted.length*.5)].toFixed(1),p95Ms:+sorted[Math.floor(sorted.length*.95)].toFixed(1),maxMs:+sorted.at(-1).toFixed(1),longFrames:cutLongFrames})}gatePeek.arrive(artistSection);dialog.close();document.body.classList.remove('prologue-open');history.replaceState(null,'','#about');const heading=document.querySelector('#about-title');heading.tabIndex=-1;heading.focus({preventScroll:true});window.dispatchEvent(new Event('lotus-prologue-end'))}
+function finish(){if(measureCut&&frameIntervals.length){const sorted=frameIntervals.slice().sort((a,b)=>a-b);dialog.dataset.frameTiming=JSON.stringify({frames:sorted.length,medianMs:+sorted[Math.floor(sorted.length*.5)].toFixed(1),p95Ms:+sorted[Math.floor(sorted.length*.95)].toFixed(1),maxMs:+sorted.at(-1).toFixed(1),longFrames:cutLongFrames})}gatePeek.arrive(artistSection);dialog.close();openingViewport=null;document.body.classList.remove('prologue-open');history.replaceState(null,'','#about');const heading=document.querySelector('#about-title');heading.tabIndex=-1;heading.focus({preventScroll:true});window.dispatchEvent(new Event('lotus-prologue-end'));if(posterResizePending)requestAnimationFrame(drawGate)}
 function renderFrame(t){
  const {strikeStart,contact,release,spray,settle,duration}=timing,g=geometry();
  gatePeek.cut(t,timing);
@@ -124,7 +128,7 @@ function renderFrame(t){
  else if(t<contact){const q=clamp((t-strikeStart)/(contact-strikeStart));tip=.08+1.25*(q*q*(2-q));dialog.dataset.phase='strike'}
  else{tip=1.33+1.65*easeOut((t-contact)/140);dialog.dataset.phase=t<spray?'contact':t<settle?'spray':'settle'}
  const axis=Math.atan2(g.dy,g.dx)*180/Math.PI;
- const length=bladeLength(innerWidth,innerHeight),scale=length/2118;
+ const length=bladeLength(g.width,g.height),scale=length/2118;
  const tx=g.a.x+g.dx*tip,ty=g.a.y+g.dy*tip;
  katana.setAttribute('transform',`translate(${tx} ${ty}) rotate(${axis}) scale(${scale}) translate(-2146 0)`);
  katana.style.opacity=String(clamp(t/140)*(1-clamp((t-contact-50)/100)));
@@ -147,7 +151,7 @@ async function slash(){
  // never freeze the gesture; if needed the blade joins its already-running clock.
  const soundReady=muted?Promise.resolve(false):armSound();
  const musicReady=scoreEnabled()?identityScore.prepare().catch(()=>false):Promise.resolve(false);
- await Promise.race([Promise.all([soundReady,musicReady]),new Promise(resolve=>setTimeout(resolve,100))]);
+ await Promise.race([Promise.all([soundReady,musicReady,katanaReady]),new Promise(resolve=>setTimeout(resolve,100))]);
  if(!dialog.open||document.hidden){preparing=false;return}
  cutting=true;preparing=false;cancelAnimationFrame(animation);window.lotusReleasePlayer?.unlock();
  artistSection.dataset.artistLocked='false';profileChildren.forEach(el=>el.inert=false);
@@ -171,7 +175,7 @@ dialog.addEventListener('pointermove',e=>{
 });
 dialog.addEventListener('pointerdown',e=>{if(!e.target.closest('.cut-sound-toggle'))armSound();if(e.pointerType==='touch'&&!e.target.closest('button'))slash()});
 dialog.addEventListener('click',e=>{if(!e.target.closest('button'))slash()});
-dialog.querySelector('.prologue-enter').addEventListener('click',()=>{armSound();slash()});dialog.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&!e.target.closest('.cut-sound-toggle')){e.preventDefault();armSound();slash()}});dialog.addEventListener('cancel',e=>{e.preventDefault();slash()});window.addEventListener('resize',()=>{if(dialog.open&&!cutting)draw()});
+dialog.querySelector('.prologue-enter').addEventListener('click',()=>{armSound();slash()});dialog.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&!e.target.closest('.cut-sound-toggle')){e.preventDefault();armSound();slash()}});dialog.addEventListener('cancel',e=>{e.preventDefault();slash()});
 
 document.querySelector('#replay-opening')?.addEventListener('click',open);
 function enterGate(){const rect=gate.getBoundingClientRect();open();armSound();if(reduced){slash();return}dialog.animate([{clipPath:`inset(${Math.max(0,rect.top)}px ${Math.max(0,innerWidth-rect.right)}px ${Math.max(0,innerHeight-rect.bottom)}px ${Math.max(0,rect.left)}px)`},{clipPath:'inset(0px)'}],{duration:600,easing:'cubic-bezier(.16,1,.3,1)'});setTimeout(slash,90)}
@@ -187,8 +191,9 @@ new ResizeObserver(sizeSwipeTrack).observe(gate);
 
 
 // The black/red chapter cover gates the artist with small yellow wayfinding.
-function drawGate(){draw();const target=gate.querySelector(':scope>canvas');const scale=Math.min(devicePixelRatio,1.5);target.width=innerWidth*scale;target.height=innerHeight*scale;target.getContext('2d').drawImage(canvases[0],posterBleed*scale,posterBleed*scale,innerWidth*scale,innerHeight*scale,0,0,target.width,target.height);const w=innerWidth,h=innerHeight,thick=scarThickness(w),x=y=>w*(.77-.55*y/h)+thick*.05;seam.setAttribute('viewBox',`0 0 ${w} ${h}`);for(const p of seam.querySelectorAll('path')){const n=0;p.setAttribute('d',`M ${x(0)+n} 0 L ${x(h)+n} ${h}`)}if(artistSection.dataset.artistLocked==='true'&&!dialog.open)gatePeek.mount();else gatePeek.size()}
+function drawGate(){if(dialog.open||entryWaiting()){posterResizePending=true;return}posterResizePending=false;draw();const target=gate.querySelector(':scope>canvas');const scale=Math.min(devicePixelRatio,1.5);target.width=innerWidth*scale;target.height=innerHeight*scale;target.getContext('2d').drawImage(canvases[0],posterBleed*scale,posterBleed*scale,innerWidth*scale,innerHeight*scale,0,0,target.width,target.height);const w=innerWidth,h=innerHeight,thick=scarThickness(w),x=y=>w*(.77-.55*y/h)+thick*.05;seam.setAttribute('viewBox',`0 0 ${w} ${h}`);for(const p of seam.querySelectorAll('path')){const n=0;p.setAttribute('d',`M ${x(0)+n} 0 L ${x(h)+n} ${h}`)}if(artistSection.dataset.artistLocked==='true'&&!dialog.open)gatePeek.mount();else gatePeek.size()}
 drawGate();let gateResize;addEventListener('resize',()=>{clearTimeout(gateResize);gateResize=setTimeout(drawGate,180)});
+window.addEventListener('lotus-entry-complete',()=>{requestAnimationFrame(drawGate);scheduleIdentityVisibility()});
 new IntersectionObserver(scheduleIdentityVisibility,{threshold:.08}).observe(artistSection);scheduleIdentityVisibility();
 
 window.dispatchEvent(new Event('lotus-cut-ready'));

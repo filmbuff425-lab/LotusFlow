@@ -1,0 +1,35 @@
+/* A quiet point of light; the actual studio supplies the depth behind it. */
+#sound-entry{display:none;position:fixed;inset:0;z-index:100000;isolation:isolate;overflow:hidden;min-height:100svh;color:#e5dfd9;outline:none;-webkit-tap-highlight-color:transparent}
+html[data-entry-gate="true"]:not([data-sound-entry="entered"]) #sound-entry{display:block}
+.sound-entry-curtain{position:absolute;inset:0;z-index:-1;background:#000}
+#sound-entry .sound-entry-content{position:absolute;top:50%;left:50%;width:120px;transform:translate(-50%,-22px);text-align:center;padding:0;margin:0}
+#sound-entry .sound-entry-mark{appearance:none;display:flex;align-items:center;flex-direction:column;position:relative;width:120px;height:106px;margin:0;padding:19px 0 0;border:0;border-radius:0;background:transparent;box-shadow:none;cursor:pointer;touch-action:manipulation;transform:none;color:inherit}
+#sound-entry .sound-entry-mark:hover{background:transparent;box-shadow:none;transform:none}
+#sound-entry .sound-entry-mark:focus-visible{outline:1px solid #dcd6cd45;outline-offset:12px}
+#sound-entry .sound-entry-mark:disabled{cursor:default}
+#sound-entry .sound-entry-light-anchor{display:block;width:8.64px;height:8.64px;transform:translate(var(--entry-light-x,0px),var(--entry-light-y,0px));transition:transform 900ms cubic-bezier(.22,.75,.25,1);pointer-events:none}
+#sound-entry .sound-entry-light{position:relative;display:block;width:8.64px;height:8.64px;border-radius:50%;background:radial-gradient(circle,#fff9f6 0 22%,#ffe6e0 44%,#ff9d91 76%,#e45c50 100%);box-shadow:0 0 4.8px 1.2px #fff1eebf,0 0 12px 2.4px #ff887c70;animation:entry-light-breathe 4.6s ease-in-out infinite;will-change:opacity}
+#sound-entry .sound-entry-light::before,#sound-entry .sound-entry-light::after{content:"";position:absolute;border-radius:50%;pointer-events:none}
+#sound-entry .sound-entry-light::before{inset:-20.4px;background:radial-gradient(circle,#ffdad166 0%,#ff81775c 12%,#e7443438 30%,#d72a1b12 49%,transparent 72%);animation:entry-halo-breathe 4.6s ease-in-out infinite;will-change:opacity,transform}
+#sound-entry .sound-entry-light::after{inset:-43.2px;background:radial-gradient(circle,#e92c1b24 0%,#c9211112 30%,#ae180608 46%,transparent 70%);animation:entry-aura-breathe 4.6s ease-in-out infinite;will-change:opacity,transform}
+#sound-entry .sound-entry-mark:hover .sound-entry-light{box-shadow:0 0 6px 1.2px #fff1eedb,0 0 15.6px 3.6px #ff887c8a;transition:box-shadow .65s ease}
+#sound-entry .sound-entry-label{display:block;margin-top:32px;font:700 11px/1.4 LotusDotDisplay,Doto,monospace!important;font-variation-settings:'ROND' 0;letter-spacing:.24em;text-indent:.24em;color:#b7b1ab;transition:color .5s ease;animation:entry-type-arrive 1.4s ease both;pointer-events:none}
+#sound-entry .sound-entry-mark:hover .sound-entry-label{color:#eee7df}
+#sound-entry .sound-entry-status{position:absolute;top:calc(100% + 20px);left:50%;width:min(82vw,430px);transform:translateX(-50%);margin:0;color:#b6a39b;font:400 11px/1.8 Arial,'PingFang SC',sans-serif!important;letter-spacing:.025em;white-space:pre-line}
+#sound-entry[data-state=revealing]{pointer-events:none}
+#sound-entry[data-state=revealing] .sound-entry-curtain{animation:entry-curtain-away var(--entry-duration,4400ms) linear both}
+#sound-entry[data-state=revealing] .sound-entry-label{animation:entry-label-away var(--entry-duration,4400ms) linear both}
+#sound-entry[data-state=revealing] .sound-entry-light-anchor{transition:none}
+#sound-entry[data-state=revealing] .sound-entry-light{animation:none;opacity:var(--entry-light-opacity,1)}
+@keyframes entry-light-breathe{0%,100%{opacity:.86}46%{opacity:1}}
+@keyframes entry-halo-breathe{0%,100%{opacity:.65;transform:scale(.92)}48%{opacity:1;transform:scale(1.1)}}
+@keyframes entry-aura-breathe{0%,100%{opacity:.44;transform:scale(.9)}55%{opacity:.9;transform:scale(1.12)}}
+@keyframes entry-type-arrive{from{opacity:0}to{opacity:1}}
+@keyframes entry-curtain-away{0%,4%{opacity:1}21%,100%{opacity:0}}
+@keyframes entry-label-away{0%{opacity:1}12%,100%{opacity:0}}
+html[data-entry-gate=true] body.sound-entry-open .studio-home .studio-brand-heading{opacity:var(--entry-ui,0)!important;transition:none!important}
+html[data-entry-gate=true] :is(.header,.studio-entry,.studio-corner,.studio-orbit-tools,.studio-hint,.cube-sound-toggle,.interaction-sound-toggle){transition:opacity .65s ease}
+html[data-entry-gate=true] body.sound-entry-open :is(.header,.studio-entry,.studio-corner,.studio-orbit-tools,.studio-hint,.cube-sound-toggle,.interaction-sound-toggle){opacity:var(--entry-ui,0)!important;transition:none!important;pointer-events:none}
+html[data-entry-gate=true] body.sound-entry-open .studio.studio-home{background:#000}
+html[data-entry-gate=true] body.sound-entry-open .music-pointer-notes{visibility:hidden!important}
+@media(prefers-reduced-motion:reduce){#sound-entry *{animation:none!important;transition:none!important}}

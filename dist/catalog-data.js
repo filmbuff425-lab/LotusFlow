@@ -6,8 +6,8 @@ const tracks=[
     "title": "1 of LOV",
     "artist": "XLOV",
     "year": "2025",
-    "role": "LYRICS",
-    "credits": "Co-lyrics",
+    "role": "LYRICS / COMPOSITION",
+    "credits": "Co-lyrics · Co-composition",
     "categories": [
       "writing"
     ],
@@ -147,7 +147,7 @@ const tracks=[
     "title": "NEWs",
     "artist": "BENZO",
     "year": "2025",
-    "role": "PRODUCTION / SONGWRITING",
+    "role": "PRODUCTION / SONGWRITING / RECORDING",
     "credits": "Co-production · Arrangement · Programming · Co-lyrics · Co-composition · Recording",
     "categories": [
       "production",
@@ -219,7 +219,7 @@ const tracks=[
     "title": "Rendezvous",
     "artist": "Laurie",
     "year": "2025",
-    "role": "PRODUCTION / SONGWRITING / AUDIO",
+    "role": "PRODUCTION / SONGWRITING / RECORDING",
     "credits": "Production · Arrangement · Co-lyrics · Co-composition · Recording · Mixing · Mastering",
     "categories": [
       "production",
@@ -399,7 +399,7 @@ const tracks=[
     "title": "Right Here",
     "artist": "Gen1es EMMA",
     "year": "2025",
-    "role": "PRODUCTION / SONGWRITING / AUDIO",
+    "role": "PRODUCTION / SONGWRITING / RECORDING",
     "credits": "Production · Arrangement · Co-lyrics · Co-composition · Recording · Mixing · Mastering",
     "categories": [
       "production",
@@ -564,5 +564,5 @@ const tracks=[
 for(const t of tracks){Object.assign(t,window.lotusMedia[t.id]);t.image=t.cover?"/"+t.cover:t.image;if(t.audio?.startsWith("assets/"))t.audio="/"+t.audio;t.detailUrl="/works/"+t.id+".html";}
 window.lotusCatalog=tracks;
 window.lotusStudioSongIds=["lov", "show-me-love", "mirror", "bridge", "juliet", "cassette", "pick-a-side", "news", "train-to-nowhere", "feed-on", "airtight"];
-window.lotusFilms=["show-me-love", "mirror", "juliet", "say-it-to-me", "feed-on", "airtight", "flow", "wya", "jellyfish", "right-here"].map(id=>tracks.find(t=>t.id===id)).filter(t=>t?.video).map(t=>({...t,src:t.video.src,kind:t.video.kind,cover:t.image}));
+window.lotusFilms=["show-me-love", "mirror", "juliet", "say-it-to-me", "feed-on", "airtight", "wya"].map(id=>tracks.find(t=>t.id===id)).filter(t=>t?.video).map(t=>({...t,src:t.video.src,kind:t.video.kind,cover:t.image}));
 })();

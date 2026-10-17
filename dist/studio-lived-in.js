@@ -4,7 +4,7 @@ import {studioLayout} from './studio-layout.js?v=20261006-lake-surface1';
 export function createLivedInStudio(root){
  const set=new THREE.Group();set.name='Personal studio objects';root.add(set);
  const mat=(color,metalness=0,roughness=.55)=>new THREE.MeshStandardMaterial({color,metalness,roughness});
- const chrome=mat(0xbcbfba,.92,.22),black=mat(0x13120f,.1,.7),ivory=mat(0xf1e1be,0,.55),wood=mat(0x9b6132,0,.6),paper=mat(0xd7caae,0,.96);
+ const chrome=mat(0xbcbfba,.92,.22),black=mat(0x13120f,.1,.7),ivory=mat(0xf1e1be,0,.55),wood=mat(0x9b6132,0,.6);
  const add=(g,m,p,x=0,y=0,z=0)=>{const o=new THREE.Mesh(g,m);o.position.set(x,y,z);o.castShadow=o.receiveShadow=true;p.add(o);return o};
  const box=(p,w,h,d,x,y,z,m)=>add(new THREE.BoxGeometry(w,h,d),m,p,x,y,z);
  function line(p,points,r,m){return add(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points.map(v=>new THREE.Vector3(...v))),24,r,5,false),m,p)}
@@ -49,26 +49,5 @@ export function createLivedInStudio(root){
  const decal=add(new THREE.PlaneGeometry(10.4,6.62),new THREE.MeshBasicMaterial({map:logoMap,transparent:true,alphaTest:.1,side:THREE.DoubleSide,toneMapped:false,depthWrite:false}),set,-1,24.7,studioLayout.backWall+.07);decal.name='Pixel Lotus Flow glass decal';decal.castShadow=false;
  const haloMapCanvas=document.createElement('canvas');haloMapCanvas.width=64;haloMapCanvas.height=64;const hg=haloMapCanvas.getContext('2d'),glow=hg.createRadialGradient(32,32,0,32,32,32);glow.addColorStop(0,'#e838191c');glow.addColorStop(1,'#e8381900');hg.fillStyle=glow;hg.fillRect(0,0,64,64);
  const halo=add(new THREE.PlaneGeometry(15,10),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(haloMapCanvas),transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}),set,-1,24.7,studioLayout.backWall+.05);halo.castShadow=false;
- // An open studio notebook: curved paper, page edges, pencil and handwritten
- // arrangement notes. The ink is a continuous page texture, not generic bars.
- const notes=new THREE.Group();notes.name='Open handwritten arrangement notebook';notes.position.set(17.05,2.82,-4.50);notes.rotation.y=-.10;set.add(notes);
- box(notes,3.80,.075,2.66,0,.045,0,new THREE.MeshStandardMaterial({color:0x6b3e26,roughness:.68}));
- for(let i=0;i<5;i++)box(notes,3.69-i*.012,.011,2.54-i*.012,0,.091+i*.015,0,paper);
- const pageCanvas=document.createElement('canvas');pageCanvas.width=1536;pageCanvas.height=1024;const pg=pageCanvas.getContext('2d');
- pg.fillStyle='#e9e1cb';pg.fillRect(0,0,1536,1024);for(let i=0;i<17000;i++){const x=(i*73)%1536,y=(i*151)%1024;pg.fillStyle=i%2?'#ffffff12':'#6e634b09';pg.fillRect(x,y,1,1)}
- pg.strokeStyle='#bdb8a752';pg.lineWidth=1;for(let y=202;y<930;y+=62){pg.beginPath();pg.moveTo(62,y);pg.lineTo(703,y);pg.moveTo(824,y);pg.lineTo(1474,y);pg.stroke()}
- const ink=(text,x,y,size=31,angle=0)=>{pg.save();pg.translate(x,y);pg.rotate(angle);pg.fillStyle='#252822';pg.font=`italic 600 ${size*1.12}px cursive`;pg.fillText(text,0,0,630);pg.restore()};
- ink('Late-night ideas',78,132,46,-.024);ink('Session 07 / keep it human',91,186,22,.01);
- ['Intro — leave room to breathe','Verse   Em9 → A13','Less kick. More space.','Chorus: open up the harmony','Double the last line?','texture > perfection'].forEach((t,i)=>ink(t,91,273+i*100,i===0?29:30,(i%3-1)*.008));
- pg.strokeStyle='#5a574c';pg.lineWidth=3;pg.beginPath();pg.moveTo(92,587);pg.lineTo(620,578);pg.stroke();ink('try a softer take',335,566,23,-.035);
- ink('Chorus / vocal layers',838,139,39,.018);ink('1   lead      2   whisper      3   air',838,211,24);
- pg.lineWidth=1.5;for(let i=0;i<5;i++){pg.beginPath();pg.moveTo(847,278+i*22);pg.lineTo(1450,278+i*22);pg.stroke()}for(let i=0;i<8;i++){let x=898+i*69,y=310+(i%3-1)*11;pg.beginPath();pg.ellipse(x,y,10,7,-.4,0,Math.PI*2);pg.fill();pg.beginPath();pg.moveTo(x+9,y);pg.lineTo(x+9,y-62);pg.stroke()}
- ['A / B — listen without looking','Let the tail ring out.','No hard cut before the bridge.','one more pass tomorrow...'].forEach((t,i)=>ink(t,844,473+i*100,29,(i%2?-.008:.012)));
- pg.strokeStyle='#885443';pg.beginPath();pg.ellipse(1090,478,251,34,-.018,0,Math.PI*2);pg.stroke();ink('LF',1392,955,28,-.07);
- const gutter=pg.createLinearGradient(731,0,798,0);gutter.addColorStop(0,'#655c4600');gutter.addColorStop(.47,'#655c4640');gutter.addColorStop(.50,'#655c4660');gutter.addColorStop(.57,'#fff9e52b');gutter.addColorStop(1,'#655c4600');pg.fillStyle=gutter;pg.fillRect(731,0,67,1024);
- const pageMap=new THREE.CanvasTexture(pageCanvas);pageMap.colorSpace=THREE.SRGBColorSpace;pageMap.anisotropy=8;
- const pageGeo=new THREE.PlaneGeometry(3.68,2.54,48,24),pa=pageGeo.attributes.position,pu=pageGeo.attributes.uv;
- for(let i=0;i<pa.count;i++){const x=pa.getX(i),z=-pa.getY(i),v=pu.getY(i),y=.161+.068*Math.pow(Math.abs(x)/1.84,.55)+.020*Math.pow(Math.abs(x)/1.84,6)*Math.sin(v*3.14);pa.setXYZ(i,x,y,z)}pageGeo.computeVertexNormals();add(pageGeo,new THREE.MeshStandardMaterial({map:pageMap,roughness:.94,side:THREE.DoubleSide}),notes);
- const pencil=new THREE.Group();pencil.position.set(1.42,.25,.08);pencil.rotation.y=-.18;notes.add(pencil);const shaft=add(new THREE.CylinderGeometry(.033,.033,2.06,6),wood,pencil,0,0,0);shaft.rotation.x=Math.PI/2;const tip=add(new THREE.ConeGeometry(.033,.17,6),ivory,pencil,0,0,1.115);tip.rotation.x=Math.PI/2;const graphite=add(new THREE.ConeGeometry(.011,.057,6),black,pencil,0,0,1.211);graphite.rotation.x=Math.PI/2;
  return set;
 }

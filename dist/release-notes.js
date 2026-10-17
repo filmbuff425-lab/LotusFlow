@@ -141,12 +141,12 @@ export const releaseNotes={
     ]
   },
   "lov": {
-    "headline": "Lyrics for 1 of LOV.",
-    "intro": "I contributed lyrics to 1 of LOV, from XLOV’s 2025 release I ONE.",
+    "headline": "Lyrics and composition for 1 of LOV.",
+    "intro": "I contributed lyrics and composition to 1 of LOV, from XLOV’s 2025 release I ONE.",
     "focus": [
       [
         "SONGWRITING",
-        "Co-lyrics with WD and WUMUTI. Composition: QSTNMRKS / NIE."
+        "Co-lyrics · Co-composition"
       ],
       [
         "PROJECT",
@@ -335,7 +335,7 @@ export const releaseNotes={
         "Production, arrangement and shared lyrics and composition credits."
       ],
       [
-        "RECORDING & AUDIO",
+        "RECORDING",
         "Recording, mixing and mastering."
       ],
       [

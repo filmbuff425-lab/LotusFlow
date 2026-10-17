@@ -33,9 +33,10 @@ export function prepareStudioClay(){
  if(preparation)return preparation;
  preparation=(async()=>{
   if(typeof DecompressionStream!=='undefined'){
+   const download=new AbortController(),deadline=setTimeout(()=>download.abort(),8000);
    try{
     const geometries=await Promise.all(clayPresets.map(async({parts,k},index)=>{
-     const response=await fetch(new URL(`./assets/models/studio-clay-${index}-v1.mesh.gz`,import.meta.url));
+     const response=await fetch(new URL(`./assets/models/studio-clay-${index}-v1.mesh.gz`,import.meta.url),{signal:download.signal});
      if(!response.ok)throw new Error('Sculpture asset unavailable');
      const buffer=await new Response(response.body.pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
      const header=new DataView(buffer),geometry=new THREE.BufferGeometry();let offset=12;
@@ -47,7 +48,8 @@ export function prepareStudioClay(){
     }));
     for(const {key,geometry}of geometries)cache.set(key,geometry);
     return;
-   }catch{/* Keep the original worker as a compatibility and network fallback. */}
+   }catch{download.abort();/* Rebuild the same geometry locally when the network stalls. */}
+   finally{clearTimeout(deadline)}
   }
   await new Promise(resolve=>{
   if(typeof Worker==='undefined'){resolve();return}

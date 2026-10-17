@@ -3,7 +3,7 @@ import * as THREE from 'three';
 
 // Three reference objects, modelled as solids. Optical parts deliberately use
 // ordinary transparent shading: no transmission framebuffer or extra render pass.
-export function createStudioPersonalObjects({root,texture}){
+export async function createStudioPersonalObjects({yieldToPage=()=>Promise.resolve(),root,texture}){
  const group=new THREE.Group();group.name='Lotus Flow personal studio objects';root.add(group);
  const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
  const fract=n=>n-Math.floor(n),hash=(x,y)=>fract(Math.sin(x*127.1+y*311.7+17.3)*43758.5453123);
@@ -74,6 +74,7 @@ export function createStudioPersonalObjects({root,texture}){
  for(let i=0;i<14;i++){const a=(hash(i,2)-.5)*4.7,y=.43+hash(i,3)*1.68,r=radiusAt(y)+.018,s=.011+hash(i,7)*.020;gb.add(new THREE.SphereGeometry(s,8,6),clearGlass,[Math.sin(a)*r,y,Math.cos(a)*r],[0,0,0],[.85,1.15,.50],'Tiny condensation bead')}
  gb.finish();cup.userData.waterLine=1.325;cup.userData.height=2.2;cup.userData.front=[0,0,1];cup.userData.reference='IMG_4700 / left glass';cup.userData.transmissionPasses=0;
 
+ await yieldToPage();
  // A low hide lounge at left and an integrated thin timber platform at right.
  const lounge=new THREE.Group();lounge.name='Brown cowhide lounge with timber side platform';lounge.position.set(-25,0,5);group.add(lounge);const lb=builder(lounge);
  lb.add(pillow(4.64,.64,3.62,.21),hide,[-2.4,1.34,.42]);lb.add(pillow(4.63,3.12,.67,.23),hide,[-2.4,3.04,-1.52],[-.19,0,0]);
@@ -89,6 +90,7 @@ export function createStudioPersonalObjects({root,texture}){
  const sling=new THREE.Shape();sling.moveTo(-.71,.95);sling.lineTo(.71,.95);sling.lineTo(.68,.21);sling.quadraticCurveTo(.0,-.40,-.68,.21);sling.closePath();const slingGeo=new THREE.ExtrudeGeometry(sling,{depth:.032,bevelEnabled:false,curveSegments:14});slingGeo.rotateY(Math.PI/2);lb.add(slingGeo,strap,[4.66,.15,-.27]);
  lb.finish();lounge.userData.reference='IMG_4709';lounge.userData.platformSide='+X';lounge.userData.front=[0,0,1];lounge.userData.seatHeight=1.66;
 
+ await yieldToPage();
  // A folded throw rests diagonally on one seat corner. Its front fold
  // follows gravity over the cushion edge; most of the hide remains exposed.
  const woolMap=map(512,512,(g,w,h)=>{const im=g.createImageData(w,h);for(let y=0;y<h;y++)for(let x=0;x<w;x++){const weave=((x+y)%4<2?5:-5)+Math.sin((x-y)*.44)*2,n=(hash(x,y)-.5)*11,i=(x+y*w)*4;im.data.set([185+weave+n,176+weave+n,158+weave+n,255],i)}g.putImageData(im,0,0)});woolMap.repeat.set(3,3);woolMap.anisotropy=8;
@@ -103,6 +105,7 @@ export function createStudioPersonalObjects({root,texture}){
  const hemMat=new THREE.MeshStandardMaterial({color:0xa99e8b,roughness:1});for(const side of[0,1]){const pts=Array.from({length:49},(_,i)=>drape(side,i/48).toArray());lounge.add(new THREE.Mesh(tube(pts,.012,96),hemMat))}
  for(let i=0;i<29;i++){const p=drape((i+.5)/29,1),j=(hash(i,2)-.5)*.025;lounge.add(new THREE.Mesh(tube([p.toArray(),[p.x+j,p.y-.07,p.z+.013],[p.x+j*1.8,p.y-.16-hash(i,4)*.038,p.z+.017]],.0045,8),hemMat))}
 
+ await yieldToPage();
  function localBounds(object){object.updateMatrixWorld(true);const inverse=object.matrixWorld.clone().invert(),box=new THREE.Box3(),matrix=new THREE.Matrix4();object.traverse(mesh=>{if(!mesh.isMesh)return;mesh.geometry.computeBoundingBox();matrix.multiplyMatrices(inverse,mesh.matrixWorld);box.union(mesh.geometry.boundingBox.clone().applyMatrix4(matrix))});const result={min:box.min.toArray(),max:box.max.toArray(),size:box.getSize(new THREE.Vector3()).toArray()};object.userData.localBounds=result;return result}
  const bounds={chair:localBounds(chair),cup:localBounds(cup),lounge:localBounds(lounge)};
  group.userData.localBounds=bounds;group.userData.drawCalls=chair.userData.drawCalls+cup.userData.drawCalls+lounge.userData.drawCalls;group.userData.opticalTechnique='Geometry thickness, ordinary clearcoat and alpha; no transmission pass';

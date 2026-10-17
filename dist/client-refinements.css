@@ -26,6 +26,10 @@ html:lang(zh-CN) #profile-bio p{font-family:'Lotus Sarasa Mono SC','Lotus Space 
 .gallery .track-art .cd-hinge{display:block;position:absolute;z-index:2;top:1px;bottom:1px;left:6.2%;width:1.8%;border-inline:1px solid #c9d3d347;background:repeating-linear-gradient(90deg,#121616 0 1px,#b4c1c226 1px 2px);box-shadow:1px 0 2px #0009}
 @media(hover:hover) and (pointer:fine){.gallery .track:hover .track-art{transform:perspective(900px) translateY(-10px) rotateX(var(--sleeve-x,2deg)) rotateY(var(--sleeve-y,-2deg)) scale(1.025)}}
 .gallery .track:focus-visible .track-art{transform:perspective(900px) translateY(-8px) rotateX(2deg) rotateY(-2deg) scale(1.025)}
+@media(min-width:701px) and (hover:hover) and (pointer:fine){
+ .gallery .track:hover .track-art,.gallery .track:focus-visible .track-art{transform:perspective(900px) translateY(-14px) rotateX(3deg) rotateY(-3deg) scale(1.045)}
+ .gallery .track.is-sleeve-following .track-art{transform:perspective(900px) translateY(var(--sleeve-lift,0px)) rotateX(var(--sleeve-x,0deg)) rotateY(var(--sleeve-y,0deg)) scale(var(--sleeve-scale,1));transition:none}
+}
 .gallery .track.is-sleeve-pressed .track-art{transform:perspective(900px) translateY(-2px) rotateX(0deg) rotateY(0deg) scale(.962);transition-duration:.2s;transition-timing-function:cubic-bezier(.2,.75,.3,1)}
 /* A soft lift into the release, animated only with transform and opacity. */
 .cinema .release-dialog.from-gallery[open]{animation:sleeve-detail-in .52s cubic-bezier(.16,1,.3,1) both}
@@ -86,3 +90,8 @@ html:lang(zh-CN) :is(.about-copy,.release-intro,.release-description,.contributi
 body{font-family:var(--reading-font);font-variation-settings:normal}
 html:lang(zh-CN) body{font-family:'Lotus Sarasa Mono SC','Lotus Space Grotesk',sans-serif}
 :is(.profile-tabs button,.filters button,.view-switch button,.recognition-filters button,.header nav a,.studio-view-buttons button,.studio-hint,.studio-corner,.library-label,.library-caption,.inspector-meta,.recognition-eyebrow){font-family:var(--client-mono)!important}
+
+.record-signal{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0;transition:opacity .55s ease;z-index:5}
+.is-signal-playing .record-signal{opacity:1}
+.track-list:not(.gallery) .record-signal{display:none}
+@media(prefers-reduced-motion:reduce){.record-signal{transition:none}}

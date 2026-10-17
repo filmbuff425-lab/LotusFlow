@@ -50,38 +50,6 @@ export function createCuratedObjects(texture){
   const disc=cyl(g,.44,.058,0,.92,0,gold);disc.rotation.x=Math.PI/2;const rim=add(g,new THREE.TorusGeometry(.38,.014,8,48),gold,0,.92,.041);
   const emblem=texture(128,128,c=>{c.strokeStyle='#776543';c.lineWidth=4;for(let i=0;i<7;i++){const x=28+i*12,h=13+25*Math.sin(i*.9)**2;c.beginPath();c.moveTo(x,64-h);c.lineTo(x,64+h);c.stroke()}});add(g,new THREE.PlaneGeometry(.60,.60),new THREE.MeshStandardMaterial({map:emblem,transparent:true,alphaTest:.1,depthWrite:false,roughness:.7,polygonOffset:true,polygonOffsetFactor:-2}),0,.92,.044);return g;
  }
- function phone(parent,x,y,z,a=.15){
-  // Official iPhone 18 Pro proportions: 71.9 x 150 x 8.75 mm.
-  // https://www.apple.com/iphone-18-pro/specs/
-  const w=.84,h=w*150/71.9,depth=w*8.75/71.9;
-  const g=make('Silver iPhone 18 Pro / rounded unibody, glass and machined controls',parent,x,y+.059,z,1,a);g.rotation.x=.054;
-  const alloy=new THREE.MeshPhysicalMaterial({color:0xd8dcdf,metalness:.93,roughness:.26,clearcoat:.16});
-  const ceramic=new THREE.MeshPhysicalMaterial({color:0xd6d9da,metalness:.06,roughness:.29,clearcoat:.56});
-  const lens=new THREE.MeshPhysicalMaterial({color:0x071015,metalness:.25,roughness:.055,clearcoat:1});
-  const line=new THREE.MeshStandardMaterial({color:0x8d9295,metalness:.5,roughness:.33});
-  const round=(ww,hh,r)=>{const sh=new THREE.Shape(),xx=-ww/2,yy=-hh/2;sh.moveTo(xx+r,yy);sh.lineTo(xx+ww-r,yy);sh.quadraticCurveTo(xx+ww,yy,xx+ww,yy+r);sh.lineTo(xx+ww,yy+hh-r);sh.quadraticCurveTo(xx+ww,yy+hh,xx+ww-r,yy+hh);sh.lineTo(xx+r,yy+hh);sh.quadraticCurveTo(xx,yy+hh,xx,yy+hh-r);sh.lineTo(xx,yy+r);sh.quadraticCurveTo(xx,yy,xx+r,yy);return sh};
-  const flat=(ww,hh,d,r,m,px=0,py=0,pz=0)=>{const geo=new THREE.ExtrudeGeometry(round(ww,hh,r),{depth:d,bevelEnabled:true,bevelThickness:.004,bevelSize:.004,bevelSegments:3,curveSegments:16});geo.rotateX(-Math.PI/2);return add(g,geo,m,px,py,pz)};
-  flat(w,h,depth,.102,alloy);
-  flat(w-.016,h-.016,.004,.099,ceramic,0,-.004,0);
-  const face=texture(384,800,c=>{const grad=c.createLinearGradient(0,0,384,800);grad.addColorStop(0,'#18252e');grad.addColorStop(.55,'#482b34');grad.addColorStop(1,'#0c1118');c.fillStyle=grad;c.fillRect(0,0,384,800);c.fillStyle='#f2f4f7';c.textAlign='center';c.font='22px Arial';c.fillText('Monday, October 5',192,112);c.font='300 94px Arial';c.fillText('02:17',192,204);c.fillStyle='#000';c.beginPath();c.roundRect(153,17,78,22,11);c.fill();c.fillStyle='#20323e';c.beginPath();c.arc(216,28,5,0,7);c.fill();c.fillStyle='#ffffffc0';c.fillRect(126,775,132,5)});
-  const geo=new THREE.ShapeGeometry(round(w-.032,h-.032,.094),24);const uv=geo.attributes.uv,pos=geo.attributes.position;for(let i=0;i<uv.count;i++)uv.setXY(i,pos.getX(i)/(w-.032)+.5,pos.getY(i)/(h-.032)+.5);geo.rotateX(-Math.PI/2);
-  add(g,geo,new THREE.MeshPhysicalMaterial({map:face,roughness:.09,clearcoat:1,clearcoatRoughness:.035,metalness:.025}),0,depth+.006,0);
-  // The camera plateau supports the far end of the face-up phone on the desk.
-  const cameraZ=-h*.325;flat(w-.06,.46,.025,.08,alloy,0,-.030,cameraZ);
-  for(const [px,pz]of[[-.225,cameraZ-.105],[-.225,cameraZ+.105],[-.02,cameraZ]]){
-   cyl(g,.103,.030,px,-.047,pz,alloy);cyl(g,.087,.006,px,-.065,pz,dark);cyl(g,.065,.008,px,-.071,pz,lens);cyl(g,.030,.003,px,-.076,pz,lens);
-  }
-  cyl(g,.043,.005,.237,-.034,cameraZ-.105,new THREE.MeshStandardMaterial({color:0xe5e4d6,roughness:.30}));cyl(g,.029,.005,.237,-.034,cameraZ+.105,dark);
-  // Independent tactile controls, fine antenna breaks and a recessed USB-C opening.
-  for(const [side,pz,len]of[[-1,-.57,.105],[-1,-.34,.19],[-1,-.08,.19],[1,-.30,.26],[1,.35,.21]]){
-   const key=box(g,.012,.034,len,side*(w/2+.005),depth*.5,pz,alloy);box(g,.015,.002,len*.78,side*(w/2+.006),depth*.5+.018,pz,line);
-  }
-  for(const side of[-1,1])for(const pz of[-h*.30,h*.30])box(g,.008,depth+.006,.011,side*w/2,depth/2,pz,new THREE.MeshStandardMaterial({color:0xb8bec1,roughness:.6}));
-  const port=add(g,new THREE.ShapeGeometry(round(.13,.036,.015),12),dark,0,depth*.50,h/2+.004);
-  for(const side of[-1,1])for(let i=0;i<5;i++){const hole=add(g,new THREE.CircleGeometry(.009,12),dark,side*(.12+i*.039),depth*.50,h/2+.005)}
-  g.userData.dimensionsMM=[71.9,150,8.75];return g;
- }
-
  function bride(parent,x,y,z,s=1,a=0){
   const g=make('Kill Bill / yellow tracksuit collectible',parent,x,y,z,s,a),yellow=new THREE.MeshPhysicalMaterial({color:0xe5ba21,roughness:.62,bumpMap:rough,bumpScale:.006,clearcoat:.1}),skin=new THREE.MeshStandardMaterial({color:0xd5a989,roughness:.76}),hair=new THREE.MeshStandardMaterial({color:0xa6813c,roughness:.77});
   cyl(g,.51,.06,0,.03,0,dark);
@@ -99,5 +67,5 @@ export function createCuratedObjects(texture){
   // A narrow sheathed katana, scaled to a hand-held collectible.
   const sword=make('Miniature katana',g,.43,1.13,.12,1,-.18);sword.rotation.z=.50;box(sword,.043,.70,.043,0,-.28,0,dark);box(sword,.072,.035,.093,0,.09,0,gold);box(sword,.045,.21,.047,0,.20,0,dark);return g;
  }
- return{records,spirits,luxury,horse,medal,phone,bride};
+ return{records,spirits,luxury,horse,medal,bride};
 }

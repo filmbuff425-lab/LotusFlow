@@ -2,39 +2,21 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {createHash} from 'node:crypto';
+import {omitted,studies,excludeFromDeployment,auditDeploymentSource} from './deploy-policy.mjs';
 const {transform}=await import(process.env.LOTUS_ESBUILD_PATH?pathToFileURL(process.env.LOTUS_ESBUILD_PATH).href:'esbuild');
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const input=path.join(root,'dist'),output=path.join(root,'deploy');
-const revision='20261013-jewel-flow30';
-const duplicateAudio=[
- ['news','news'],['great-bridge','bridge'],['juliet','juliet'],['airtight','airtight'],
- ['lov','lov'],['adult','adult'],['flow','flow'],['feed-on','feed-on'],['show-me-love','show-me-love']
-].map(([original,canonical])=>[`assets/music/${original}.mp3`,`assets/music/${canonical}-20261006.mp3`]);
-// Omit an old filename only while its recording is exactly the same as the published copy.
-for(const [original,canonical] of duplicateAudio){
- const a=await fs.readFile(path.join(input,original)),b=await fs.readFile(path.join(input,canonical));
- if(!a.equals(b))throw new Error(`Audio copies differ; keep both recordings: ${original}, ${canonical}`);
-}
-// Unreferenced media stays local. Current recordings remain byte-for-byte intact.
-const omitted=new Set([...duplicateAudio.map(([original])=>original),'assets/brand-waterlight.svg','assets/mv/im-fine-20261006.mp4','assets/mv/airtight.mp4','assets/mv/feed-on.mp4','assets/mv/flow.mp4','assets/mv/juliet.mp4','assets/mv/show-me-love.mp4','assets/mv/show-me-love-20261006.mp4',
- 'flow-transition.js','home-particles.js','impact-intro.js','living-membrane.js','red-universe.js','release-notes.js','sound-cells.js','studio-botanical.js','studio-cd-player.js','studio-city.js','supernatural-type.js','universe-flight.js','universe.js',
- // A reverted phone-room experiment stays in source history, never in the public build.
- 'mobile-room-profile.js','studio-mobile-room.js']);
-const studies=['_bar-study.html','design-review/','entry-study/','entry-visual/','home-demos/'];
-const sourceText=[];
-async function collect(directory){for(const entry of await fs.readdir(directory,{withFileTypes:true})){const file=path.join(directory,entry.name),relative=path.relative(input,file).split(path.sep).join('/');if(omitted.has(relative)||studies.some(study=>relative===study||relative.startsWith(study)))continue;if(entry.isDirectory())await collect(file);else if(/\.(js|html|css|json)$/.test(file))sourceText.push(await fs.readFile(file,'utf8'))}}
-await collect(input);
-const combined=sourceText.join('\n');
-for(const relative of omitted)if(combined.includes(path.basename(relative)))throw new Error(`Cannot omit a referenced file: ${relative}`);
+const revision='20261017-studio-final47';
+const {omittedBytes}=await auditDeploymentSource(input);
 // Finish the entire build before touching a directory served by local previews.
 // Publish each file by rename, with new dependencies first and HTML last.
 const staging=await fs.mkdtemp(path.join(root,'.deploy-build-'));
-let originalText=0,publishedText=0,omittedBytes=0,copied=0;
+let originalText=0,publishedText=0,copied=0;
 const integrity=[];
 async function publish(directory){
  for(const entry of await fs.readdir(directory,{withFileTypes:true})){
   const from=path.join(directory,entry.name),relative=path.relative(input,from).split(path.sep).join('/');
-  if(entry.name==='.DS_Store'||omitted.has(relative)||studies.some(study=>relative===study||relative.startsWith(study))){if(entry.isFile())omittedBytes+=(await fs.stat(from)).size;continue}
+  if(excludeFromDeployment(relative))continue;
   if(entry.isDirectory()){await publish(from);continue}
   const to=path.join(staging,relative);await fs.mkdir(path.dirname(to),{recursive:true});const bytes=await fs.readFile(from);
   if(/\.(html|js|css)$/.test(relative)){

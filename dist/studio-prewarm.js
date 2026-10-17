@@ -1,3 +1,4 @@
+import {Group} from './vendor/three.module.js';
 import {waitForIdentityMotion,identityMotionActive} from './chapter-priority.js';
 // Count the original texels without encoding or copying any source canvas.
 export function studioTextureFootprint(objects){
@@ -15,7 +16,7 @@ export function studioTextureFootprint(objects){
 }
 
 // Upload original textures in small batches instead of blocking the glass reveal.
-export async function warmStudioTextures(renderer,objects,{now=()=>performance.now(),yieldFrame=()=>new Promise(resolve=>requestAnimationFrame(resolve)),budgetMs=8}={}){
+export async function warmStudioTextures(renderer,objects,{now=()=>performance.now(),yieldFrame=()=>new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,0))),budgetMs=5}={}){
  const textures=new Set();
  for(const root of objects)root?.traverse(object=>{
   for(const material of Array.isArray(object.material)?object.material:[object.material]){
@@ -38,7 +39,7 @@ export async function warmStudioTextures(renderer,objects,{now=()=>performance.n
 }
 
 // Keep first-use buffer uploads out of a single long visible frame.
-export async function warmStudioGeometry(renderer,scene,camera,roots,target,{yieldFrame=()=>new Promise(resolve=>requestAnimationFrame(resolve)),batchSize=64}={}){
+export async function warmStudioGeometry(renderer,scene,camera,roots,target,{yieldFrame=()=>new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,0))),batchSize=24}={}){
  const objects=[];
  function visit(object){if(!object.visible)return;if(object.isMesh||object.isPoints||object.isLine)objects.push(object);for(const child of object.children)visit(child)}
  for(const root of roots)for(const child of root.children)visit(child);
@@ -64,4 +65,22 @@ export async function warmStudioGeometry(renderer,scene,camera,roots,target,{yie
   roots.forEach((root,index)=>root.visible=rootVisibility[index]);renderer.shadowMap.needsUpdate=shadowUpdate;
  }
  return{objects:objects.length,batches:Math.ceil(objects.length/batchSize)};
+}
+
+// compileAsync still walks/prepares every material synchronously before its Promise.
+// Bound that first pass too, using one representative of each distinct material.
+export async function warmStudioPrograms(renderer,scene,camera,roots,{yieldFrame=()=>new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,0))),batchSize=8,now=()=>performance.now()}={}){
+ const representatives=[],materials=new Set();
+ for(const root of roots)root.traverse(object=>{if(!object.isMesh&&!object.isPoints&&!object.isLine)return;const keys=Array.isArray(object.material)?object.material:[object.material];if(keys.some(m=>!materials.has(m))){representatives.push(object);keys.forEach(m=>materials.add(m))}});
+ const visibility=roots.map(o=>o.visible);let longest=0;
+ for(let start=0;start<representatives.length;start+=batchSize){
+  if(identityMotionActive())await waitForIdentityMotion();
+  // Three.compile traverses invisible children too. A separate, shallow batch
+  // is essential; hiding the other meshes still recompiles the entire room.
+  const batch=new Group();for(const object of representatives.slice(start,start+batchSize))batch.add(object.clone(false));
+  let task;const at=now();
+  try{roots.forEach(o=>o.visible=true);task=renderer.compileAsync(batch,camera,scene)}finally{roots.forEach((o,i)=>o.visible=visibility[i])}
+  longest=Math.max(longest,now()-at);await task;await yieldFrame();
+ }
+ return{materials:materials.size,batches:Math.ceil(representatives.length/batchSize),longestMs:+longest.toFixed(1)};
 }

@@ -1,3 +1,4 @@
+import {mountRecordSignals} from './record-signals.js';
 import {mobileAsset} from './device-profile.js';
 import {loadHook,previewEnded,cancelHook} from './preview-hooks.js?v=20261007-mobile3';
 import {mountCollaborators} from './collaborators.js?v=20261006-lake-surface1';
@@ -9,6 +10,7 @@ export function initReleasePlayer(api){
  const signal=createMusicSignal(audio);
  let closingTimer=0;
  let current=null,trigger=null,request=0,hoverTimer=0,leaveTimer=0,fadeFrame=0,unlocked=false,previewing=false,hoverMuted=false,arming=false,hookLoop=false;
+ mountRecordSignals({audio,signal,current:()=>current,active:()=>previewing&&!dialog.open&&!document.getElementById('track-list').hidden&&document.getElementById('track-list').classList.contains('gallery')});
  const soundButton=document.createElement('button');soundButton.className='hover-sound mono';soundButton.textContent='HOVER SOUND / ENABLE';soundButton.setAttribute('aria-pressed','false');document.querySelector('.work-controls').append(soundButton);
  const live=document.createElement('span');live.className='hover-listening mono';live.setAttribute('role','status');document.querySelector('.vinyl-footnote').append(live);
  const status=text=>{const el=content.querySelector('.release-status');if(el)el.textContent=text};
@@ -18,9 +20,10 @@ export function initReleasePlayer(api){
  function rememberUnlocked(){unlocked=true;soundButton.classList.remove('needs-gesture');soundButton.textContent='HOVER SOUND / ON';soundButton.setAttribute('aria-pressed','true')}
  function silence(){const b=new Uint8Array(844),v=new DataView(b.buffer);for(const [s,o]of[['RIFF',0],['WAVE',8],['fmt ',12],['data',36]])for(let i=0;i<s.length;i++)b[o+i]=s.charCodeAt(i);v.setUint32(4,836,true);v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,8000,true);v.setUint32(28,8000,true);v.setUint16(32,1,true);v.setUint16(34,8,true);v.setUint32(40,800,true);b.fill(128,44);return 'data:audio/wav;base64,'+btoa(String.fromCharCode(...b))}
  function unlock(){
-  if(hoverMuted||arming)return;signal.arm();if(unlocked)return;
+  if(hoverMuted)return;signal.arm();if(unlocked)return;
   // The same media element is unlocked on the first real gesture, before a record is opened.
   if(current){if(previewing&&audio.paused)play(true);return}
+  if(arming)return;
   arming=true;audio.src=silence();audio.volume=0;const ticket=request;
   audio.play().then(()=>{rememberUnlocked();if(request===ticket&&!current)audio.pause()}).catch(()=>{}).finally(()=>{arming=false});
  }

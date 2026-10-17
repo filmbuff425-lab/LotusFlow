@@ -1,10 +1,34 @@
-// Uneven pen gestures: each contour and line weight is deliberately different.
-const icons={music:'<path d="M23.6 5.3C14.4 4.1 5.4 11.6 5.9 23.5c-.8 10.8 7.8 19 18.6 18.1 11.8 1.2 19-9.1 17.4-19.1C42.5 12.2 35.2 4.2 23.6 5.3Z"/><path d="M21.8 11.8c-8.1.5-12.6 7.1-10.5 15.2m23.9-12.1c4.6 5.7 3.9 14.3-1.6 18.6M18.6 32.7c-2.5-1.3-3.9-3.8-4-6.4"/><path class="pen-bold" d="m23.5 15.1-.5 14.2c-3.4-2.7-8.4 1.1-6.2 4.1 3.1 3.1 7 .3 6.6-3.3m.3-14.4 9.3-2.9-.2 12.8c-3.7-2-7.2 1.2-5.3 3.8 2.5 2.6 5.7-.3 5.2-3.5"/><path class="portal-tick" d="m40.2 6.1 1.9-3.8m-34 1.4 1.1 2.5"/>',
-films:'<path class="marker-body" d="M8.1 21.7c-.8 3.4.1 7.2-.4 10.3-.4 3.1-.3 6.7.5 10.2 5.6-.8 10.5-.1 15.8-.7 5.4-.5 11.1.4 15.8-1.2-.1-4.4.4-7.5-.2-10.8-.5-3.4.4-6.4-.8-9.7-5.2 1.2-10.9.7-15.3 1.3-5 .8-10.7-.1-15.4.6Z"/><path class="marker-light" d="M7.8 19.5c-1.6-1.5-1.9-4.5-2.8-6.2 5.2-1 10.7-2.4 15.2-4 4.6-1.5 9.4-2.2 14.8-3.6 1.5 2.2 1.6 4.4 2.9 6.5-4.6 1.6-10.6 2.3-15.5 3.7-4.7 1.4-9.6 2.5-14.6 3.6m3.4-7.4c.8 1.2 1.7 2.2 2 3.7m5.5-5.8c.6 1.5 2 2.5 2.2 4m5.6-6.3c1.1 1.3 1.7 2.4 2.2 3.7"/><path class="marker-play" d="M19.9 27.1c2.1 1.9 5.4 2.7 8.1 4.5-2.4 1.5-6.1 3.7-8.5 5.1.5-3.5-.5-6.5.4-9.6Z"/><path class="marker-light" d="M3.6 20.7c1 .7 1.5 1.7 1.8 2.6m33.2-8.8c1.3-1.2 2.9-1.7 4.3-2.8m-3.7-4.8c.3-1.3 1.4-2.6 1.2-3.7"/>',
-collaborators:'<path class="marker-body" d="M14.5 7.6c-5.3-.9-8.9 4.1-8.2 8.8.2 5.3 5.8 7.5 10.1 6.4 4.7-1.2 6.1-6.5 4.5-10.9-1.1-2.8-3.2-4.3-6.4-4.3Zm20.4 3.9c-4.3-1.1-7.6 2.5-7.1 6.3-.2 4.6 4.2 7.3 8.1 5.6 3.8-.8 4.9-5.7 3.4-8.7-1.2-2.1-2.5-2.9-4.4-3.2Z"/><path class="marker-light" d="M9.4 6.8C10.1 4.3 12.5 4 14 6c-.5-2.4 1.4-4.1 3.1-2.4m17.3 6c1.4-2.1 4-1.8 4.7.6M9.7 17.3c1.3 2.4 4.4 3 7 .2m14.6 2c1.8 1.5 3.7 1.4 5.5-.2"/><path class="marker-dot" d="M10.7 12.9c.5-.3 1.5.1 1.1.9-.8.8-1.8.1-1.1-.9Zm6.1-.4c.5-.4 1.4 0 1.1.7-.6.9-1.8.3-1.1-.7Zm14.7 2.4c.6-.2 1.3.4.8 1-.8.6-1.5-.1-.8-1Zm4.9.5c.6-.4 1.4.1 1 .8-.7.6-1.6-.1-1-.8Z"/><path class="marker-body" d="M3.5 39.4c.5-2.6.1-6.2 1.4-8.8 1.6-4 5.7-5.6 9.9-4.8 6.2-.6 9.5 5.2 9.1 10.2-.1 2.6.6 4.7-.2 7m7.2-15.4c4.4-1.5 8.8.7 10.5 4.2 1.4 2.4.9 5.2 1.7 7.2"/><path class="marker-light" d="M18.8 28.5c3-1.1 4.4-4.4 6-7m5.9 7.1c-2.8-1.5-3.7-4.2-5.4-7.1m-2.5-1.2c1.1-1.3 2.7-1.5 3.4.2.9 1.7-.7 3-1.9 2.1M9.4 42.2c1.9-.6 4.4.4 6.4-.1m17.6-1.5c1.7.9 4.2-.2 5.6.4"/>'};
+// Shared particle glyphs on the Discography chapter and its archive pages.
+const reduced=matchMedia('(prefers-reduced-motion: reduce)'),items=[];let frame=0,last=0;
+function shape(kind){
+ const points=[];const line=(a,b,n=24)=>{for(let i=0;i<n;i++){const t=i/(n-1);points.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t])}};
+ const arc=(cx,cy,rx,ry,from=0,to=Math.PI*2,n=42)=>{for(let i=0;i<n;i++){const a=from+(to-from)*i/(n-1);points.push([cx+Math.cos(a)*rx,cy+Math.sin(a)*ry])}};
+ if(kind==='films'){
+  line([12,19],[50,19]);line([50,19],[50,47],18);line([50,47],[12,47]);line([12,47],[12,19],18);
+  line([27,26],[39,33],14);line([39,33],[27,40],14);line([27,40],[27,26],16);
+  line([12,15],[47,8]);line([13,12],[48,5]);for(let i=0;i<5;i++)line([16+i*7,12-i*1.4],[18+i*7,15-i*1.4],5);
+ }else if(kind==='collaborators'){
+  arc(24,23,7,8);arc(43,25,5.8,6.8);arc(24,47,13,14,Math.PI,Math.PI*2);arc(43,48,10,12,Math.PI*1.35,Math.PI*2);
+  line([27,37],[35,33],14);line([33,31],[35,33],5);
+ }else{arc(32,32,23,23,0,Math.PI*2,100);arc(32,32,15,15,0,Math.PI*2,70);arc(32,32,3,3,0,Math.PI*2,20)}
+ return points.map(([x,y],i)=>({x,y,phase:i*2.3999,size:i%13===0?.75:.45}));
+}
+function wake(){if(!frame&&!document.hidden&&items.some(i=>i.visible))frame=requestAnimationFrame(draw)}
+function draw(now){frame=0;if(document.hidden)return;if(now-last<32){wake();return}last=now;
+ for(const item of items){if(!item.visible)continue;const {canvas,ctx,points}=item,t=reduced.matches?0:now*.001;ctx.clearRect(0,0,128,128);ctx.globalCompositeOperation='lighter';
+  for(const p of points){const wave=Math.sin(t*1.6+p.phase),spread=item.hover?.35:.8,x=p.x+Math.cos(p.phase+t*.6)*spread,y=p.y+Math.sin(p.phase+t*.9)*spread;
+   ctx.globalAlpha=.42+.52*(.5+.5*wave);ctx.fillStyle=p.phase%3<1?'#e8cfb2':'#f8eee1';ctx.beginPath();ctx.arc(x*2,y*2,(p.size+(item.hover?.12:0))*2,0,Math.PI*2);ctx.fill();
+   if(p.size>.7){ctx.globalAlpha*=.14;ctx.beginPath();ctx.arc(x*2,y*2,5,0,Math.PI*2);ctx.fill()}
+  }
+ }
+ if(!reduced.matches)wake();
+}
+const observer=new IntersectionObserver(entries=>{for(const e of entries){const item=items.find(i=>i.link===e.target);if(item)item.visible=e.isIntersecting}wake()});
 for(const a of document.querySelectorAll('a[href]')){
  const u=new URL(a.href,location.href),kind=/\/films\/$/.test(u.pathname)?'films':/\/collaborators\/$/.test(u.pathname)?'collaborators':/\/works\/$/.test(u.pathname)?'music':null;
- if(!kind||a.classList.contains('skip')||a.hasAttribute('data-discography-back')||a.classList.contains('record-portal')||a.classList.contains('visual-entrance')||a.classList.contains('archive-brand'))continue;
- a.classList.add('visual-entrance',`entrance-${kind}`);a.dataset.iconStyle='childlike-marker';
- const icon=document.createElementNS('http://www.w3.org/2000/svg','svg');icon.setAttribute('viewBox','0 0 48 48');icon.setAttribute('aria-hidden','true');icon.classList.add('entrance-symbol');icon.innerHTML=icons[kind];a.prepend(icon);
+ if(!kind||a.closest('.header,.archive-header')||a.classList.contains('skip')||a.hasAttribute('data-discography-back')||a.classList.contains('record-portal')||a.classList.contains('visual-entrance')||a.classList.contains('archive-brand'))continue;
+ a.classList.add('visual-entrance',`entrance-${kind}`);a.dataset.iconStyle='particle-glyph';const canvas=document.createElement('canvas');canvas.width=canvas.height=128;canvas.className='entrance-symbol';canvas.setAttribute('aria-hidden','true');a.prepend(canvas);
+ const item={link:a,canvas,ctx:canvas.getContext('2d'),points:shape(kind),visible:false,hover:false};if(!item.ctx)continue;items.push(item);observer.observe(a);
+ for(const event of ['pointerenter','focus'])a.addEventListener(event,()=>{item.hover=true;wake()});for(const event of ['pointerleave','blur'])a.addEventListener(event,()=>{item.hover=false;wake()});
 }
+document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(frame);frame=0}else wake()});reduced.addEventListener('change',wake);

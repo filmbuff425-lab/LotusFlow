@@ -9,7 +9,7 @@ import {createGlazing} from './studio-glass.js?v=20261006-lake-surface1';
 import {studioLayout} from './studio-layout.js?v=20261006-lake-surface1';
 import {createReferenceObjects} from './studio-reference-objects.js?v=20261007-mobile3';
 
-export function createRecordingRoom({root,renderer,texture,camera,scene}){
+export async function createRecordingRoom({root,renderer,texture,camera,scene,yieldToPage=()=>Promise.resolve()}){
  const room=new THREE.Group();root.add(room);const architecture=new THREE.Group();architecture.scale.set(...studioLayout.architectureScale);room.add(architecture);const back=new THREE.Group(),left=new THREE.Group(),ceiling=new THREE.Group();architecture.add(back,left,ceiling);
  const mesh=(geo,mat,p,x=0,y=0,z=0)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;p.add(m);return m};
  const box=(w,h,d,x,y,z,mat,p=room)=>mesh(new THREE.BoxGeometry(w,h,d),mat,p,x,y,z);
@@ -55,7 +55,9 @@ export function createRecordingRoom({root,renderer,texture,camera,scene}){
  const acrylic=new THREE.MeshPhysicalMaterial({color:0xd9e5df,transparent:true,opacity:.11,metalness:.04,roughness:.09,clearcoat:1,depthWrite:false});
  const edge=new THREE.LineBasicMaterial({color:0xd2e2df,transparent:true,opacity:.55});
  const objects=createReferenceObjects(texture);
+ await yieldToPage();
  const glassRecords=createGlassRecords({parent:room,texture,backWall:studioLayout.backWall,objects});
+ await yieldToPage();
  const mvWall=createMVWall({parent:room,texture,wallX:studioLayout.mvWallX});
  recordTargets.push(...glassRecords.targets,...mvWall.targets);
  // A single raised listening shelf. Four open jackets have physical front
@@ -64,7 +66,9 @@ export function createRecordingRoom({root,renderer,texture,camera,scene}){
  box(33,.10,2.2,0,17.50,0,acrylic,vinylWall);
  for(const x of[-12.3,12.3]){box(.08,.09,1.7,x,17.40,-.28,bronze,vinylWall);box(.20,.8,.09,x,17.05,-1.09,bronze,vinylWall);}
  const sleevePaper=new THREE.MeshStandardMaterial({color:0xd6d0bf,roughness:.92});
+ await yieldToPage();
  for(const [i,id] of ['bridge','train-to-nowhere','lov','juliet'].entries()){
+  await yieldToPage();
   const track=window.lotusCatalog.find(t=>t.id===id),art=coverLoader.load(track.image);art.colorSpace=THREE.SRGBColorSpace;art.anisotropy=8;
   const g=new THREE.Group();g.name='Hollow record jacket / '+track.title;g.scale.setScalar(.82);g.position.set(-10.2+i*6.8,19.7025,.10);vinylWall.add(g);
   const backMap=texture(512,512,g=>{g.fillStyle='#ddd6c5';g.fillRect(0,0,512,512);g.fillStyle='#343937';g.font='20px monospace';g.fillText(track.title.toUpperCase(),42,68);g.font='13px monospace';g.fillText(track.artist.toUpperCase(),42,105);for(let n=0;n<6;n++){g.fillRect(42,160+n*27,130+n%3*36,3)}for(let n=0;n<35;n++)g.fillRect(380+n*2.2,407,n%3?1:2,46);});
@@ -86,6 +90,7 @@ export function createRecordingRoom({root,renderer,texture,camera,scene}){
  // The right-side tape machine and stand are removed for the lounge.
  createStudioLamps({root,room,texture});
  // Sparse curved stems reach the blade area of the rear Kill Bill poster.
+ await yieldToPage();
  const rearPlant=createReferenceMarginata(texture);rearPlant.position.set(-33.0,0,studioLayout.backWall+3.287);rearPlant.rotation.y=.1;room.add(rearPlant);root.userData.rearPlant=({species:'Dracaena marginata',position:rearPlant.position.toArray(),height:19.1,bladeArea:[15.5,19.5]});
  function update(now,p=1){back.visible=left.visible=ceiling.visible=true;rearPlant.userData.update(now*.001);candles.userData.update(now*.001);glassRecords.update(now);mvWall.update(now);glazing.update(now,p>.995);}
  return{room,update,recordTargets,glassRecords,mvWall};

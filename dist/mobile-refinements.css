@@ -8,10 +8,7 @@ html{font-variant-emoji:text}
 .cinema #about[data-artist-locked=true]{height:calc(100svh - 82px);min-height:700px}
 .cinema #about[data-artist-locked=true] .artist-gate{inset:34px 4%;height:calc(100% - 68px)}
 .identity-score-toggle{font-size:10px;padding:9px 13px;min-height:36px}
-.work-destinations a{font-size:10.5px;gap:9px}
-.work-destinations .entrance-symbol{width:26px;height:26px}
-.archive-paths>a.visual-entrance{grid-template-columns:34px minmax(0,1fr);column-gap:13px;font-size:clamp(18px,1.9vw,24px);padding:30px 30px 30px 0}
-.archive-paths .entrance-symbol{width:30px;height:30px}
+.archive-paths>a.visual-entrance{grid-template-columns:64px minmax(0,1fr);column-gap:13px;font-size:clamp(18px,1.9vw,24px);padding:30px 30px 30px 0}
 .cosmic-archive .archive-paths>a.visual-entrance>span{font-size:9px;margin-bottom:6px}
 .archive-paths>a.visual-entrance>b{font-size:17px;bottom:31px}
 @media(max-width:700px){
@@ -20,7 +17,8 @@ html{font-variant-emoji:text}
  .cinema .header .wordmark.brand-planet,.archive-header .archive-brand{grid-column:1;grid-row:1;width:72px;height:44px;margin:0;align-self:center}
  .cinema .header .brand-motion{left:0;width:72px;height:44px}
  .cinema .header .brand-motion img,.archive-header .archive-brand img{width:72px;height:44px;object-fit:contain}
- .cinema .header nav,.archive-header nav{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));grid-column:1/3;grid-row:2;width:100%;margin:0;gap:0;align-items:stretch}
+ .cinema .header nav,.archive-header nav{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));grid-column:1/3;grid-row:2;width:100%;margin:0;gap:0;align-items:stretch}
+ .archive-header nav .nav-number{display:none}
  .cinema .header nav>a,.cinema .header nav>.records-menu>summary,.archive-header nav>a,.archive-header nav>.records-menu>summary{display:flex!important;align-items:center;justify-content:center;width:100%;height:44px;min-height:44px;padding:8px 6px!important;font-size:12px!important;line-height:1.2;letter-spacing:.01em;white-space:nowrap;border-left:1px solid #43271f}
  .cinema .header nav>a:first-child,.archive-header nav>a:first-child{border-left:0}
  .cinema .header nav>.records-menu,.archive-header nav>.records-menu{min-width:0;height:44px}
@@ -83,3 +81,5 @@ html{font-variant-emoji:text}
  .cinema .record-portal .portal-label strong{font-size:30px}
  .cinema .record-portal .portal-label small{font-size:9px}
 }
+
+@media(max-width:750px){.cinema .header nav>a.discography-nav,.archive-header nav>a.discography-nav{font-size:10px!important;letter-spacing:-.035em;padding-inline:2px!important}}

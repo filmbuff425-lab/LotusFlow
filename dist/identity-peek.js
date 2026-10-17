@@ -13,7 +13,7 @@ export function identityLightFrame(time,{contact,duration},entry=.4){
 
 // Reuse the opening's two existing poster canvases. The gap is only light;
 // the profile stays covered and inert until the actual cut.
-export function createIdentityPeek({gate,canvases,liquids}){
+export function createIdentityPeek({gate,canvases,liquids,getViewport=()=>({width:innerWidth,height:innerHeight})}){
  const homes=canvases.map(canvas=>canvas.parentElement),panels=canvases.map((canvas,i)=>{
   const panel=document.createElement('span');panel.className=`gate-cover-half gate-cover-${i?'right':'left'}`;panel.setAttribute('aria-hidden','true');gate.append(panel);return panel;
  });
@@ -53,10 +53,10 @@ export function createIdentityPeek({gate,canvases,liquids}){
  }
  function size(){
   if(phase!=='gate'){
-   const scar=fittedScar(innerWidth,innerHeight,innerWidth,innerHeight);
-   scatter(scar,innerWidth,innerHeight);
-   if(phase==='arrived'){spill.style.height=`${innerHeight}px`;diffuse(1)}
-   else{slit(scar,innerWidth,innerHeight);const dx=scar.bottom-scar.top,len=Math.hypot(dx,innerHeight);destination.style.setProperty('--aperture-x',`${innerHeight/len*entryDistance}px`);destination.style.setProperty('--aperture-y',`${-dx/len*entryDistance}px`)}
+   const {width,height}=getViewport(),scar=fittedScar(width,height,width,height);
+   scatter(scar,width,height);
+   if(phase==='arrived'){spill.style.height=`${height}px`;diffuse(1)}
+   else{slit(scar,width,height);const dx=scar.bottom-scar.top,len=Math.hypot(dx,height);destination.style.setProperty('--aperture-x',`${height/len*entryDistance}px`);destination.style.setProperty('--aperture-y',`${-dx/len*entryDistance}px`)}
    return;
   }
   const w=gate.clientWidth,h=gate.clientHeight;if(!w||!h)return;

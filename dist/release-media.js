@@ -134,11 +134,7 @@ Object.assign(window.lotusMedia, Object.fromEntries(Object.entries({
   "right-here": {
     "audio": "assets/music/right-here-20261006.mp3",
     "audioKind": "full",
-    "cover": "assets/releases/right-here-20261006.jpg",
-    "video": {
-      "src": "/assets/mv/right-here-20261006.mp4",
-      "kind": "OFFICIAL MUSIC VIDEO"
-    }
+    "cover": "assets/releases/right-here-20261006.jpg"
   },
   "im-fine": {
     "audio": "assets/music/im-fine-20261006.mp3",
@@ -162,11 +158,7 @@ Object.assign(window.lotusMedia, Object.fromEntries(Object.entries({
   "jellyfish": {
     "audio": "assets/music/jellyfish-20261006.mp3",
     "audioKind": "full",
-    "cover": "assets/releases/jellyfish-20261006.jpg",
-    "video": {
-      "src": "/assets/mv/jellyfish-20261006.mp4",
-      "kind": "ANIMATED MUSIC VIDEO"
-    }
+    "cover": "assets/releases/jellyfish-20261006.jpg"
   },
   "mirror": {
     "audio": "assets/music/mirror-20261006.mp3",
@@ -180,11 +172,7 @@ Object.assign(window.lotusMedia, Object.fromEntries(Object.entries({
   "flow": {
     "audio": "assets/music/flow-20261006.mp3",
     "audioKind": "full",
-    "cover": "assets/releases/flow-20261006.jpg",
-    "video": {
-      "src": "/assets/mv/flow-20261006.mp4",
-      "kind": "OFFICIAL MUSIC VIDEO"
-    }
+    "cover": "assets/releases/flow-20261006.jpg"
   },
   "say-it-to-me": {
     "audio": "assets/music/say-it-to-me-20261006.mp3",

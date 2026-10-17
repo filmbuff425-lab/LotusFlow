@@ -1,4 +1,5 @@
 window.LotusTranslations={
+  "Interactive 3D recording studio. Drag to look around, use the plus and minus buttons to zoom, and select a view below.": {"en":"Interactive 3D recording studio. Drag to look around, use the plus and minus buttons to zoom, and select a view below.","zh":"互动三维录音室。拖动环视，使用加减按钮缩放，并在下方选择视角。"},
   "Interactive audio demo, not stems from a Lotus Flow release. Try the eight-channel mixer below.": {
     "zh": "这是互动音频演示，并非 Lotus Flow 作品的分轨。你也可以试试下方的八轨混音台。",
     "en": "Interactive audio demo, not stems from a Lotus Flow release. Try the eight-channel mixer below."
@@ -155,9 +156,9 @@ window.LotusTranslations={
     "zh": "专辑制作人：《不完美大人·出逃计划》。录音来自艺人提供的专辑资料。",
     "en": "Album producer: 不完美大人·出逃计划. Recording from the artist-supplied album collection."
   },
-  "XLOV is a four-member multinational group with Wumuti, Rui, Hyun and Haru. The group debuted on 7 January 2025. “1 of LOV” appears on I ONE, released that June, with Lotus Flow contributing to the lyrics.": {
-    "zh": "XLOV 由 Wumuti、Rui、Hyun 和 Haru 四位成员组成，于 2025 年 1 月 7 日出道。《1 of LOV》收录于同年 6 月发行的《I ONE》，Lotus Flow 参与作词。",
-    "en": "XLOV is a four-member multinational group with Wumuti, Rui, Hyun and Haru. The group debuted on 7 January 2025. “1 of LOV” appears on I ONE, released that June, with Lotus Flow contributing to the lyrics."
+  "XLOV is a four-member multinational group with Wumuti, Rui, Hyun and Haru. The group debuted on 7 January 2025. “1 of LOV” appears on I ONE, released that June, with Lotus Flow contributing lyrics and composition.": {
+    "zh": "XLOV 由 Wumuti、Rui、Hyun 和 Haru 四位成员组成，于 2025 年 1 月 7 日出道。《1 of LOV》收录于同年 6 月发行的《I ONE》，Lotus Flow 参与作词与作曲。",
+    "en": "XLOV is a four-member multinational group with Wumuti, Rui, Hyun and Haru. The group debuted on 7 January 2025. “1 of LOV” appears on I ONE, released that June, with Lotus Flow contributing lyrics and composition."
   },
   "I’m a Chinese producer, songwriter and artist based in Los Angeles. My work moves between electronic music, pop, experimental sound and visual world-building. I trained in classical piano from age five and earned my degree in Electronic Music Production and Sound Design at Berklee College of Music.": {
     "zh": "我是一名常驻洛杉矶的中国音乐制作人、词曲作者及艺人，创作涵盖电子音乐、流行音乐、实验声音与视觉叙事。自五岁起接受古典钢琴训练，毕业于伯克利音乐学院电子音乐制作与声音设计专业。",
@@ -675,6 +676,10 @@ window.LotusTranslations={
     "en": "ON THE DECK",
     "zh": "正在播放"
   },
+  "ENABLE HOVER SOUND TO LISTEN":{"en":"ENABLE HOVER SOUND TO LISTEN","zh":"开启悬停试听，即可聆听"},
+  "EXPLORE DISCOGRAPHY": {"en":"EXPLORE DISCOGRAPHY","zh":"查看完整作品"},
+  "Explore Discography": {"en":"Explore Discography","zh":"查看完整作品"},
+  "Explore the full discography": {"en":"Explore the full discography","zh":"探索完整作品目录"},
   "EVERY COLLABORATION. EVERY RELEASE.": {
     "en": "EVERY COLLABORATION. EVERY RELEASE.",
     "zh": "每一次合作，每一张作品。"
@@ -1027,13 +1032,13 @@ window.LotusTranslations={
     "en": "Let’s work together.",
     "zh": "一起创作。"
   },
-  "Lyrics for 1 of LOV.": {
-    "en": "Lyrics for 1 of LOV.",
-    "zh": "《1 of LOV》的歌词创作。"
+  "Lyrics and composition for 1 of LOV.": {
+    "en": "Lyrics and composition for 1 of LOV.",
+    "zh": "《1 of LOV》的词曲创作。"
   },
-  "I contributed lyrics to 1 of LOV, from XLOV’s 2025 release I ONE.": {
-    "en": "I contributed lyrics to 1 of LOV, from XLOV’s 2025 release I ONE.",
-    "zh": "我参与了 XLOV 2025 年《I ONE》中《1 of LOV》的歌词创作。"
+  "I contributed lyrics and composition to 1 of LOV, from XLOV’s 2025 release I ONE.": {
+    "en": "I contributed lyrics and composition to 1 of LOV, from XLOV’s 2025 release I ONE.",
+    "zh": "我参与了 XLOV 2025 年《I ONE》中《1 of LOV》的词曲创作。"
   },
   "PROJECT": {
     "en": "PROJECT",
@@ -1911,9 +1916,9 @@ window.LotusTranslations={
     "en": "The room could not load. Refresh to try again.",
     "zh": "工作室加载失败，请刷新重试。"
   },
-  "3D is unavailable on this device. The mixer controls below still work.": {
-    "en": "3D is unavailable on this device. The mixer controls below still work.",
-    "zh": "此设备无法显示三维场景，下方混音控制仍可使用。"
+  "3D is unavailable on this device. You can still explore the records below.": {
+    "en": "3D is unavailable on this device. You can still explore the records below.",
+    "zh": "当前设备暂时无法显示三维场景，你仍可浏览下方的唱片作品。"
   },
   "The 3D view was interrupted. Refresh to restore it; the mixer below still works.": {
     "en": "The 3D view was interrupted. Refresh to restore it; the mixer below still works.",
@@ -1981,7 +1986,7 @@ window.LotusTranslations={
   },
   "Explore the full discography": {
     "en": "Explore the full discography",
-    "zh": "Explore the full discography"
+    "zh": "探索完整作品"
   },
   "Explore more": {
     "en": "Explore more",
@@ -2707,10 +2712,6 @@ window.LotusTranslations={
     "en": "Co-lyrics · Co-composition on the Tia Ray version. Production: Hitimpulse.",
     "zh": "参与 Tia Ray 版本的联合作词与作曲。音乐制作：Hitimpulse。"
   },
-  "Co-lyrics with WD and WUMUTI. Composition: QSTNMRKS / NIE.": {
-    "en": "Co-lyrics with WD and WUMUTI. Composition: QSTNMRKS / NIE.",
-    "zh": "与 WD、WUMUTI 联合作词。作曲：QSTNMRKS / NIE。"
-  },
   "Co-composition with Haezee, WD and ADN Lewis. Produced by Haezee.": {
     "en": "Co-composition with Haezee, WD and ADN Lewis. Produced by Haezee.",
     "zh": "与 Haezee、WD、ADN Lewis 联合作曲。制作：Haezee。"
@@ -3119,9 +3120,9 @@ window.LotusTranslations={
     "en": "She was invited to SHE WRITES, a songwriting camp presented by Tommy Brown and She Is The Music.",
     "zh": "她曾受邀参加由 Tommy Brown 与 She Is The Music 发起的 SHE WRITES 创作营。"
   },
-  "Lotus Flow is a Chinese music producer, songwriter, and artist working across K-pop, Western pop, J-pop, C-pop, and experimental sound. Classically trained in piano from the age of five, she later studied Electronic Music Production and Sound Design at Berklee College of Music, developing a practice that brings together musical discipline, sonic experimentation, and a strong sense of atmosphere.": {
-    "en": "Lotus Flow is a Chinese music producer, songwriter, and artist working across K-pop, Western pop, J-pop, C-pop, and experimental sound. Classically trained in piano from the age of five, she later studied Electronic Music Production and Sound Design at Berklee College of Music, developing a practice that brings together musical discipline, sonic experimentation, and a strong sense of atmosphere.",
-    "zh": "Lotus Flow 是一位中国音乐制作人、词曲作者与艺术家，创作横跨 K-pop、欧美流行、J-pop、C-pop 与实验音乐。五岁开始学习古典钢琴，后赴伯克利音乐学院深造电子音乐制作与声音设计，她的创作始终建立在严谨的音乐训练与对声音的自由探索之间。"
+  "Lotus Flow is a Chinese music producer, songwriter, and artist based in Los Angeles, working across K-pop, Western pop, J-pop, C-pop, and experimental sound. Classically trained in piano from the age of five, she later studied Electronic Music Production and Sound Design at Berklee College of Music, developing a practice that brings together musical discipline, sonic experimentation, and a strong sense of atmosphere.": {
+    "en": "Lotus Flow is a Chinese music producer, songwriter, and artist based in Los Angeles, working across K-pop, Western pop, J-pop, C-pop, and experimental sound. Classically trained in piano from the age of five, she later studied Electronic Music Production and Sound Design at Berklee College of Music, developing a practice that brings together musical discipline, sonic experimentation, and a strong sense of atmosphere.",
+    "zh": "Lotus Flow 是一位定居洛杉矶的中国音乐制作人。五岁开始学习古典钢琴，后赴伯克利音乐学院深造电子音乐制作与声音设计，她的创作始终建立在严谨的音乐训练与对声音的自由探索之间。"
   },
   "She signed with Universal Music Publishing Group China in 2021 and renewed her publishing deal in 2025. Her selected credits include producing and co-writing AleXa’s “Juliet,” songwriting for XLOV’s “1 of LOV,” contributing to Santa’s “Train to Nowhere,” producing and co-writing Yitai Wang’s “大桥,” and contributing to “Show Me Love (with Tia Ray),” selected as the official theme song for Team Wolves at the 2025 Esports World Cup.": {
     "en": "She signed with Universal Music Publishing Group China in 2021 and renewed her publishing deal in 2025. Her selected credits include producing and co-writing AleXa’s “Juliet,” songwriting for XLOV’s “1 of LOV,” contributing to Santa’s “Train to Nowhere,” producing and co-writing Yitai Wang’s “大桥,” and contributing to “Show Me Love (with Tia Ray),” selected as the official theme song for Team Wolves at the 2025 Esports World Cup.",

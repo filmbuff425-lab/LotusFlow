@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {warmStudioTextures,warmStudioGeometry} from '../dist/studio-prewarm.js';
+import {warmStudioTextures,warmStudioGeometry,warmStudioPrograms} from '../dist/studio-prewarm.js';
 import * as THREE from '../dist/vendor/three.module.js';
 
 let clock=0,yields=0;const uploaded=[];
@@ -26,3 +26,10 @@ renderer.render=()=>{throw new Error('context lost')};
 await assert.rejects(warmStudioGeometry(renderer,scene,new THREE.Camera(),[root],'offscreen',options),/context lost/);
 assert.equal(target,'screen');assert.equal(root.visible,false);assert.equal(hidden.visible,false);
 console.log('Studio prewarm checks passed: bounded texture work, original resolution, nested geometry uploads, visibility and render target restored on failure.');
+
+const compileRoot=new THREE.Group(),compileScene=new THREE.Scene();compileRoot.visible=false;compileScene.add(compileRoot);
+for(let i=0;i<17;i++)compileRoot.add(new THREE.Mesh(geometry,new THREE.MeshBasicMaterial()));
+const compiled=[];
+await warmStudioPrograms({async compileAsync(batch,camera,target){assert.equal(target,compileScene);assert.ok(batch.children.length<=4);batch.traverse(o=>{if(o.isMesh)compiled.push(o.material)})}},compileScene,new THREE.Camera(),[compileRoot],{batchSize:4,yieldFrame:async()=>assert.equal(compileRoot.visible,false)});
+assert.equal(compiled.length,17);assert.equal(new Set(compiled).size,17);assert.equal(compileRoot.children.length,17);
+console.log('Shader preparation compiles each material once in a shallow batch, preserving the original scene.');

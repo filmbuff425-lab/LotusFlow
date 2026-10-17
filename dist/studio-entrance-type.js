@@ -25,9 +25,9 @@ export function createEntrancePrint(glassGroup,dims,renderer){
  print.castShadow=print.receiveShadow=false;glassGroup.add(print);
  function paint(){context.clearRect(0,0,1024,128);context.fillStyle='#fff';context.textAlign='center';context.textBaseline='middle';context.font='850 58px LotusDotDisplay, monospace';context.fillText('EXPRESSION OVER IMPRESSION',512,64,984);texture.needsUpdate=true}
  paint();document.fonts.load('850 58px LotusDotDisplay').then(paint).catch(()=>{});
- return{update(progress,time){
+ return{update(progress,time,visibility=1){
   glowTime.value=time;
-  material.opacity=.92*(1-THREE.MathUtils.smoothstep(progress,.01,.20));print.visible=material.opacity>.001;
+  material.opacity=visibility*.92*(1-THREE.MathUtils.smoothstep(progress,.01,.20));print.visible=material.opacity>.001;
  }};
 }
 

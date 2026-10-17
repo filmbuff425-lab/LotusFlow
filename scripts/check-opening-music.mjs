@@ -1,11 +1,17 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
-const scheduled=[];const context=vm.createContext({console,window:{lotusSfx:{enabled:true}},setTimeout(fn,delay){scheduled.push({fn,delay});return scheduled.length},clearTimeout(){}});
+let wallTime=0;const scheduled=[];const context=vm.createContext({Date:{now:()=>wallTime},console,window:{lotusSfx:{enabled:true}},setTimeout(fn,delay){scheduled.push({fn,delay});return scheduled.length},clearTimeout(){}});
 for(const file of ['studio-opening.js','identity-score.js'])vm.runInContext(fs.readFileSync('dist/'+file,'utf8').replaceAll('export function','function').replaceAll('export const','const'),context);
 const createOpening=vm.runInContext('createStudioOpening',context),createScore=vm.runInContext('createIdentityScore',context);
 const studioWarmupAt=vm.runInContext('studioWarmupAt',context);
 const audioVisualTime=vm.runInContext('audioVisualTime',context);
+const advance=vm.runInContext('advanceStudioEntrance',context);
+for(const mediaTime of [null,0,.15]){
+ const journey={at:0};let last=0;
+ for(let i=1;i<=180;i++){const elapsed=advance(journey,i*16.67,mediaTime);assert.ok(elapsed>last,'A pending or stalled media clock cannot stop or reverse the camera');assert.ok(elapsed-last<19,'Media catchup cannot jump the camera');last=elapsed}
+}
+
 assert.ok(Math.abs(audioVisualTime({currentTime:10,getOutputTimestamp:()=>({contextTime:9.96,performanceTime:1000})},10.04,1020)-1080)<1e-8,'Animation uses the actual output timestamp, rather than ignoring the audio device delay');
 assert.ok(Math.abs(audioVisualTime({currentTime:10,outputLatency:.025},10.04,1000)-1065)<1e-8,'Browsers without output timestamps use their output latency');
 const deferred=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b});return {promise,resolve,reject}};
@@ -23,14 +29,28 @@ intro.currentTime=27;await opening.start();assert.equal(intro.currentTime,0,'Eac
 const armPending=deferred();intro.play=()=>armPending.promise;const arming=opening.arm();opening.stop();armPending.resolve();await arming;assert.equal(intro.dataset.audioState,'paused','A late unlock must not restart a cancelled entrance');
 const blocked=media();blocked.play=async()=>{throw new Error('Gesture required')};const retry=createOpening({media:blocked,stopScreen:()=>{},announce:()=>{}});await retry.start();assert.equal(blocked.dataset.audioState,'needs-gesture');blocked.play=media().play;await retry.start();assert.equal(blocked.dataset.audioState,'playing','A blocked browser can retry in the next click');
 
+// Simulate a server that accepts the request but never supplies playable audio.
+for(const operation of ['arm','warmup']){
+ const stalled=media();stalled.play=()=>new Promise(()=>{});
+ const opening=createOpening({media:stalled,stopScreen(){},announce(){}});
+ if(operation==='warmup')opening.waitForReveal();
+ const pending=opening[operation]();const timer=scheduled.at(-1);assert.ok(timer.delay<=1800);timer.fn();await pending;
+ assert.equal(stalled.paused,true);assert.equal(opening.active,false);assert.equal(stalled.dataset.audioState,'unavailable');
+ stalled.play=media().play;await opening.start();assert.equal(stalled.dataset.audioState,'playing','An audio timeout remains recoverable');
+}
+
+const buffered=media(),bufferedOpening=createOpening({media:buffered,stopScreen(){},announce(){}});
+await bufferedOpening.start();assert.equal(bufferedOpening.elapsed,0);wallTime=1600;assert.equal(bufferedOpening.elapsed,null);assert.ok(buffered.paused,'A stream stalled after play must release the camera clock');
+
 // Exercise the real cube update: the cue must follow the first visible blue
 // frame, including reduced motion and re-entry, rather than a late progress cutoff.
 const THREE=await import('../dist/vendor/three.module.js');
 for(const reduced of [false,true]){
- let cues=0;
- const cubeContext=vm.createContext({THREE,innerWidth:1200,innerHeight:900,matchMedia:()=>({matches:reduced}),updateHeartbeat(){},createEntrancePrint(){return{update(){}}},createCubeBrand(){return null},studioLayout:{shell:[40,35,40],center:[0,17.5,0]},createCosmos({scene}){const group=new THREE.Group();group.visible=false;scene.add(group);return{group,setReveal(v){group.visible=v>.001},update(){}}}});
+ let cues=0,entryGain=1;
+ const cubeRoot=new THREE.Group(),cubeScene=new THREE.Scene();
+ const cubeContext=vm.createContext({THREE,document:{documentElement:{dataset:{}}},innerWidth:1200,innerHeight:900,matchMedia:()=>({matches:reduced}),updateHeartbeat(){},heartbeatTime:()=>.2,heartbeatEntryGain:()=>entryGain,createEntrancePrint(){return{update(){}}},createCubeBrand(){return null},studioLayout:{shell:[40,35,40],center:[0,17.5,0]},createCosmos({scene}){const group=new THREE.Group();group.visible=false;scene.add(group);return{group,setReveal(v){group.visible=v>.001},update(){}}}});
  vm.runInContext(fs.readFileSync('dist/soundcube.js','utf8').replace(/^import .*$/gm,'').replace('export function','function'),cubeContext);
- const cube=vm.runInContext('createSoundcube',cubeContext)({scene:new THREE.Scene(),root:new THREE.Group(),camera:new THREE.PerspectiveCamera(),renderer:{domElement:{clientHeight:800}},onBlueReveal:()=>cues++});
+ const cube=vm.runInContext('createSoundcube',cubeContext)({scene:cubeScene,root:cubeRoot,camera:new THREE.PerspectiveCamera(),renderer:{domElement:{clientHeight:800}},onBlueReveal:()=>cues++});
  cube.attachRoom({update(){}});cube.setInteriorReady();cube.setProgress(.22);cube.update(1000);assert.equal(cues,0,'No downbeat before the blue sky is visible');
  cube.setProgress(.24);cube.update(1017);assert.equal(cues,1,'The first blue frame cues the drums while the planet is still emerging');
  cube.setProgress(1);cube.update(1034);assert.equal(cues,1,'Completing the reveal cannot restart the drums');
@@ -39,6 +59,11 @@ for(const reduced of [false,true]){
  const progressAt=seconds=>{const t=(studioWarmupAt+seconds*1000)/5800;return t*t*t*(t*(t*6-15)+10)};
  cube.setProgress(progressAt(.866-.01));cube.update(1102);assert.equal(cues,2,'Blue stays hidden through the end of the pickup');
  cube.setProgress(progressAt(.866+.01));cube.update(1119);assert.equal(cues,3,'Blue emerges within one frame of the first drum on the media clock');
+ cube.setProgress(0);entryGain=0;cube.update(1136);const stillScale=cubeRoot.scale.x;
+ cubeScene.traverse(node=>{const beat=node.material?.uniforms?.beat;if(beat)assert.equal(beat.value,0,'Every heartbeat light stays still during the entrance')});
+ entryGain=.5;cube.update(1153);const halfScale=cubeRoot.scale.x;
+ entryGain=1;cube.update(1170);assert.ok(cubeRoot.scale.x>stillScale,'Heartbeat motion returns after the entrance');
+ assert.ok(Math.abs(halfScale-(stillScale+cubeRoot.scale.x)/2)<1e-10,'The visual pulse follows the same gradual envelope as the recording');
 }
 
 const sources=[],states=[];let now=10,loads=0;
@@ -54,3 +79,19 @@ await score.enter(true);assert.equal(loads,1,'Returning reuses the decoded sourc
 score.pause();const pending=deferred();const slow=createScore({getContext:()=>ctx,loadBuffer:()=>pending.promise,announce:()=>{},onState:()=>{}});const waiting=slow.enter();slow.pause();const count=sources.length;pending.resolve({duration:72});await waiting;assert.equal(sources.length,count,'Leaving during loading cannot start background music later');
 assert.ok(fs.statSync('dist/assets/audio/studio-mirror-instrumental.mp3').size>1000000);assert.ok(fs.statSync('dist/assets/audio/identity-bgm.mp3').size>1000000);
 console.log('Opening music checks passed: intact studio pickup, first blue frame / drum alignment, re-entry, reduced motion, gesture unlock, computer separation and identity timing.');
+
+// Exercise the real entry handler with a decoder whose prime never resolves.
+// Rendering may wait for room preparation, but audio cannot hold the camera.
+const studioSource=fs.readFileSync('dist/studio.js','utf8');
+const entrySource=studioSource.slice(studioSource.indexOf('async function setRoom(open)'),studioSource.indexOf(' function finishRoom()'));
+const entryEvents=[],button={disabled:false,setAttribute(){},removeAttribute(){}};
+let finishPreparation;const roomPreparation=new Promise(resolve=>finishPreparation=resolve);
+const entryContext=vm.createContext({console,preparingRoom:false,transition:null,roomOpen:false,window:{lotusStudioMedia:{armEntrance(){entryEvents.push('prime');return new Promise(()=>{})},cancelEntrance(){}},dispatchEvent(event){entryEvents.push(event.type)}},prepareInterior:()=>roomPreparation,openButton:button,closeButton:{...button},syncEntry(){},host:{dataset:{}},loading:{},frameStudio(){},controls:{target:{clone:()=>({})},update(){}},camera:{position:{clone:()=>({})}},stage:{classList:{toggle(){}}},strip:{},api:{audioState:{playing:false}},cameraMove:null,entrance:0,insideView:{},cubeView:{},reduced:false,performance:{now:()=>20},CustomEvent:class{constructor(type){this.type=type}}});
+vm.runInContext(entrySource,entryContext);
+const entering=vm.runInContext('setRoom(true)',entryContext);await new Promise(resolve=>setImmediate(resolve));
+assert.deepEqual(entryEvents,['prime'],'Audio permission begins immediately in the original entry gesture');
+assert.equal(entryContext.transition,null,'The camera still waits until original room resources are ready');
+finishPreparation();await new Promise(resolve=>setImmediate(resolve));
+assert.equal(entryContext.transition.to,1,'A pending audio prime cannot delay camera entry after the room is ready');
+await entering;assert.equal(entryContext.preparingRoom,false);
+console.log('Studio entry check passed: audio priming starts in the gesture without holding the ready camera.');

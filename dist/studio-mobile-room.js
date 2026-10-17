@@ -29,7 +29,7 @@ export async function createStudioInterior({scene,root,api,soundcube,host,toucha
   const buttons={};for(const [j,action] of ['mute','solo'].entries())buttons[action]=register(box(.3,.08,.3,x+(j?.2:-.2),.32,-.38,white.clone(),desk),{channel:c.id,action});channelButtons.push(buttons);
   box(.07,.02,1.82,x,.28,.81,silver,desk);
   faders.push(register(box(.36,.15,.3,x,.35,1.65-c.value/100*1.68,silver,desk),{channel:c.id,action:'fader'}));
-  // The HTML mixer carries readable level values; decorative meter segments disappear.
+  // Compact faders retain their physical controls without decorative meter segments.
   leds.push([]);
  });
  register(box(.65,.1,.4,5.1,.3,1.65,glow(0x80e6bc),desk),{action:'play',label:'PLAY / PAUSE MIX'});
@@ -71,7 +71,6 @@ function mountPhoneFunctions({api,releases,mvWall,host}){
  button('电脑 / 音乐库',()=>window.lotusDesktop?.open());
  button('MV / 视频',()=>mvWall.open());
  const playback=button('音乐 / 播放暂停',()=>window.lotusStudioMedia?.toggle());playback.setAttribute('aria-label','Toggle music playback');
- button('混音 / 调整音量',()=>{window.lotusStudioMedia?.setMode('session');document.querySelector('.studio-control-strip').scrollIntoView({behavior:'smooth',block:'center'})});
  const label=document.createElement('label');label.textContent='作品 / Releases';const select=document.createElement('select');const placeholder=document.createElement('option');placeholder.textContent='选择作品查看详情 / Choose a release';placeholder.value='';select.append(placeholder);
  for(const track of releases){const option=document.createElement('option');option.value=track.id;option.textContent=track.title+' / '+track.artist;select.append(option)}
  select.addEventListener('change',()=>{if(select.value){window.lotusPortfolio?.openTrack(select.value,select);select.value=''}});label.append(select);panel.append(label);

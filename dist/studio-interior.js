@@ -8,7 +8,7 @@ import {createReferenceShelf} from './studio-reference-shelf.js?v=20261007-mobil
 import {createSculpturalSpeakers} from './studio-sculptural-speakers.js?v=20261006-lake-surface1';
 import {createStudioPersonalObjects} from './studio-personal-objects.js?v=20261007-performance1';
 import {createStudioHospitality} from './studio-hospitality.js?v=20261007-mobile3';
-import {batchStudio} from './studio-batch.js?v=20261007-mobile3';
+import {batchStudioAsync} from './studio-batch.js?v=20261007-mobile3';
 import {createLivedInStudio} from './studio-lived-in.js?v=20261007-performance1';
 import { createSessionScreens } from './studio-session-screens.js?v=20261007-mobile3';
 import { createConsoleExtension } from './studio-console.js?v=20261006-lake-surface1';
@@ -16,7 +16,7 @@ import { createStudioDetails } from './studio-details.js?v=20261006-lake-surface
 import {createRecordingRoom} from './studio-room.js?v=20261007-mobile3';
 
 // Yield between model families so the cube, heartbeat and navigation keep responding.
-const yieldToPage=async()=>{if(identityMotionActive())await waitForIdentityMotion();await new Promise(resolve=>setTimeout(resolve,0))};
+const yieldToPage=async()=>{if(identityMotionActive())await waitForIdentityMotion();await new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,0)))};
 export async function createStudioInterior({scene,root,renderer,api,camera,soundcube,host,touchables,selected}) {
  await prepareStudioClay();
  const measured=new URLSearchParams(location.search).has('perf'),stages={};let phaseAt=performance.now();
@@ -75,7 +75,7 @@ export async function createStudioInterior({scene,root,renderer,api,camera,sound
 
  for (const x of [-6.12, 6.12]) for (const z of [-2, 2]) { cyl(.035, .015, x, .263, z, black, desk); }
  const stripX = i => -5.42 + i * 1.12;
- api.channels.forEach((c, i) => {
+ for(const [i,c] of api.channels.entries()){
   const x = stripX(i); const strip = box(1.025, .014, 3.86, x, .263, .03, carbon, desk); strip.userData.channel = c.id; touchables.push(strip);
   const selectLight = box(.49, .022, .14, x, .292, -1.75, cyan.clone(), desk); selectLight.userData = { channel: c.id }; touchables.push(selectLight); selectionLights.push(selectLight);
   const screen = textPlane(`${String(i + 1).padStart(2, '0')}  ${c.name}`, .83, .37, '#b5e1ff', '#071420', desk, 39); screen.rotation.x = -Math.PI / 2; screen.position.set(x, .28, -1.39); screen.userData.channel = c.id; touchables.push(screen); oleds.push({screen,last:null});
@@ -92,7 +92,8 @@ export async function createStudioInterior({scene,root,renderer,api,camera,sound
   const fader = bevel(.32, .13, .26, .025, x, .348, 1.65 - c.value / 100 * 1.68, silver, desk); box(.27, .013, .022, 0, .075, 0, black, fader); fader.userData = { channel: c.id, action: 'fader' }; touchables.push(fader); faders.push(fader); for(const dz of [-.074,-.04,.04,.074])box(.235,.009,.009,0,.07,dz,panel,fader);
   const meter = []; for (let k = 0; k < 16; k++) { const light = box(.06, .011, .066, x + .39, .282, 1.69 - k * .112, new THREE.MeshStandardMaterial({ color: 0x173734, emissive: 0x58deba, emissiveIntensity: .02 }), desk); meter.push(light); } leds.push(meter);
   topText(c.name, x, .285, 1.96, .82, .14, '#aab4c1', desk, 35);
- });
+  if(i%2===1)await yieldToPage();
+ }
  box(.025, .015, 4, 3.13, .278, 0, silver, desk);
  topText('LOTUS FLOW', 4.61, .29, -1.88, 2.16, .25, '#d3d9e3', desk, 41); topText('LF–08   /   SESSION CONTROL', 4.61, .29, -1.57, 2.15, .13, '#8695a9', desk, 28);
  for (let row = 0; row < 3; row++) for (let col = 0; col < 4; col++) { const x = 3.62 + col * .58, z = -1.12 + row * .39; bevel(.32, .055, .21, .012, x, .29, z, row === 0 ? cyan : white, desk); topText(['READ', 'WRITE', 'TOUCH', 'LATCH', 'BANK', 'TRACK', 'PAN', 'SEND', 'UNDO', 'SAVE', 'LOOP', 'CLICK'][row * 4 + col], x, .282, z + .16, .43, .10, '#7b8797', desk, 33); }
@@ -126,23 +127,27 @@ export async function createStudioInterior({scene,root,renderer,api,camera,sound
  function cable(points) { const curve=new THREE.CatmullRomCurve3(points.map(p=>new THREE.Vector3(...p)));root.add(new THREE.Mesh(new THREE.TubeGeometry(curve,48,.024,7,false),black)); }
  box(34,.28,.66,0,2.08,-9.08,carbon);
  for(const side of [-1,1]){cable([[side*6.35,8.15,-7.55],[side*6.35,6.3,-7.80],[side*6.35,4.4,-8.05],[side*6.35,3.5,-9.15],[side*6.35,2.24,-9.15],[side*8.4,2.24,-9.15]]);}
- const consoleExtension=createConsoleExtension({desk,texture,api,touchables,dawTexture,mixerTexture});
+ await nextStage('displays');
+ const consoleExtension=await createConsoleExtension({yieldToPage,desk,texture,api,touchables,dawTexture,mixerTexture});
  const sessionScreens=createSessionScreens({api,arrange:dawCanvas,mix:mixerCanvas,dawTexture,mixerTexture,selected});sessionScreens.update(0);
- soundcube.attachRoom(createRecordingRoom({root,renderer,texture,camera,scene}));
+ await nextStage('consoleScreens');
+ soundcube.attachRoom(await createRecordingRoom({root,renderer,texture,camera,scene,yieldToPage}));
  await nextStage('displaysRoom');
- const details=createStudioDetails({scene,root,renderer,api,touchables,texture,topText,selected,camera,soundcube});
- createLivedInStudio(root);
+ const details=await createStudioDetails({yieldToPage,scene,root,renderer,api,touchables,texture,topText,selected,camera,soundcube});
  await nextStage('details');
- const personal=createStudioPersonalObjects({root,texture});personal.lounge.position.set(...studioLayout.lounge);personal.lounge.scale.set(...studioLayout.loungeScale);personal.lounge.rotation.y=studioLayout.loungeRotation;personal.chair.rotation.y=-.16;personal.cup.position.set(6.0,2.83,5.45);
+ createLivedInStudio(root);
+ await nextStage('livedIn');
+ const personal=await createStudioPersonalObjects({yieldToPage,root,texture});personal.lounge.position.set(...studioLayout.lounge);personal.lounge.scale.set(...studioLayout.loungeScale);personal.lounge.rotation.y=studioLayout.loungeRotation;personal.chair.rotation.y=0;personal.cup.position.set(6.0,2.83,5.45);
  await nextStage('personal');
  const archive=createReferenceShelf({root,texture});archive.group.position.set(...studioLayout.shelf);// Archive shelf is decorative; no camera or release hotspot.
  await nextStage('archive');
  const soundSystem=createSculpturalSpeakers({root,texture});soundSystem.rack.position.set(...studioLayout.amplifierRack);soundSystem.rack.rotation.y=studioLayout.amplifierRackRotation;
  for(const speaker of soundSystem.speakers){const target=new THREE.Mesh(new THREE.CylinderGeometry(2.30,2.30,12.8,16),new THREE.MeshBasicMaterial({visible:false}));target.position.y=6.4;target.userData={action:'play',label:'SCULPTURAL SOUND SYSTEM / PLAY & PAUSE'};speaker.add(target);touchables.push(target)}
- host.dataset.roomObjects="electric-guitar,kill-bill-poster,pixel-logo-water-glass,leather-roller-chair,cowhide-lounge,glass-camera-shelf,leica-film-camera,vinyl,lit-scented-candle,wool-sofa-throw,frosted-white-speakers,round-glass-coffee-table,left-wall-modular-glass-console,stone-espresso-machine,recording-microphone,amplifier-rack,lyric-notebook,moog-subsequent-37,prophet-6,two-tier-synth-stand,silver-h100,smartphone,festival-keepsakes,richard-hennessy,macallan-18,cut-crystal-whisky-cups,headphone-stand,rear-cable-tray,dracaena-marginata";
+ host.dataset.roomObjects="electric-guitar,kill-bill-poster,pixel-logo-water-glass,leather-roller-chair,cowhide-lounge,glass-camera-shelf,leica-film-camera,vinyl,lit-scented-candle,wool-sofa-throw,frosted-white-speakers,round-glass-coffee-table,left-wall-modular-glass-console,stone-espresso-machine,recording-microphone,amplifier-rack,moog-subsequent-37,prophet-6,two-tier-synth-stand,silver-h100,festival-keepsakes,richard-hennessy,macallan-18,cut-crystal-whisky-cups,headphone-stand,rear-cable-tray,dracaena-marginata";
  host.dataset.referenceObjects=JSON.stringify({chair:personal.bounds.chair,cup:personal.bounds.cup,lounge:personal.bounds.lounge,loungePosition:studioLayout.lounge,loungeRotation:studioLayout.loungeRotation,loungeScale:studioLayout.loungeScale,coffeeTable:studioLayout.coffeeTable,synthPosition:studioLayout.synths,synthRotation:studioLayout.synthRotation,shelf:studioLayout.shelf,room:studioLayout.shell});
  await nextStage('speakers');
- const hospitality=createStudioHospitality({root,texture});hospitality.table.position.set(...studioLayout.coffeeTable);host.dataset.rearPlant=JSON.stringify(root.userData.rearPlant);
+ const hospitality=await createStudioHospitality({yieldToPage,root,texture});hospitality.table.position.set(...studioLayout.coffeeTable);host.dataset.rearPlant=JSON.stringify(root.userData.rearPlant);
+ await nextStage('hospitality');
  const synths=createStudioSynths({root,texture,touchables});host.dataset.synthBounds=JSON.stringify(synths.bounds);
  // Ordinary room glazing stays lightweight. Only the two frosted speaker solids
  // use the shared half-resolution transmission pass; keep their optical depth.
@@ -150,7 +155,7 @@ export async function createStudioInterior({scene,root,renderer,api,camera,sound
  await nextStage('hospitalitySynths');
  // Keep zero-alpha hit meshes available to raycasting without submitting them to the GPU.
  let hitOnly=0;root.traverse(o=>{if(o.isMesh&&!Array.isArray(o.material)&&o.material.transparent&&o.material.opacity===0&&!o.children.length){o.visible=false;hitOnly++}});host.dataset.hitOnlyMeshes=String(hitOnly);
- const batching=batchStudio(root,touchables);host.dataset.staticMeshes=JSON.stringify(batching);stage('batch');if(measured){host.dataset.modelTimings=JSON.stringify(stages);host.dataset.sculptureGeometry=JSON.stringify(clayStats())}
+ const batching=await batchStudioAsync(root,touchables,{yieldFrame:yieldToPage});host.dataset.staticMeshes=JSON.stringify(batching);stage('batch');if(measured){host.dataset.modelTimings=JSON.stringify(stages);host.dataset.sculptureGeometry=JSON.stringify(clayStats())}
  renderer.shadowMap.autoUpdate=false;renderer.shadowMap.needsUpdate=true;
  const backdrop=details.room;touchables.push(...details.soundcube.recordTargets);
  return {desk,faders,leds,channelButtons,selectionLights,oleds,details,soundSystem,archive,synths,consoleExtension,sessionScreens,backdrop};

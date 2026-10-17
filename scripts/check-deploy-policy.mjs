@@ -1,0 +1,22 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {auditDeploymentSource,excludeFromDeployment,assertNoOmittedReferences,duplicateAudio} from './deploy-policy.mjs';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..'),input=path.join(root,'dist');
+const audit=await auditDeploymentSource(input),kept=new Set(audit.retained.map(file=>file.relative));
+for(const relative of ['index.html','jewel-case.html','works/index.html','preview-hooks.js','assets/music/previews/lov-highlight.mp3','assets/audio/cube-heart.wav','assets/audio/space-exploration-soft.m4a','assets/audio/knife-A-blood-approved.wav','assets/audio/studio-mirror-instrumental.mp3','assets/audio/identity-bgm.mp3'])assert.ok(kept.has(relative),`Keep live media and routes: ${relative}`);
+assert.equal([...kept].filter(file=>/^assets\/music\/previews\/.*\.mp3$/.test(file)).length,26,'Keep all 26 live music highlights');
+for(let i=0;i<5;i++)assert.ok(kept.has(`assets/models/studio-clay-${i}-v1.mesh.gz`),'Dynamic sculpture URLs must remain available');
+for(const [original,canonical] of duplicateAudio){assert.ok(!kept.has(original));assert.ok(kept.has(canonical));}
+for(const relative of ['tests/check.mjs','scripts/generator.mjs','outputs/report.json','design-review/example.html','entry-visual/index.html','logo-motion.html','assets/music/previews/preview-manifest.json'])assert.ok(excludeFromDeployment(relative));
+assert.equal(excludeFromDeployment('assets/music/previews/lov-highlight.mp3'),false,'Music previews are real playback assets, not design previews');
+assert.throws(()=>assertNoOmittedReferences('audio.src="assets/audio/knife-strike.wav"'),/Cannot omit a referenced file/,'Restoring a live reference must fail before packaging removes its file');
+assert.ok(audit.files.filter(file=>file.relative.includes('/fonts/')&&file.relative.endsWith('.txt')).every(file=>!file.excluded),'Font attribution and license text must stay public');
+const build=await fs.readFile(path.join(root,'scripts/build-deploy.mjs'),'utf8'),config=JSON.parse(await fs.readFile(path.join(root,'vercel.json'),'utf8'));
+assert.ok(build.includes('auditDeploymentSource(input)'));assert.ok(build.includes('excludeFromDeployment(relative)'));
+assert.equal(config.outputDirectory,'deploy');assert.equal(config.buildCommand,'npm run build');
+const deployed=await fs.readFile(path.join(root,'deploy/deployment.json'),'utf8').then(JSON.parse).catch(()=>null);
+const newlyExcluded=audit.files.filter(file=>file.excluded&&!deployed?.omittedFiles?.some(rule=>file.relative===rule||rule.endsWith('/')&&file.relative.startsWith(rule)));
+console.log(JSON.stringify({sourceFiles:audit.files.length,retainedFiles:audit.retained.length,sourceMiB:+(audit.sourceBytes/1048576).toFixed(2),retainedBeforeMinificationMiB:+((audit.sourceBytes-audit.omittedBytes)/1048576).toFixed(2),omittedMiB:+(audit.omittedBytes/1048576).toFixed(2),additionalExcludedFiles:newlyExcluded.length,additionalExcludedMiB:+(newlyExcluded.reduce((sum,file)=>sum+file.size,0)/1048576).toFixed(2)},null,2));
+console.log('Deployment policy checks passed without building: live routes, original recordings, 26 music highlights, dynamic geometry and licenses retained; studies, duplicate recordings and unused payload excluded.');

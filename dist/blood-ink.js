@@ -4,7 +4,8 @@ import {createInkFlow} from './identity-ink-flow.js?v=20261007-mobile3';
 const canvas=document.querySelector('.blood-field'),ctx=canvas.getContext('2d'),host=document.querySelector('#about');
 const liquid=createInkFlow(),flow=liquid.svg;flow.classList.add('blood-flow');host.append(flow);
 let onScreen=false;new IntersectionObserver(([entry])=>{onScreen=entry.isIntersecting;host.classList.toggle('blood-awake',onScreen&&!document.hidden)}).observe(host);document.addEventListener('visibilitychange',()=>host.classList.toggle('blood-awake',onScreen&&!document.hidden));
-let settled=false,flight,air,lastTime=-1,width=1400,height=900,seed=1973,sizeStamp='';
+let settled=false,flight,air,lastTime=-1,width=1400,height=900,seed=1973,sizeStamp='',resizePending=false;
+const entryWaiting=()=>['waiting','starting','preparing','retry','revealing'].includes(document.documentElement.dataset.soundEntry);
 const random=()=>{seed=seed*16807%2147483647;return(seed-1)/2147483646};
 const clamp=x=>Math.max(0,Math.min(1,x));
 const colors=['#b5160c','#c72012','#920f09','#ad190d'];
@@ -12,18 +13,22 @@ const colors=['#b5160c','#c72012','#920f09','#ad190d'];
 const stains=Array.from({length:1900},(_,i)=>{const u=random(),thickness=Math.pow(1-u,.62),scatter=(random()-.5)*(random()<.14?63:14)*thickness;return{u,v:scatter,r:(.35+Math.pow(random(),3)*3.1)*(.35+thickness*.65),a:.45+random()*.5,lag:.03+u*.13+random()*.11,tone:i%4}});
 const drops=Array.from({length:46},()=>({u:random()*.93,v:(random()-.5)*122,r:.6+Math.pow(random(),2)*3.4,lag:.18+random()*.60}));
 const core=Array.from({length:91},(_,i)=>({u:i/90,v:Math.sin(i*.58)*2.1+(random()-.5)*2.6,w:(2.1+random()*2.4)*Math.pow(1-i/92,.66)}));
-function size(){
+function size(force=false){
+ if(entryWaiting()||!force&&document.body.classList.contains('prologue-open')){resizePending=true;return}resizePending=false;
  width=host.clientWidth;height=Math.min(host.clientHeight,innerHeight);const dpr=Math.min(devicePixelRatio,1.5),stamp=`${width}/${height}/${dpr}/${Boolean(flight)}`;if(stamp===sizeStamp)return;sizeStamp=stamp;settled=false;canvas.style.height=height+'px';flow.style.height=height+'px';
  for(const c of [canvas,flight]){if(!c)continue;c.width=Math.round(width*dpr);c.height=Math.round(height*dpr);c.getContext('2d').setTransform(dpr,0,0,dpr,0,0)}
  const spine=core.slice().reverse().map((p,i)=>{const q=coordinates(p.u,p.v);return `${i?'L':'M'} ${q.x} ${q.y}`}).join(' ');
  const falls=[.18,.29,.42,.54,.65,.77,.86].map((u,i)=>({...coordinates(u,0),length:22+(i*17%39),width:1.2+(i%3)*.55}));
  liquid.update({width,height,spine,thickness:7,falls});
+ // Cache each final bead as the same ellipse, with the original draw order,
+ // colour and alpha. The spray only rebuilds shapes that are still in flight.
+ for(const p of [...stains,...drops]){p.position=coordinates(p.u,p.v);p.landed=typeof Path2D==='function'?new Path2D():null;p.landed?.ellipse(p.position.x,p.position.y,p.r*1.32,p.r*.60,-.22,0,Math.PI*2)}
 }
-function coordinates(u,v){const sceneHeight=Math.min(height,innerHeight),y0=width<650?Math.min(sceneHeight*.76,630):sceneHeight*.81;return{x:width*(-.04+u*.66),y:y0-u*(width<650?125:sceneHeight*.19)+v*(width<650?.7:1)}}
+function coordinates(u,v){const sceneHeight=height,y0=width<650?Math.min(sceneHeight*.76,630):sceneHeight*.81;return{x:width*(-.04+u*.66),y:y0-u*(width<650?125:sceneHeight*.19)+v*(width<650?.7:1)}}
 function paint(p,t,small=false){
  const age=t-p.lag*.28;if(age<0)return;
- const q=clamp(age/(small?.045:.030)),pos=coordinates(p.u,p.v),land=q===1,g=land?ctx:(air||ctx);
- g.globalAlpha=p.a||.85;g.fillStyle=colors[p.tone||0];g.beginPath();
+ const q=clamp(age/(small?.045:.030)),pos=p.position||coordinates(p.u,p.v),land=q===1,g=land?ctx:(air||ctx);
+ g.globalAlpha=p.a||.85;g.fillStyle=colors[p.tone||0];if(land&&p.landed){g.fill(p.landed);return}g.beginPath();
  // Small rounded wet beads, never the long pointed streaks of the spray draft.
  const dx=(1-q)*(small?42:26),dy=-(1-q)*(small?47:20);
  g.ellipse(pos.x+dx,pos.y+dy,p.r*(land?1.32:.64),p.r*(land?.60:1.8),land?-.22:.72,0,Math.PI*2);g.fill();
@@ -44,6 +49,8 @@ export function renderBlood(time){
  settled=t>=.31;canvas.dataset.phase=t<.265?'jet':'settled';canvas.dataset.impactTime=t.toFixed(3);canvas.dataset.material='original-grain';
 }
 window.addEventListener('lotus-cut-ready',()=>{flight=document.querySelector('.blood-flight');air=flight?.getContext('2d');size();renderBlood(lastTime)});
-window.addEventListener('lotus-cut-prepare',()=>{size();renderBlood(-1);host.classList.remove('ink-arrived')});
+window.addEventListener('lotus-cut-prepare',()=>{size(true);renderBlood(-1);host.classList.remove('ink-arrived')});
 window.addEventListener('lotus-cut-frame',e=>{renderBlood(e.detail.time);host.classList.toggle('ink-arrived',e.detail.time>=timing.spray)});
 new ResizeObserver(()=>{size();renderBlood(lastTime)}).observe(host);size();renderBlood(-1);
+window.addEventListener('lotus-entry-complete',()=>{size();renderBlood(lastTime)});
+window.addEventListener('lotus-prologue-end',()=>{if(resizePending){size();renderBlood(lastTime)}});

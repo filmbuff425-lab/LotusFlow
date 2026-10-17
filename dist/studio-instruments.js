@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import {createH100} from './studio-h100.js?v=20261006-lake-surface1';
-import {createCuratedObjects} from './studio-curated-objects.js?v=20261006-lake-surface1';
 
 // Custom studio objects, built as separate physical parts rather than featureless shells.
 export function createInstruments({root,scene,api,texture,topText,add,box,cylinder,slab,cord,register}){
@@ -16,21 +15,11 @@ export function createInstruments({root,scene,api,texture,topText,add,box,cylind
  const standGlass=new THREE.MeshPhysicalMaterial({color:0xd8ece7,metalness:0,roughness:.075,transmission:.83,thickness:.22,ior:1.5,transparent:true,opacity:.86,envMapIntensity:1.15});
  const cones=[];
  const phones=createH100({parent:root,texture,x:-14.6,y:4.83,z:4.08,angle:-.28});
- createCuratedObjects(texture).phone(root,-8.5,2.841,5.80,.16);
- // A weighted aluminum stand holds the band; wiring leaves behind the stand.
+ // A weighted aluminum stand holds the headphones.
  const phoneStand=new THREE.Group();phoneStand.name='Satin aluminum headphone stand';phoneStand.position.set(-14.6,2.81,3.80);root.add(phoneStand);
  slab(1.85,1.47,.11,.22,0,.065,0,alloy,phoneStand);slab(1.75,1.37,.035,.20,0,.012,0,rubber,phoneStand);
  box(.095,3.13,.13,0,1.63,0,alloy,phoneStand);slab(1.05,.65,.10,.22,0,3.20,.24,alloy,phoneStand);slab(1.03,.62,.044,.22,0,3.267,.24,alloy,phoneStand);
- // Short headphone lead into the nearby audio interface; the rear USB drops
- // straight through a small pass-through, then runs under the desk to rear I/O.
- const io=new THREE.Group();io.name='Left headphone audio interface';io.position.set(-14.5,3.03,1.75);root.add(io);
- slab(2.25,1.18,.32,.075,0,0,0,alloy,io);box(2.16,.26,.032,0,0,.604,darkMetal,io);
- const level=cylinder(.16,.09,.69,0,.66,alloy,io);level.rotation.x=Math.PI/2;
- const jack=cylinder(.082,.06,-.67,-.01,.658,black,io);jack.rotation.x=Math.PI/2;
  function passThrough(x,z){cylinder(.13,.027,x,2.836,z,darkMetal);box(.55,.10,.55,x,2.45,z,darkMetal)}
- passThrough(-14.5,.73);
- cord([[-14.5,3.02,1.15],[-14.5,2.91,.90],[-14.5,2.84,.73],[-14.5,2.19,.73]],.022);
- box(.32,.16,9.78,-14.5,2.21,-4.17,darkMetal);
  // A 25-key MIDI rests directly on rubber feet on the continuous glass desk.
  const midi=new THREE.Group();midi.name='MIDI keyboard on the glass desktop';midi.position.set(13.75,3.095,5.0);midi.rotation.y=0;root.add(midi);
  slab(11.25,2.78,.16,.15,0,-.15,0,walnut,midi);slab(10.85,2.54,.17,.14,0,.02,0,alloy,midi);slab(10.7,2.40,.05,.09,0,.13,0,ivory,midi);

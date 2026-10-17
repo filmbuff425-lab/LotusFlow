@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { createInstruments } from './studio-instruments.js?v=20261006-lake-surface1';
 
-export function createStudioDetails({ scene, root, renderer, api, touchables, texture, topText, selected, camera, soundcube }) {
+export async function createStudioDetails({yieldToPage=()=>Promise.resolve(), scene, root, renderer, api, touchables, texture, topText, selected, camera, soundcube }) {
  const material=(color,metalness=0,roughness=.5)=>new THREE.MeshStandardMaterial({color,metalness,roughness});
  const aluminum=material(0xc8cbd0,.86,.24),dark=material(0x1b1c20,.7,.3),black=material(0x08090b,.12,.58),ivory=material(0xebeae6,.03,.4);
  const glassWhite=new THREE.MeshPhysicalMaterial({color:0xf2f2ee,roughness:.12,metalness:.08,clearcoat:1,clearcoatRoughness:.05});
@@ -19,10 +19,11 @@ export function createStudioDetails({ scene, root, renderer, api, touchables, te
  // Large photographic softboxes give anodized aluminum and glass real reflections.
  const env=texture(1024,512,g=>{const grad=g.createLinearGradient(0,0,0,512);grad.addColorStop(0,'#505654');grad.addColorStop(.42,'#303a38');grad.addColorStop(.53,'#121216');grad.addColorStop(1,'#433c31');g.fillStyle=grad;g.fillRect(0,0,1024,512);g.fillStyle='#fff';g.fillRect(90,100,200,230);g.fillRect(570,40,120,390);g.fillStyle='#f0b4a4';g.fillRect(810,60,100,290);g.fillStyle='#0b0b10';g.fillRect(410,0,80,512)});
  env.mapping=THREE.EquirectangularReflectionMapping;const pmrem=new THREE.PMREMGenerator(renderer);const baked=pmrem.fromEquirectangular(env);scene.environment=baked.texture;env.dispose();pmrem.dispose();
- scene.environmentIntensity=.65;
+ scene.environmentIntensity=.65;await yieldToPage();
 
  const instruments=createInstruments({root,scene,api,texture,topText,add,box,cylinder,slab,cord,register});
 
+ await yieldToPage();
  // A compact, low-profile aluminum keyboard. Each key has a recess and legend.
  const keyboard=new THREE.Group();keyboard.position.set(-1.4,2.89,5.45);root.add(keyboard);
  slab(5.1,1.64,.095,.16,0,0,0,aluminum,keyboard);slab(5.03,1.57,.026,.13,0,.056,0,ivory,keyboard);
@@ -36,11 +37,12 @@ export function createStudioDetails({ scene, root, renderer, api, touchables, te
   if(label==='space')data.action='play';if(label==='M')data.action='selected-mute';if(label==='S')data.action='selected-solo';
   register(k,data);keys.push(k);return k;
  }
- rows.forEach((row,j)=>{const pitch=4.71/14,start=-2.33+(j===3?.02:j===4?.05:0);row.forEach((label,i)=>key(label,start+i*pitch*(14/row.length),-.66+j*.265,pitch*(14/row.length)-.05,j===0?.16:.205))});
+ for(const [j,row] of rows.entries()){const pitch=4.71/14,start=-2.33+(j===3?.02:j===4?.05:0);row.forEach((label,i)=>key(label,start+i*pitch*(14/row.length),-.66+j*.265,pitch*(14/row.length)-.05,j===0?.16:.205));await yieldToPage()}
  let x=-2.4;for(const [label,w] of [['fn',.32],['control',.38],['option',.38],['⌘',.4],['space',1.4],['⌘',.4],['option',.38],['←',.25],['↑',.25],['→',.25]]){key(label,x+w/2,.665,w,.205);x+=w+.045}
  for(const side of [-1,1])slab(.3,.09,.012,.035,side*2.2,-.055,-.6,black,keyboard);
  slab(.19,.036,.07,.015,0,.006,-.825,black,keyboard);
 
+ await yieldToPage();
  // A continuous glass touch surface with a fine aluminum seam: Magic Mouse form.
  const mouse=new THREE.Group();mouse.position.set(2.55,2.84,5.45);mouse.rotation.y=-.10;root.add(mouse);
  slab(.98,1.61,.06,.43,0,.026,0,aluminum,mouse);slab(.90,1.55,.018,.40,0,-.016,0,black,mouse);

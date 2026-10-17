@@ -25,17 +25,10 @@ body.cosmic-archive :is(.release-hero,.contribution,.next-release){background:#0
 @media(prefers-reduced-motion:reduce){.entrance-symbol,.visual-entrance .portal-tick{transition:none}.music-pointer-notes{display:none}}
 .visual-entrance,.visual-entrance.entrance-collaborators{--entrance-color:#f4f0e7}
 .entrance-symbol{width:31px;height:31px;fill:none;stroke-width:2.05;stroke-linecap:round;stroke-linejoin:round;transform:rotate(-2deg)}
-.entrance-symbol .pen-bold{stroke-width:2.8}
 .entrance-symbol .portal-tick{stroke-width:2.4;opacity:.8}
 .entrance-films .entrance-symbol>path:first-child{fill:none;stroke:currentColor}
 .entrance-collaborators .entrance-symbol{transform:rotate(2deg)}
 .visual-entrance:hover .entrance-symbol,.visual-entrance:focus-visible .entrance-symbol{filter:none;transform:translateY(-2px) rotate(-7deg)}
-/* Free marker contours, with changing pressure and deliberately uneven faces. */
-.entrance-symbol .marker-body{stroke-width:3.05}
-.entrance-symbol .marker-light{stroke-width:1.75}
-.entrance-symbol .marker-play{stroke-width:2.4}
-.entrance-symbol .marker-dot{fill:currentColor;stroke:none}
-.work-destinations .entrance-symbol{width:46px;height:46px}
 .cinema .record-portal .portal-label{top:42%;bottom:auto;left:0;right:0;display:block;text-align:center;transform:translateY(-50%)}
 .cinema .record-portal .portal-label strong{margin:13px auto 0;text-align:center}
 .cinema .record-portal.is-entering .portal-label{transform:translateY(calc(-50% + 8px))}
@@ -49,22 +42,45 @@ body.cosmic-archive :is(.release-hero,.contribution,.next-release){background:#0
 }
 
 .record-entry-field{position:fixed;inset:0;width:100%;height:100%;pointer-events:auto;z-index:10002}
-html.record-arriving::after{opacity:1;transition:none}html:has(.record-shop)::after{transition:opacity 1.1s cubic-bezier(.16,1,.3,1)}
+html.record-arriving::after{opacity:1;transition:none}html:has(.record-shop)::after{background:#090a0b;transition:opacity .42s cubic-bezier(.16,1,.3,1)}
 .glass-shelf-row:has(.shelf-candle)::before{background:radial-gradient(ellipse at 83% 45%,#e9a76a2f,transparent 22%),linear-gradient(162deg,#d3f4ff22,transparent 31%,#b3dbe514 66%,#f6ffff35)}
 .interaction-sound-toggle{position:fixed;right:18px;bottom:15px;z-index:9000;border:1px solid #ffffff24;background:#090a0bdd;color:#fff;border-radius:0;padding:8px 11px;font:9px var(--mono,monospace);letter-spacing:.08em;cursor:pointer;backdrop-filter:blur(9px)}.interaction-sound-toggle:hover,.interaction-sound-toggle:focus-visible{border-color:#e35d43;outline:none}.interaction-sound-toggle[aria-pressed=false]{color:#ffffff8a}
 
 #discography.archive-directory{scroll-margin-top:130px}
-
-.work-destinations{font-size:11.2px;gap:27.2px}
-.work-destinations a{gap:11.2px;border-bottom:0;min-height:44px;opacity:.86;text-shadow:0 0 8px #f4ede633;transition:opacity .3s,text-shadow .3s}
-.work-destinations .entrance-symbol{width:36.8px;height:36.8px;filter:drop-shadow(0 0 5px #f4ede62b)}
-.work-destinations a:hover,.work-destinations a:focus-visible{opacity:1;text-shadow:0 0 12px #f4ede660}
-.work-destinations a:is(:hover,:focus-visible) .entrance-symbol{filter:drop-shadow(0 0 7px #f4ede644)}
-.cinema .record-portal .portal-label strong{font-size:23.75px;text-shadow:0 0 10px #f9cfb832;animation:portal-invitation 5.5s ease-in-out infinite;animation-play-state:paused;transition:color .35s,text-shadow .35s}
+.cinema .record-portal .portal-label strong{font-size:23.75px;text-shadow:0 0 10px #f9cfb832;opacity:calc(.86 + var(--portal-breath,.5)*.14);transition:color .35s,text-shadow .35s}
 .cinema .record-portal .portal-label small{font-size:8.55px;transition:color .35s}
-.record-portal[data-portal-visible=true] .portal-label strong{animation-play-state:running}
 .cinema .record-portal:is(:hover,:focus-visible) .portal-label strong{color:#fff3e5;text-shadow:0 0 16px #f9cfb863;animation:none}
 .cinema .record-portal:is(:hover,:focus-visible) .portal-label small{color:#e5c4a7}
-@keyframes portal-invitation{0%,100%{opacity:.8}50%{opacity:1}}
 @media(max-width:700px){.cinema .record-portal .portal-label strong{font-size:20.9px}.cinema .record-portal .portal-label small{font-size:7.6px}}
 @media(prefers-reduced-motion:reduce){.cinema .record-portal .portal-label strong{animation:none}}
+
+/* A persistent invitation remains readable through the particle breath. */
+.cinema .portal-label .portal-action{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px;font:10px/1.5 var(--pixel-font);letter-spacing:.1em;color:#dbc1a1;transition:color .45s}
+.portal-beacon{display:block;width:40px;height:24px;margin:10px auto 0}
+.cinema .record-portal:is(:hover,:focus-visible) .portal-action{color:#fff0d9}
+
+/* A distinct archive chapter between the records and the contact poster. */
+.cinema .discography-section{position:relative;padding:35px 4% 55px;margin:40px 0 0;border-top:1px solid #ffffff18;border-bottom:1px solid #ffffff18;background:radial-gradient(ellipse at center,#29110b22,transparent 65%);scroll-margin-top:100px}
+.cinema .discography-section .record-portal{position:relative;display:block;width:100%;height:450px;min-height:0;max-width:1100px;margin:auto;padding:0;text-align:center;isolation:isolate;background:transparent;border:0;overflow:hidden}
+.cinema .discography-section .record-portal::after{display:none}
+.cinema .discography-section .portal-label{top:50%}
+.cinema .discography-section .portal-beacon{width:70px;height:54px;margin:16px auto 8px}
+.cinema .discography-section .portal-action{font-size:11px;letter-spacing:.13em;color:#f1d6b4}
+@media(max-width:700px){.cinema .discography-section{padding:15px 0 25px;margin-top:25px}.cinema .discography-section .record-portal{height:350px}.cinema .discography-section .portal-action{font-size:10px}}
+.record-entry-field{background:transparent;opacity:1}
+.discography-heading{position:relative;max-width:1100px;margin:0 auto;font:11px/1.5 var(--mono);letter-spacing:.12em;color:#b6a493}
+
+
+
+.discography-destinations{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:clamp(48px,12vw,160px);width:100%;max-width:1040px;margin:0 auto 10px;border:0}
+.discography-destinations>a.visual-entrance{justify-content:center;gap:18px;min-width:0;min-height:104px;padding:18px 12px;border:0;font:850 clamp(16px,1.55vw,20px)/1.18 LotusDotDisplay,monospace;font-variation-settings:'ROND' 100;font-synthesis:none;letter-spacing:.025em;text-decoration:none}
+.discography-destinations>a>span{min-width:0;text-align:center;text-wrap:balance}
+html:lang(zh-CN) .discography-destinations>a>span{font-family:LotusPrintedHan,"PingFang SC",sans-serif;font-weight:700;font-variation-settings:normal;letter-spacing:.02em;line-height:1.22}
+.discography-destinations .entrance-symbol{width:58px;height:58px}
+.visual-entrance canvas.entrance-symbol{transform:none;filter:none;transition:transform .7s cubic-bezier(.16,1,.3,1)}
+.visual-entrance:hover canvas.entrance-symbol{transform:scale(1.10)}
+.archive-paths>a.visual-entrance{grid-template-columns:64px 1fr}
+.archive-paths canvas.entrance-symbol{width:64px;height:64px}
+@media(max-width:600px){.discography-destinations{width:calc(100% - 24px);column-gap:clamp(40px,12vw,72px)}.discography-destinations>a.visual-entrance{flex-direction:column;gap:8px;min-height:104px;padding:12px 0;font-size:clamp(13px,3.8vw,16px)}.discography-destinations .entrance-symbol{width:44px;height:44px}}
+/* The particle bridge handles this navigation without a second browser animation. */
+@view-transition{navigation:none}
