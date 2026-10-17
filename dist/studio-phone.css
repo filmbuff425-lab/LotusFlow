@@ -71,15 +71,21 @@ dialog.phone-film-viewer .phone-film-caption h2{font-family:inherit;font-size:21
 .phone-film-retry[hidden]{display:none}
 .phone-film-credit{display:inline-flex;align-items:center;min-height:44px;text-decoration:none}
 @keyframes phone-film-arrive{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-body.cinema dialog.phone-record-picker{width:min(92vw,470px);max-height:80svh;border:1px solid #4a4039;border-radius:8px;padding:20px;background:#101114;color:#e9e5df}
-dialog.phone-record-picker::backdrop{background:#000b}
-dialog.phone-record-picker header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-dialog.phone-record-picker h2{font:16px var(--client-mono,monospace);margin:0}
-dialog.phone-record-picker header button{border:0;background:none;color:inherit;min-width:44px;min-height:44px;font-size:24px}
-.phone-record-list{display:grid;grid-template-columns:1fr 1fr;gap:15px}
-.phone-record-list button{background:none;border:0;color:inherit;text-align:left;padding:0;min-width:0;font-family:inherit;touch-action:manipulation}
-.phone-record-list img{width:100%;aspect-ratio:1;object-fit:cover;display:block;border:1px solid #ffffff28;margin-bottom:8px;border-radius:2px}
-.phone-record-list strong{display:block;font-size:13px;font-weight:500;line-height:1.5}.phone-record-list small{display:block;font-size:11px;color:#aaa;line-height:1.6}
+body.cinema dialog.phone-record-picker{width:min(calc(100vw - 24px),480px);max-width:none;height:min(780px,calc(100svh - 40px));max-height:calc(100svh - 40px);margin:auto;border:1px solid #ffffff1f;border-radius:18px;padding:0;overflow:hidden;background:#111214;color:#e9e5df;box-shadow:0 24px 90px #0009}
+body.cinema dialog.phone-record-picker[open]{display:flex;flex-direction:column}
+dialog.phone-record-picker::backdrop{background:#030405d9}
+dialog.phone-record-picker header{flex:none;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 18px 18px;border-bottom:1px solid #ffffff0d}
+dialog.phone-record-picker .phone-record-eyebrow{margin:0 0 7px;color:#9d928b;font:8px/1.5 var(--client-mono,monospace);letter-spacing:.15em}
+body.cinema dialog.phone-record-picker h2{font-family:var(--reading-font,Arial,sans-serif);font-size:22px;font-weight:550;line-height:1.2;letter-spacing:-.035em;margin:0}
+body.cinema dialog.phone-record-picker .phone-record-close{flex:none;display:grid;place-items:center;align-self:center;border:1px solid #ffffff14;border-radius:50%;background:#ffffff05;color:#c4beb7;width:40px;height:40px;min-width:40px;min-height:40px;padding:0;font:25px/1 Arial,sans-serif;outline:none;transition:background .2s,color .2s,transform .2s}
+body.cinema dialog.phone-record-picker .phone-record-close:focus-visible{outline:1px solid #ebc6a4;outline-offset:3px}
+body.cinema dialog.phone-record-picker .phone-record-close:active{background:#ffffff12;color:#fff;transform:scale(.94)}
+.phone-record-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:24px 16px;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:20px 18px 28px;scrollbar-width:thin;scrollbar-color:#ffffff24 transparent;-webkit-overflow-scrolling:touch}
+body.cinema .phone-record-list button{display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch;align-self:start;background:none;border:0;border-radius:3px;color:inherit;text-align:left;padding:0;min-width:0;margin:0;font-family:var(--reading-font,Arial,sans-serif);touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.phone-record-list img{flex:none;width:100%;height:auto;aspect-ratio:1;object-fit:cover;display:block;border:1px solid #ffffff17;box-shadow:0 4px 12px #0004;margin:0 0 11px;border-radius:3px}
+.phone-record-list strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;font-size:13px;font-weight:500;line-height:1.5;letter-spacing:-.01em}
+.phone-record-list small{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;min-height:2.9em;margin-top:3px;font-size:10px;color:#96938f;line-height:1.45}
+body.cinema .phone-record-list button:focus-visible{outline:1px solid #ebc6a4;outline-offset:5px}
 html[data-studio-renderer="prerendered"] body.sound-entry-open .phone-studio-image{opacity:var(--phone-entry-red,0);transform:scale(var(--phone-entry-scale,.66));filter:none;transition:none}
 html[data-studio-renderer="prerendered"] body.sound-entry-open .phone-studio-contour{opacity:var(--phone-entry-contour,0);transform:scale(var(--phone-entry-scale,.66));transform-origin:50% 50%}
 @media(prefers-reduced-motion:reduce){.phone-studio-image,.phone-studio-transition,.phone-studio-hotspots,.phone-object-light{transition:none!important}.phone-object-light::after,.phone-object-dot,dialog.phone-film-viewer[open]{animation:none!important}}

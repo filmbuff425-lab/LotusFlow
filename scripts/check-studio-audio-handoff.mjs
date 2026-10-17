@@ -1,0 +1,16 @@
+import fs from 'node:fs';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+const source=fs.readFileSync('dist/interaction-sound.js','utf8');
+let timerId=0;const timers=new Map(),ramps=[];
+const ambience={volume:1,currentTime:8,paused:false,muted:false,pause(){this.paused=true}};
+const scope=vm.createContext({ambience,enabled:true,activated:true,document:{hidden:false},roomInside:true,bedStopping:0,bedAttempt:0,bedStarting:false,bedGain:{gain:{value:.12,cancelAndHoldAtTime(){},linearRampToValueAtTime(v,t){ramps.push([v,t])}}},context:{state:'running',currentTime:10},button:{dataset:{}},foregroundSuspended:()=>scope.roomInside,reportBed(state){scope.state=state},label(){},startBed(){throw new Error('Ambient cannot restart inside the room')},setTimeout(fn,ms){timers.set(++timerId,{fn,ms});return timerId},clearTimeout(id){timers.delete(id)}});
+vm.runInContext(source.slice(source.indexOf('function bedLevel('),source.indexOf("window.addEventListener('lotus-audio-start'")),scope);
+vm.runInContext("silenceBed('foreground-paused',.48)",scope);assert.equal(ambience.paused,false,'Opening the room starts a fade, not an abrupt pause');assert.deepEqual(ramps.at(-1),[0,10.48]);assert.equal(timers.size,1);
+for(let i=0;i<4;i++)vm.runInContext('blendBed()',scope);assert.equal(timers.size,1,'The ambient housekeeping timer must not restart or interrupt the tail');
+const tail=[...timers.values()][0];assert.equal(tail.ms,480);timers.clear();tail.fn();assert.ok(ambience.paused&&ambience.muted,'The bed is physically paused before the studio song, including iOS');
+ambience.paused=false;ambience.muted=false;scope.roomInside=true;vm.runInContext("silenceBed('foreground-paused',.48)",scope);scope.roomInside=false;vm.runInContext('blendBed()',scope);assert.equal(timers.size,0,'An immediate return cancels the pending pause');assert.ok(!ambience.paused);
+scope.roomInside=true;vm.runInContext("silenceBed('foreground-paused',.48)",scope);scope.enabled=false;vm.runInContext('blendBed()',scope);assert.ok(ambience.paused&&ambience.muted,'Explicit mute takes effect without waiting for the room fade');assert.equal(timers.size,0);
+const player=fs.readFileSync('dist/studio-player.js','utf8');let loads=0;const intro={preload:'none',paused:true,load(){loads++}};
+const prepare=vm.runInNewContext(player.slice(player.indexOf('const prepareOpening='),player.indexOf("window.addEventListener('lotus-entry-audible'"))+'prepareOpening',{intro,window:{lotusSfx:{enabled:true}}});prepare();prepare();assert.equal(loads,1,'Opening music is buffered once before the room transition');intro.preload='none';intro.paused=false;prepare();assert.equal(loads,1,'Preparing cannot reset a playing decoder');
+console.log('Studio audio handoff passed: smooth ambient tail, no restart/overlap, immediate mute, reversible entry and one-time early buffering.');

@@ -25,20 +25,26 @@ function label(){const on=enabled&&activated&&(!ambience.paused||foregroundSuspe
 const ambience=document.getElementById?.('lotus-ambience')||document.createElement('audio'),ambienceUrl=new URL('./assets/audio/space-exploration-soft.m4a',import.meta.url).href;
 // Reassigning src, even to the same URL, discards the HTML preload and decoder.
 if(ambience.src!==ambienceUrl)ambience.src=ambienceUrl;ambience.loop=true;ambience.preload=enabled?'auto':'none';ambience.volume=.001;ambience.dataset.ambient='true';ambience.setAttribute('aria-hidden','true');if(!ambience.isConnected)document.body.append(ambience);label();
-let bedTimer=0,bedStarting=false,bedAttempt=0,roomInside=false,foregroundUntil=0;
+let bedTimer=0,bedStarting=false,bedAttempt=0,roomInside=false,foregroundUntil=0,bedGain=null,bedStopping=0;
 try{const state=JSON.parse(sessionStorage.getItem('lotus-ambient-position')||'null');if(state&&Date.now()-state.at<120000)ambience.currentTime=(state.time+(Date.now()-state.at)/1000)%64}catch{}
 // Foreground playback owns the soundtrack. Native pause + mute is deliberate:
 // iOS may ignore .volume, so a quieter ambient loop is still a second song.
 function foregroundSuspended(){return roomInside||performance.now()<foregroundUntil||busy()}
-function silenceBed(state='foreground-paused'){
- bedAttempt++;bedStarting=false;ambience.muted=true;ambience.pause();ambience.volume=.001;reportBed(state);label();
+function bedLevel(value,duration=.1){
+ if(bedGain){const p=bedGain.gain,at=context.currentTime;if(p.cancelAndHoldAtTime)p.cancelAndHoldAtTime(at);else{const v=p.value;p.cancelScheduledValues(at);p.setValueAtTime(v,at)}p.linearRampToValueAtTime(value,at+duration)}else ambience.volume=value;
+}
+function silenceBed(state='foreground-paused',duration=0){
+ if(bedStopping){if(enabled&&!document.hidden)return;clearTimeout(bedStopping);bedStopping=0}bedAttempt++;bedStarting=false;
+ const finish=()=>{bedStopping=0;ambience.muted=true;ambience.pause();bedLevel(.001,0);reportBed(state);label()};
+ if(duration&&bedGain&&context.state==='running'&&!ambience.paused){bedLevel(0,duration);reportBed('fading-out');bedStopping=setTimeout(finish,duration*1000);return}finish();
 }
 function blendBed(){
  const foreground=foregroundSuspended(),allowed=enabled&&activated&&!document.hidden&&!foreground;
  if(!allowed){if(!ambience.paused||bedStarting)silenceBed(foreground?'foreground-paused':'paused');return}
+ if(bedStopping){clearTimeout(bedStopping);bedStopping=0}
  if(ambience.paused){startBed();return}
- ambience.volume=Math.max(0,Math.min(1,ambience.volume+(.12-ambience.volume)*.075));
- button.dataset.ambienceVolume=ambience.volume.toFixed(3);button.dataset.ambienceState='playing';button.dataset.ambienceProgress=ambience.currentTime.toFixed(3);
+ bedLevel(.12,.24);
+ button.dataset.ambienceVolume=(bedGain?.gain.value??ambience.volume).toFixed(3);button.dataset.ambienceState='playing';button.dataset.ambienceProgress=ambience.currentTime.toFixed(3);
 }
 window.addEventListener('lotus-audio-start',()=>{foregroundUntil=performance.now()+1800;silenceBed()});
 
@@ -48,7 +54,7 @@ function reportBed(state,error=''){
 }
 async function startBed({gesture=false}={}){
  if(!enabled||entryWaiting()||document.hidden||foregroundSuspended()||(bedStarting&&!gesture)||!ambience.paused)return;
- const attempt=++bedAttempt,at=performance.now();let timer;bedStarting=true;ambience.muted=false;ambience.volume=Math.max(.001,ambience.volume);reportBed('starting');
+ const attempt=++bedAttempt,at=performance.now();let timer;bedStarting=true;ambience.muted=false;bedLevel(.001,0);reportBed('starting');
  try{
   // A stalled decoder/network request must release the mouse-movement retry.
   await Promise.race([ambience.play(),new Promise((_,reject)=>{timer=setTimeout(()=>{if(attempt===bedAttempt)ambience.pause();const error=new Error('Ambient playback timed out');error.name='TimeoutError';reject(error)},2400)})]);
@@ -58,7 +64,7 @@ async function startBed({gesture=false}={}){
  }catch(error){if(attempt===bedAttempt)reportBed(error.name==='TimeoutError'?'unavailable':ambience.error?'error':'needs-gesture',error.name||'Error')}
  finally{clearTimeout(timer);if(attempt===bedAttempt)bedStarting=false;label()}
 }
-function init(){if(context)return context;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;context=new AC();master=context.createGain();master.gain.value=.43;compressor=context.createDynamicsCompressor();compressor.threshold.value=-18;compressor.knee.value=18;compressor.ratio.value=3;master.connect(compressor).connect(context.destination);context.addEventListener('statechange',()=>{unlocked=context.state==='running';if(unlocked)activated=true;button.dataset.audioState=context.state;label()});return context}
+function init(){if(context)return context;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;context=new AC();master=context.createGain();master.gain.value=.43;compressor=context.createDynamicsCompressor();compressor.threshold.value=-18;compressor.knee.value=18;compressor.ratio.value=3;master.connect(compressor).connect(context.destination);try{const source=context.createMediaElementSource(ambience);bedGain=context.createGain();bedGain.gain.value=ambience.volume;source.connect(bedGain).connect(context.destination);ambience.volume=1}catch{}context.addEventListener('statechange',()=>{unlocked=context.state==='running';if(unlocked)activated=true;button.dataset.audioState=context.state;label()});return context}
 async function arm(){if(!enabled||entryWaiting())return;
  // The explicit entrance installs the heartbeat's zero-gain route before its
  // media starts. Passive visits retain the independent native-audio path.
@@ -169,7 +175,7 @@ document.addEventListener('pointerdown',e=>{if(!e.target.closest('#noise-title')
 document.addEventListener('pointermove',e=>{if(!canvasDrag||canvasDrag.id!==e.pointerId||!e.buttons||Math.hypot(e.clientX-canvasDrag.x,e.clientY-canvasDrag.y)<12)return;const now=performance.now();if(now-lastDrag>330){play('drag',{x:(e.clientX-innerWidth/2)/innerWidth});lastDrag=now;canvasDrag.x=e.clientX;canvasDrag.y=e.clientY}},{capture:true,passive:true});
 for(const type of ['pointerup','pointercancel'])document.addEventListener(type,()=>canvasDrag=null,{capture:true,passive:true});
 document.addEventListener('keydown',e=>{if(!e.target.matches('canvas'))return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','-','='].includes(e.key)){if(!e.repeat)play('move')}else if(/^[1-8ms]$/i.test(e.key))play('tap')});
-window.addEventListener('lotus-room-change',e=>{roomInside=Boolean(e.detail);if(roomInside)silenceBed();else blendBed();if(e.detail){airVoices.get('seam-air')?.stop();play('studio-wind')}else{airVoices.get('studio-wind')?.stop();play('move')}});
+window.addEventListener('lotus-room-change',e=>{roomInside=Boolean(e.detail);if(roomInside)silenceBed('foreground-paused',.48);else blendBed();if(e.detail){airVoices.get('seam-air')?.stop();play('studio-wind')}else{airVoices.get('studio-wind')?.stop();play('move')}});
 const dialogs=new MutationObserver(records=>{for(const r of records){const el=r.target;if(el.id==='film-prologue')continue;if(r.attributeName==='open'&&el.open)play(el.id==='studio-desktop'?'glass':'case-open');else if(r.attributeName==='class'&&el.classList.contains('is-closing'))play('case-close')}});
 for(const dialog of document.querySelectorAll('dialog'))dialogs.observe(dialog,{attributes:true,attributeFilter:['open','class']});
 new MutationObserver(records=>{for(const r of records)for(const n of r.addedNodes)if(n.nodeType===1){if(n.matches('dialog'))dialogs.observe(n,{attributes:true,attributeFilter:['open','class']});n.querySelectorAll('dialog').forEach(d=>dialogs.observe(d,{attributes:true,attributeFilter:['open','class']}))}}).observe(document.body,{childList:true,subtree:true});

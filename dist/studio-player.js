@@ -9,6 +9,9 @@ export function initStudioPlayer(api){
  const video=document.createElement('video');video.id='studio-mv';video.playsInline=true;video.muted=true;video.preload='none';video.className='studio-video-source';video.setAttribute('aria-hidden','true');video.tabIndex=-1;section.append(video);
  const audio=document.createElement('audio');audio.id='studio-song';audio.preload='none';audio.volume=.7;section.append(audio);
  const intro=document.createElement('audio');intro.id='studio-opening';intro.preload='none';intro.volume=.6;intro.src='assets/audio/studio-mirror-instrumental.mp3';intro.dataset.currentTrack='mirror-instrumental';section.append(intro);
+ // Buffer the opening after sound entry; opening the room must not be its first network request.
+ const prepareOpening=()=>{if(intro.preload==='auto'||!intro.paused||window.lotusSfx?.enabled===false)return;intro.preload='auto';intro.load()};
+ window.addEventListener('lotus-entry-audible',prepareOpening,{once:true});window.addEventListener('lotus-entry-complete',prepareOpening,{once:true});if(document.documentElement.dataset.soundEntry==='entered')prepareOpening();
  const priority=window.lotusStudioSongIds||[];
  const songs=[...priority.map(id=>api.tracks.find(t=>t.id===id)),...api.tracks.filter(t=>!priority.includes(t.id))].filter(Boolean);
  const videos=window.lotusFilms;
