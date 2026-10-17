@@ -1,7 +1,14 @@
 import * as THREE from 'three';
 // Consolidate static opaque parts; keep controls, moving parents and optical surfaces independent.
 function* batches(root,interactive){
- const excluded=new Set(interactive),groups=new Map(),materialKeys=new WeakMap(),inverse=new THREE.Matrix4();root.updateMatrixWorld(true);inverse.copy(root.matrixWorld).invert();let before=0,removed=0,frozenMatrices=0;
+ const excluded=new Set(interactive),groups=new Map(),materialKeys=new WeakMap();root.updateMatrixWorld(true);let before=0,removed=0,frozenMatrices=0;
+ // Compose below the animated root. A cached world inverse becomes stale
+ // while a yield lets the closed cube float, splitting adjacent surfaces.
+ function rootLocalMatrix(object){
+  const matrix=new THREE.Matrix4();
+  for(let node=object;node&&node!==root;node=node.parent){if(node.matrixAutoUpdate)node.updateMatrix();matrix.premultiply(node.matrix)}
+  return matrix;
+ }
  function materialKey(material){
   if(materialKeys.has(material))return materialKeys.get(material);
   // UUIDs separate otherwise identical static hardware into thousands of draw calls.
@@ -29,7 +36,7 @@ function* batches(root,interactive){
   yield;
   // Preserve existing indices: expanding every screw and tube into separate
   // triangle vertices needlessly multiplies both CPU and GPU memory.
-  if(objects.length<2)continue;const parts=[];for(const o of objects){const g=o.geometry.clone();g.applyMatrix4(new THREE.Matrix4().multiplyMatrices(inverse,o.matrixWorld));parts.push(g);yield;}
+  if(objects.length<2)continue;const parts=[];for(const o of objects){const g=o.geometry.clone();g.applyMatrix4(rootLocalMatrix(o));parts.push(g);yield;}
   const geometry=new THREE.BufferGeometry();for(const name of ['position','normal','uv']){const itemSize=name==='uv'?2:3;const length=parts.reduce((n,g)=>n+g.attributes[name].array.length,0),array=new Float32Array(length);let offset=0;for(const g of parts){array.set(g.attributes[name].array,offset);offset+=g.attributes[name].array.length}geometry.setAttribute(name,new THREE.BufferAttribute(array,itemSize))}
   const count=parts.reduce((n,g)=>n+(g.index?.count||g.attributes.position.count),0),indices=new Uint32Array(count);let indexOffset=0,vertexOffset=0;
   for(const g of parts){const n=g.index?.count||g.attributes.position.count;for(let i=0;i<n;i++)indices[indexOffset++]=vertexOffset+(g.index?g.index.getX(i):i);vertexOffset+=g.attributes.position.count}

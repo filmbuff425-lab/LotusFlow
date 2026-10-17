@@ -3,9 +3,9 @@
 export function signalStyle(id){return id==='im-falling'?'prismatic-ring':'particle-ribbon'}
 // Art-directed complements keep the particles legible against each cover.
 const palettes={
- ice:['#e8ffff','#74e9ef','#2bafcd'],violet:['#f1e9ff','#b69aff','#7858d4'],
- rose:['#fff0f4','#ff99b7','#df517f'],amber:['#fff1d4','#ffc67c','#df873d'],
- mint:['#effff4','#9debd0','#45bf9b'],pearl:['#ffffff','#dce7f6','#8aa9ca']
+ ice:['#edf4f2','#b1c9c9','#859da5'],violet:['#efecf2','#c3bdcd','#9990aa'],
+ rose:['#f2e9e9','#d0b9be','#ac929c'],amber:['#f3eee3','#d2c3ac','#ab9781'],
+ mint:['#ecf1eb','#bdcec4','#8fa99d'],pearl:['#f2f3f1','#c8cfd5','#929fae']
 };
 const coverPalettes={lov:'ice','show-me-love':'violet',mirror:'rose',bridge:'amber',juliet:'amber',cassette:'amber','pick-a-side':'rose',news:'mint','train-to-nowhere':'violet','red-flag-101':'ice',rendezvous:'amber',wya:'ice','feed-on':'rose','im-fine':'violet',flow:'mint',summer:'rose',adult:'amber',airtight:'ice','im-falling':'violet','right-here':'amber','midsummer-heat':'mint',endlessly:'rose',jellyfish:'amber','say-it-to-me':'ice','still-miss-you':'ice','unnamed-relationship':'amber'};
 export function signalPalette(id){return coverPalettes[id]||'ice'}
@@ -18,7 +18,7 @@ export function createSignalPainter(canvas,style,palette='ice'){
   energy+=(target-energy)*blend;if(!reduced)phase+=dt*(.8+energy*.7);
   for(let i=0;i<64;i++)bands[i]+=(((data.spectrum?.[i*3]||0)/255)-bands[i])*blend;
   if(!data.playing)return;
-  g.globalCompositeOperation='source-over';const shade=g.createRadialGradient(cx,cy,size*.12,cx,cy,size*.58);shade.addColorStop(0,style==='prismatic-ring'?'rgba(3,8,12,.38)':'rgba(3,8,12,.48)');shade.addColorStop(1,'rgba(3,8,12,0)');g.fillStyle=shade;g.fillRect(0,0,w,h);g.globalCompositeOperation='lighter';
+  g.globalCompositeOperation='source-over';const shade=g.createRadialGradient(cx,cy,size*.12,cx,cy,size*.58);shade.addColorStop(0,style==='prismatic-ring'?'rgba(3,8,12,.38)':'rgba(3,8,12,.16)');shade.addColorStop(1,'rgba(3,8,12,0)');g.fillStyle=shade;g.fillRect(0,0,w,h);g.globalCompositeOperation='lighter';
   if(style==='prismatic-ring'){
    const r=size*(.21+energy*.025),pulse=reduced?0:energy;
    const halo=g.createRadialGradient(cx,cy,r*.7,cx,cy,r*1.65);halo.addColorStop(0,'rgba(130,223,224,0)');halo.addColorStop(.37,`rgba(154,226,229,${.13+pulse*.13})`);halo.addColorStop(.60,`rgba(241,183,105,${.09+pulse*.12})`);halo.addColorStop(1,'rgba(194,211,211,0)');g.fillStyle=halo;g.fillRect(cx-r*1.7,cy-r*1.7,r*3.4,r*3.4);
@@ -32,24 +32,25 @@ export function createSignalPainter(canvas,style,palette='ice'){
    // Advected points form a loose, folding silk sheet; differently timed
    // currents deform its surface and peel off sparse drifting filaments.
    g.globalCompositeOperation='source-over';
-   const t=phase,height=size*.78,width=size*(.25+energy*.075);
-   const turn=Math.sin(t*.29)*.38+Math.sin(t*.63)*.12,co=Math.cos(turn),si=Math.sin(turn);
+   const t=phase,height=size*.61,width=size*(.185+energy*.038);
+   const turn=Math.sin(t*.29)*.25+Math.sin(t*.63)*.09,co=Math.cos(turn),si=Math.sin(turn);
    for(let i=0;i<dust.length;i++){
-    const p=dust[i],u=(p.u+t*(.045+(i%11)*.001))%1,v=p.v;
+    const p=dust[i],u=(p.u+t*(.026+(i%17)*.0021))%1,v=p.v;
     const warp=Math.sin(u*8.4+t*.87)+.54*Math.sin(u*17.3-t*.61)+.3*Math.cos(v*5.1+t*1.19);
     const flutter=Math.sin(u*23+v*3.7+t*1.73)*.16+Math.sin(u*37-v*5-t*1.12)*.085;
-    const loosen=i%7===0?1.9:1,envelope=Math.pow(Math.sin(Math.PI*u),.48),band=bands[Math.floor(u*63)];
+    const loosen=i%7===0?1.35:1,envelope=Math.pow(Math.sin(Math.PI*u),.48),band=bands[Math.floor(u*63)];
     const twist=warp+v*.95,depth=Math.cos(twist),perspective=1/(1+depth*.23);
-    const drift=Math.sin(p.a+t*(.36+(i%5)*.07))*.05;
+    const drift=Math.sin(p.a+t*(.43+(i%13)*.08))*.16+Math.cos(p.a*.7-t*.61)*.065;
     const xx=(Math.sin(warp)*.47+v*(.2+.75*Math.abs(Math.cos(warp)))*loosen+flutter+drift+band*Math.sin(p.a+t)*.18)*width*envelope;
-    const yy=(u-.5)*height+Math.sin(twist+t*.43)*size*.038;
+    const yy=(u-.5)*height+Math.sin(twist+t*.43+p.a*.12)*size*.026+Math.sin(p.a*.3+t*(.4+(i%9)*.07))*size*.012;
     const x=cx+(xx*co-yy*si)*perspective,y=cy+(xx*si+yy*co)*perspective;
     const fade=envelope*(.48+.52*(depth*.5+.5)),flicker=.84+.16*Math.sin(t*1.1+p.a);
-    // Keep ordinary grains around one CSS pixel at gallery size. The original
-    // subpixel grains disappeared into bright covers even with live audio.
-    const glint=i%7===0;
-    g.globalAlpha=fade*flicker*(.74+energy*.24);g.fillStyle=colours[glint?0:i%3?1:2];
-    const dot=Math.max(.9,size*(glint?.0056:.004))*perspective;g.fillRect(x,y,dot,dot);
+    // Fine neutral grains have independent currents; only sparse highlights
+    // brighten. Fade before the cover edge instead of clipping a moving sheet.
+    const glint=i%19===0;
+    const edge=Math.max(0,Math.min(1,(Math.min(x,w-x,y,h-y)/size-.075)/.12));
+    g.globalAlpha=fade*flicker*(.58+energy*.14)*edge;g.fillStyle=colours[glint?0:i%3?1:2];
+    const dot=Math.max(.6,size*(glint?.0046:.0034))*perspective;g.fillRect(x,y,dot,dot);
    }
   }
   g.globalAlpha=1;g.globalCompositeOperation='source-over';

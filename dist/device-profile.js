@@ -2,6 +2,8 @@ import {mobileImages} from './mobile-images.js';
 
 // Choose the rendering budget once per page. Desktop assets and framing stay independent.
 export const handheld=typeof matchMedia==='function'&&matchMedia('(max-width:700px), (max-width:1024px) and (pointer:coarse)').matches;
+// Approved portrait composition is independent of the desktop room.
+export const compactStudio=handheld;
 export const deviceProfile={handheld,pixelRatio:handheld?1.25:1.5,panelWidth:handheld?1024:4096,screenFPS:handheld?20:30};
 export function mobileAsset(url,base=import.meta.url){
  if(!handheld)return url;

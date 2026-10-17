@@ -4,7 +4,7 @@ import fs from 'node:fs';
 const threeURL=new URL('../dist/vendor/three.module.js',import.meta.url).href;
 const THREE=await import(threeURL);
 const source=fs.readFileSync(new URL('../dist/studio-batch.js',import.meta.url),'utf8').replace("from 'three'",`from '${threeURL}'`);
-const {batchStudio}=await import('data:text/javascript,'+encodeURIComponent(source));
+const {batchStudio,batchStudioAsync}=await import('data:text/javascript,'+encodeURIComponent(source));
 const root=new THREE.Group();root.position.set(8,-3,4);root.rotation.y=.3;
 const geometry=new THREE.BoxGeometry(2,3,4);
 const material=()=>new THREE.MeshStandardMaterial({color:0x78523a,roughness:.48,metalness:.12});
@@ -39,3 +39,15 @@ for(const mesh of [interactive,glass,custom,extra,another,...hiddenParts,...movi
 const hitOnly=new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.MeshBasicMaterial({transparent:true,opacity:0}));hitOnly.visible=false;hitOnly.updateMatrixWorld(true);
 const ray=new THREE.Raycaster(new THREE.Vector3(0,0,5),new THREE.Vector3(0,0,-1));assert.ok(ray.intersectObject(hitOnly).length,'Hidden hit targets still receive pointer raycasts');
 console.log('Studio batching checks passed: fewer draw calls, matching geometry/materials, preserved controls, glass, hidden and moving parts.');
+
+// The closed glass cube keeps floating while asynchronous batching yields.
+// Its world animation must never be baked into furniture-local geometry.
+const floating=new THREE.Group(),assembly=new THREE.Group();floating.add(assembly);assembly.position.set(3,7,-11);assembly.rotation.y=.7;
+const pieces=[];for(let i=0;i<12;i++){const p=new THREE.Mesh(new THREE.BoxGeometry(1,2,.08),material());p.position.set(i*.4,0,i*.1);assembly.add(p);pieces.push(p)}
+floating.updateMatrixWorld(true);const expected=pieces.flatMap(vertices);
+let ticks=0;
+await batchStudioAsync(floating,[],{budgetMs:0,now:()=>++ticks,yieldFrame:async()=>{floating.position.set(Math.sin(ticks)*.3,ticks*.01,0);floating.rotation.set(.1,Math.sin(ticks)*.2,0);floating.scale.setScalar(.3+ticks*.0001);floating.updateMatrixWorld(true)}});
+floating.position.set(0,0,0);floating.rotation.set(0,0,0);floating.scale.setScalar(1);floating.updateMatrixWorld(true);
+const actual=floating.children.filter(o=>o.isMesh).flatMap(vertices);assert.equal(actual.length,expected.length);
+for(const point of actual){const i=expected.findIndex(candidate=>point.every((v,axis)=>Math.abs(v-candidate[axis])<1e-5));assert.ok(i>=0,'Floating cube transforms cannot split sleeves, records or furniture during async batching');expected.splice(i,1)}
+console.log('Animated-root regression passed: all vertices stay aligned across asynchronous yields.');

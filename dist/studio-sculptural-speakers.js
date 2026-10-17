@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {handheld} from './device-profile.js';
+import {handheld,compactStudio} from './device-profile.js?v=mobile48';
 
 // Frosted resin speaker bodies follow the updated 4722/4723 reference.
 export function createSculpturalSpeakers({ root, texture }) {
@@ -113,7 +113,7 @@ export function createSculpturalSpeakers({ root, texture }) {
     line(speaker,[[0,.29,-1.42],[0,.10,-2.2],[1.6,.06,-3.8]],.022,dark,16);
     return speaker;
   }
-  const speakers=[-26,26].map(createSpeaker);
+  const speakers=(compactStudio?[-20.5,20.5]:[-26,26]).map(createSpeaker);
   const rack = new THREE.Group(); rack.name = 'Open stainless amplifier equipment rack'; rack.position.set(0, 0, -17.6); group.add(rack);
   // Narrow tubular open frame and visible air gaps between separate units.
   for (const side of [-1, 1]) for (const z of [-1.20, 1.20]) {

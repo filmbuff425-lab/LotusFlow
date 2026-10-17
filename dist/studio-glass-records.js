@@ -1,5 +1,6 @@
 import {createSharedTextureLoader} from './texture-sources.js';
 import * as THREE from 'three';
+import {studioLayout} from './studio-layout.js?v=20261006-lake-surface1';
 
 // Upright jewel cases: printed inserts sit inside separate clear lids and hinges.
 export function createGlassRecords({parent,texture,backWall,objects}) {
@@ -14,7 +15,8 @@ export function createGlassRecords({parent,texture,backWall,objects}) {
  const box=(w,h,d,p,x,y,z,mat)=>add(new THREE.BoxGeometry(w,h,d),mat,p,x,y,z);
  box(31,.10,4.9,group,0,15.20,z,glass);
  for(const x of [-15.05,15.05])box(.09,1.1,4.9,group,x,15.72,z,glass);
- for(const x of [-12.7,12.7]){box(.10,.10,4.17,group,x,15.10,-28.20,clearHinge);box(.19,.62,.07,group,x,14.90,-30.25,clearHinge);}
+ const mountZ=-14.47*studioLayout.architectureScale[2]-group.position.z+.06;
+ for(const x of [-12.7,12.7]){box(.10,.10,z-mountZ,group,x,15.10,(z+mountZ)/2,clearHinge);box(.19,.62,.07,group,x,14.90,mountZ,clearHinge);}
  tracks.forEach((track,index)=>{
   const g=new THREE.Group();g.name='Glass CD / '+track.title;g.userData.dynamic=true;const yaw=index===0 ? .40 : index===6 ? 1.08 : angle+Math.sin(index*2.17)*.065,lean=Math.sin(index*1.73+.4)*.047,pitch=Math.cos(index*2.39)*.018;g.rotation.order='ZXY';g.rotation.set(pitch,yaw,lean);g.position.set(0,y,z+Math.sin(index*1.41)*.33);group.add(g);
   const art=loader.load(track.image);art.colorSpace=THREE.SRGBColorSpace;art.anisotropy=8;
@@ -41,9 +43,9 @@ export function createGlassRecords({parent,texture,backWall,objects}) {
  const gapAfter=i=>i%7===6 ? .18 : .045+Math.sin(i*1.7)**2*.035;
  let cursor=0;cases.forEach((c,i)=>{c.g.position.x=cursor-c.minX;cursor+=c.maxX-c.minX+gapAfter(i)});
  const rowWidth=cursor-gapAfter(cases.length-1);cases.forEach(c=>{c.g.position.x-=rowWidth/2+1.05;c.home.copy(c.g.position)});
- objects.club(group,-13.9,15.255,z+.35,.76,.08);
- objects.polaroid(group,12.0,15.255,z+.35,.90,-.13);
- objects.clock(group,14.10,15.255,z+.50,.86,-.08);
+ objects.club(group,-13.9,15.255,z+1.85,.76,.08);
+ objects.polaroid(group,14.0,15.255,z+.35,.90,-.13);
+ objects.clock(group,14.10,15.255,z-1.30,.86,-.08);
  let selected=null,flight=null,hoverId=null,trigger=null,last=0;
  const picker=document.createElement('details');picker.className='studio-record-picker';picker.hidden=true;
  const summary=document.createElement('summary');summary.textContent='CD COLLECTION / '+tracks.length;picker.append(summary);

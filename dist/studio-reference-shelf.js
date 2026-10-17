@@ -83,7 +83,7 @@ export function createReferenceShelf({ root, texture }) {
   ];
   // A short row of slim 10 mm jewel cases; one face-out cover instead of an oversized display block.
   for (let i = 0; i < 9; i++) {
-    const cd = new THREE.Group(); cd.name = 'Thin jewel case spine'; cd.position.set(.18 + i * .135, levels[0] + .80, -.18); group.add(cd);
+    const cd = new THREE.Group(); cd.name = 'Thin jewel case spine'; cd.position.set(.18 + i * .135, levels[0] + .825, -.18); group.add(cd);
     box(cd, .10, 1.53, 1.40, 0, 0, 0, clearEdge);
     box(cd, .056, 1.45, 1.28, 0, 0, -.012, i % 3 ? charcoal : label);
     box(cd, .065, 1.40, .017, 0, 0, .715, i % 3 ? steel : label);
@@ -126,10 +126,10 @@ export function createReferenceShelf({ root, texture }) {
   add(new THREE.PlaneGeometry(.55, .14), new THREE.MeshStandardMaterial({ map: cameraWord, transparent: true, depthWrite: false, roughness: .8 }), camera, -.59, .37, .426);
   for (const side of [-1, 1]) { const eye = ring(camera, .10, .018, side * 1.245, .37, .17, edge); eye.rotation.y = Math.PI / 2; }
 
-  camera.scale.setScalar(.60);camera.position.set(-1.24,levels[1]+.47,.05);
-  const second=camera.clone(true);second.name='Black Leica film rangefinder';second.position.set(.72,levels[1]+.47,-.10);second.rotation.y=.14;group.add(second);
+  camera.scale.setScalar(.60);camera.position.set(-1.24,levels[1]+.51,.05);
+  const second=camera.clone(true);second.name='Black Leica film rangefinder';second.position.set(.72,levels[1]+.51,-.10);second.rotation.y=.14;group.add(second);
   // Two compact medium-format cameras, including a waist-level Hasselblad 500-series form.
-  function hasselblad(x,y,angle){const c=new THREE.Group();c.name='Hasselblad medium-format film camera';c.position.set(x,y+.55,-.05);c.rotation.y=angle;group.add(c);
+  function hasselblad(x,y,angle){const c=new THREE.Group();c.name='Hasselblad medium-format film camera';c.position.set(x,y+.65,-.05);c.rotation.y=angle;group.add(c);
     box(c,1.02,1.08,1.18,0,0,0,leather);box(c,1.10,.08,1.25,0,-.55,0,edge);box(c,1.08,.16,.90,0,.56,-.12,charcoal);
     box(c,.81,.27,.69,0,.73,-.12,charcoal);box(c,.73,.025,.61,0,.88,-.12,glass);box(c,1.04,.98,.28,0,0,-.70,steel);
     for(const [r,h,z,m]of[[.43,.12,.68,edge],[.39,.45,.92,charcoal],[.33,.09,1.19,edge],[.28,.025,1.25,glass]]){const l=cylinder(c,r,h,0,-.02,z,m);l.rotation.x=Math.PI/2;}
@@ -138,10 +138,10 @@ export function createReferenceShelf({ root, texture }) {
   }
   hasselblad(-1.18,levels[2],-.15);hasselblad(.62,levels[2],.13);
   // Closed 12-inch sleeve, leaned wholly inside the shelf instead of a protruding record.
-  const vinyl=new THREE.Group();vinyl.name='Sleeved vinyl';vinyl.position.set(.35,levels[0]+1.52,-.75);vinyl.rotation.x=-.035;group.add(vinyl);
+  const vinyl=new THREE.Group();vinyl.name='Sleeved vinyl';vinyl.position.set(.35,levels[0]+1.52,-1.15);vinyl.rotation.x=-.035;group.add(vinyl);
   box(vinyl,2.9,2.9,.06,0,0,0,label);add(new THREE.PlaneGeometry(2.86,2.86),cover(covers[2][2]),vinyl,0,0,.038);
   // A lit scented candle in an open amber vessel; a quiet flame, not burning diffuser reeds.
-  const scent=new THREE.Group();scent.name='Lit amber scented candle';scent.position.set(.46,levels[3]+.025,-.09);group.add(scent);
+  const scent=new THREE.Group();scent.name='Lit amber scented candle';scent.position.set(.46,levels[3]+.065,-.09);group.add(scent);
   const amber=new THREE.MeshPhysicalMaterial({color:0x7c401b,roughness:.25,transparent:true,opacity:.58,metalness:0,depthWrite:false,clearcoat:.45});
   const vessel=new THREE.LatheGeometry([[0,0],[.40,0],[.43,.06],[.43,1.13],[.425,1.17],[.375,1.17],[.365,.12],[0,.12]].map(v=>new THREE.Vector2(...v)),48);add(vessel,amber,scent);
   const wax=new THREE.MeshStandardMaterial({color:0xe7d7af,roughness:.88});cylinder(scent,.365,.78,0,.51,0,wax);cylinder(scent,.018,.15,0,.95,0,charcoal);

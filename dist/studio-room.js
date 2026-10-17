@@ -1,3 +1,4 @@
+import {compactStudio} from './device-profile.js?v=mobile48';
 import {createSharedTextureLoader} from './texture-sources.js';
 import * as THREE from 'three';
 import {createGlassRecords} from './studio-glass-records.js?v=20261006-lake-surface1';
@@ -10,7 +11,7 @@ import {studioLayout} from './studio-layout.js?v=20261006-lake-surface1';
 import {createReferenceObjects} from './studio-reference-objects.js?v=20261007-mobile3';
 
 export async function createRecordingRoom({root,renderer,texture,camera,scene,yieldToPage=()=>Promise.resolve()}){
- const room=new THREE.Group();root.add(room);const architecture=new THREE.Group();architecture.scale.set(...studioLayout.architectureScale);room.add(architecture);const back=new THREE.Group(),left=new THREE.Group(),ceiling=new THREE.Group();architecture.add(back,left,ceiling);
+ const room=new THREE.Group();root.add(room);const architecture=new THREE.Group();architecture.name='Glass studio architecture';architecture.scale.set(...studioLayout.architectureScale);room.add(architecture);const back=new THREE.Group(),left=new THREE.Group(),ceiling=new THREE.Group();architecture.add(back,left,ceiling);
  const mesh=(geo,mat,p,x=0,y=0,z=0)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;p.add(m);return m};
  const box=(w,h,d,x,y,z,mat,p=room)=>mesh(new THREE.BoxGeometry(w,h,d),mat,p,x,y,z);
  const rnd=n=>{const q=Math.sin(n*78.2+18)*43758.5;return q-Math.floor(q)};
@@ -64,13 +65,14 @@ export async function createRecordingRoom({root,renderer,texture,camera,scene,yi
  // and back sheets, so the partially extracted record occupies their cavity.
  const vinylWall=new THREE.Group();vinylWall.name='Four selected records above centered wall player';vinylWall.position.set(studioLayout.leftWall+1.14,0,studioLayout.listeningZ);vinylWall.rotation.y=Math.PI/2;room.add(vinylWall);
  box(33,.10,2.2,0,17.50,0,acrylic,vinylWall);
- for(const x of[-12.3,12.3]){box(.08,.09,1.7,x,17.40,-.28,bronze,vinylWall);box(.20,.8,.09,x,17.05,-1.09,bronze,vinylWall);}
+ const mountZ=-17.47*studioLayout.architectureScale[0]-vinylWall.position.x+.06;
+ for(const x of[-12.3,12.3]){box(.08,.09,.57-mountZ,x,17.40,(.57+mountZ)/2,bronze,vinylWall);box(.20,.8,.09,x,17.05,mountZ,bronze,vinylWall);}
  const sleevePaper=new THREE.MeshStandardMaterial({color:0xd6d0bf,roughness:.92});
  await yieldToPage();
  for(const [i,id] of ['bridge','train-to-nowhere','lov','juliet'].entries()){
   await yieldToPage();
   const track=window.lotusCatalog.find(t=>t.id===id),art=coverLoader.load(track.image);art.colorSpace=THREE.SRGBColorSpace;art.anisotropy=8;
-  const g=new THREE.Group();g.name='Hollow record jacket / '+track.title;g.scale.setScalar(.82);g.position.set(-10.2+i*6.8,19.7025,.10);vinylWall.add(g);
+  const g=new THREE.Group();g.name='Hollow record jacket / '+track.title;g.scale.setScalar(.82);g.position.set(-10.2+i*6.8,19.7825,.10);vinylWall.add(g);
   const backMap=texture(512,512,g=>{g.fillStyle='#ddd6c5';g.fillRect(0,0,512,512);g.fillStyle='#343937';g.font='20px monospace';g.fillText(track.title.toUpperCase(),42,68);g.font='13px monospace';g.fillText(track.artist.toUpperCase(),42,105);for(let n=0;n<6;n++){g.fillRect(42,160+n*27,130+n%3*36,3)}for(let n=0;n<35;n++)g.fillRect(380+n*2.2,407,n%3?1:2,46);});
   const front=mesh(new THREE.PlaneGeometry(5.25,5.25),new THREE.MeshStandardMaterial({map:art,roughness:.68,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}),g,-.75,0,.13);
   const target=mesh(new THREE.PlaneGeometry(7.6,5.25),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}),g,.25,0,.18);
@@ -80,7 +82,7 @@ export async function createRecordingRoom({root,renderer,texture,camera,scene,yi
   const back=mesh(new THREE.PlaneGeometry(5.25,5.25),new THREE.MeshStandardMaterial({map:backMap,roughness:.86,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}),g,-.75,0,-.13);back.rotation.y=Math.PI;
   box(.035,5.25,.26,-3.375,0,0,sleevePaper,g);for(const y of[-2.61,2.61])box(5.25,.028,.26,-.75,y,0,sleevePaper,g);
   const record=createArtRecord({image:track.image,id:track.id,index:i,radius:2.52});for(const m of record.materials){if(m.transparent&&m.opacity===1){m.transparent=false;m.depthWrite=true}if(m.map&&m.opacity===1){m.polygonOffset=true;m.polygonOffsetFactor=-2;m.polygonOffsetUnits=-2}}record.group.position.set(1.65,0,0);g.add(record.group);
-  box(7.6,.09,.72,.25,-2.58,.18,acrylic,g);
+  box(7.6,.09,.72,.25,-2.6775,.18,acrylic,g);
  }
  const candles=objects.candles(vinylWall,-15.20,17.555,.20,1.18,.16);
  objects.love(vinylWall,15.20,17.555,.22,.89,-.10);
@@ -91,7 +93,7 @@ export async function createRecordingRoom({root,renderer,texture,camera,scene,yi
  createStudioLamps({root,room,texture});
  // Sparse curved stems reach the blade area of the rear Kill Bill poster.
  await yieldToPage();
- const rearPlant=createReferenceMarginata(texture);rearPlant.position.set(-33.0,0,studioLayout.backWall+3.287);rearPlant.rotation.y=.1;room.add(rearPlant);root.userData.rearPlant=({species:'Dracaena marginata',position:rearPlant.position.toArray(),height:19.1,bladeArea:[15.5,19.5]});
+ const rearPlant=createReferenceMarginata(texture);rearPlant.position.set(studioLayout.plantX,0,studioLayout.backWall+3.287);rearPlant.rotation.y=.1;room.add(rearPlant);root.userData.rearPlant=({species:'Dracaena marginata',position:rearPlant.position.toArray(),height:19.1,bladeArea:[15.5,19.5]});
  function update(now,p=1){back.visible=left.visible=ceiling.visible=true;rearPlant.userData.update(now*.001);candles.userData.update(now*.001);glassRecords.update(now);mvWall.update(now);glazing.update(now,p>.995);}
  return{room,update,recordTargets,glassRecords,mvWall};
 }

@@ -91,7 +91,10 @@ body{font-family:var(--reading-font);font-variation-settings:normal}
 html:lang(zh-CN) body{font-family:'Lotus Sarasa Mono SC','Lotus Space Grotesk',sans-serif}
 :is(.profile-tabs button,.filters button,.view-switch button,.recognition-filters button,.header nav a,.studio-view-buttons button,.studio-hint,.studio-corner,.library-label,.library-caption,.inspector-meta,.recognition-eyebrow){font-family:var(--client-mono)!important}
 
-.record-signal{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0;transition:opacity .55s ease;z-index:5}
+.record-signal{position:absolute;inset:6px 6px 6px 8.7%;width:calc(91.3% - 6px);height:calc(100% - 12px);contain:paint;pointer-events:none;opacity:0;transition:opacity .55s ease;z-index:5}
 .is-signal-playing .record-signal{opacity:1}
 .track-list:not(.gallery) .record-signal{display:none}
 @media(prefers-reduced-motion:reduce){.record-signal{transition:none}}
+
+/* Review-only portrait composition. It is not enabled by the production URL. */
+@media(max-width:700px){html[data-compact-studio="true"] #studio.room-is-open #studio-stage{height:clamp(540px,70svh,650px)!important;min-height:0!important}}

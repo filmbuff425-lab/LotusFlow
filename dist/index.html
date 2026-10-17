@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<script>(()=>{const h=document.documentElement,p=new URLSearchParams(location.search).get('entryPreview')==='1';h.dataset.entryGate='true';if(p)h.dataset.entryPreview='true';h.dataset.soundEntry='waiting'})();</script>
+<script>(()=>{const h=document.documentElement,p=new URLSearchParams(location.search).get('entryPreview')==='1';let returning=false;try{returning=!p&&sessionStorage.getItem('lotus-entry-seen')==='true'}catch{}h.dataset.entryGate='true';if(p)h.dataset.entryPreview='true';if(returning)h.dataset.entryReturn='true';h.dataset.soundEntry=returning?'entered':'waiting'})();</script>
   <script>if(new URLSearchParams(location.search).get('brand')==='cube')document.documentElement.dataset.entranceBrand='cube';</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">

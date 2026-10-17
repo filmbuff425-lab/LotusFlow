@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import * as THREE from '../dist/vendor/three.module.js';
+import {studioLayout} from '../dist/studio-layout.js';
 const read=file=>fs.readFileSync('dist/'+file,'utf8');
 const source=file=>read(file).replace(/^import .*$/gm,'').replaceAll('export function','function');
 function canvas(){
@@ -10,7 +11,7 @@ function canvas(){
  element.getContext=()=>context;return element;
 }
 const stage=new THREE.Group(),scene=new THREE.Scene(),targets=[],api={audioState:{playing:false}};
-const context=vm.createContext({THREE,document:{createElement:tag=>{assert.equal(tag,'canvas');return canvas()}},Image:class{},studioLayout:{guitar:[-20,0,8],backWall:-20},createSharedTextureLoader:()=>({load:()=>new THREE.Texture()})});
+const context=vm.createContext({THREE,document:{createElement:tag=>{assert.equal(tag,'canvas');return canvas()}},Image:class{},studioLayout,createSharedTextureLoader:()=>({load:()=>new THREE.Texture()})});
 for(const file of ['studio-h100.js','studio-instruments.js','studio-lived-in.js'])vm.runInContext(source(file),context);
 const add=(geometry,material,parent,x=0,y=0,z=0)=>{const mesh=new THREE.Mesh(geometry,material);mesh.position.set(x,y,z);parent.add(mesh);return mesh};
 const box=(w,h,d,x,y,z,material,parent=stage)=>add(new THREE.BoxGeometry(w,h,d),material,parent,x,y,z);

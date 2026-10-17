@@ -1,3 +1,4 @@
+import {compactStudio} from './device-profile.js?v=mobile48';
 import * as THREE from 'three';
 import {updateHeartbeat,heartbeatTime,heartbeatEntryGain} from './cube-heartbeat.js?v=20261007-mobile3';
 import {studioLayout} from './studio-layout.js?v=20261006-lake-surface1';
@@ -85,7 +86,7 @@ export function createSoundcube({scene,root,texture,camera,renderer,onBlueReveal
   // Preserve the requested screen-space reduction when the heading no longer
   // consumes its own block above the taller stage. The open room stays 1:1.
   const oldHeight=Math.max(innerWidth<=700?460:540,innerHeight-(innerWidth<=700?255:290));
-  const closedScale=.34*.93*Math.min(1,oldHeight/(renderer.domElement.clientHeight||oldHeight));
+  const closedScale=.34*.93*(compactStudio?1.08:1)*Math.min(1,oldHeight/(renderer.domElement.clientHeight||oldHeight));
   const scale=(closedScale+(1-closedScale)*p)*(1+.034*beat*closed*(1-hoverSmooth*.75));
   pointer.lerp(pointerTarget,ease);hoverSmooth+=((interiorReady?hover:0)-hoverSmooth)*ease;
   const yaw=Math.sin(t*.18)*.20,tilt=Math.sin(t*.15+1)*.055,roll=Math.sin(t*.13)*.018;

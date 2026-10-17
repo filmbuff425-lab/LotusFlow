@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import {createReferenceStereo} from './studio-panasonic-stereo.js?v=20261006-lake-surface1';
 
-export function createConsoleObjects({cabinet,texture}){
+export function createConsoleObjects({cabinet,texture,topOnly=false}){
  const chrome=new THREE.MeshPhysicalMaterial({color:0xd0d2cb,metalness:1,roughness:.19,clearcoat:.24});
  const satin=new THREE.MeshStandardMaterial({color:0xb9bdb8,metalness:.85,roughness:.30});
  const black=new THREE.MeshStandardMaterial({color:0x101514,roughness:.44,metalness:.14});
@@ -34,6 +34,6 @@ export function createConsoleObjects({cabinet,texture}){
  [{title:'SOUND & SPACE',color:0x173f47,h:2.82,w:.42},{title:'RECORD CULTURE',color:0xe4dfce,h:3.02,w:.48},{title:'JAZZ / BLUE NOTES',color:0x233754,h:2.64,w:.35},{title:'DESIGN OBJECTS',color:0xb73d20,h:2.86,w:.31}].forEach((b,i)=>book({...b,x:-3.7+i*.43,y:7.20,z:.18,lean:i===0?.04:0}));
  const bookend=box(cabinet,.055,1.9,1.65,-1.9,8.15,.18,chrome);box(cabinet,.80,.04,1.65,-2.27,7.22,.18,chrome);
  // Sparse lower shelves: readable spines and the party glassware have separate bays.
- for(let i=0;i<3;i++){const b=book({x:-7.2,y:.37,z:0,w:.28,h:3.2,d:2.25,title:['ARCHITECTURE','THE ART OF LISTENING','PHOTOGRAPHY'][i],color:[0xc4b9a2,0x263b35,0xc26736][i]});b.rotation.z=-Math.PI/2;b.position.y=.51+i*.31;b.position.x=-8.82;}
+ if(!topOnly)for(let i=0;i<3;i++){const b=book({x:-7.2,y:.37,z:0,w:.28,h:3.2,d:2.25,title:['ARCHITECTURE','THE ART OF LISTENING','PHOTOGRAPHY'][i],color:[0xc4b9a2,0x263b35,0xc26736][i]});b.rotation.z=-Math.PI/2;b.position.y=.51+i*.31;b.position.x=-8.82;}
  return{radio,lamp};
 }

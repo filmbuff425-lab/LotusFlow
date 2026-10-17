@@ -36,7 +36,7 @@ export function createLivedInStudio(root){
  const jack=new THREE.Vector3(.92,1.02,.47).applyMatrix4(guitar.matrix);
  line(set,[jack.toArray(),[jack.x+.28,.25,jack.z+.45],...[ [1.0,.065,1.30],[.30,.065,2.30],[-.60,.065,2.0],[.10,.065,1.30],[1.90,.065,.20] ].map(([x,y,z])=>[x+studioLayout.guitar[0],y,z+studioLayout.guitar[2]])],.025,black);
  // Full official artwork, attached directly to the inner glass with translucent tape.
- const poster=new THREE.Group();poster.name='Taped official Kill Bill poster';poster.position.set(-27.3,20.2,studioLayout.backWall+.13);poster.rotation.y=0;set.add(poster);
+ const poster=new THREE.Group();poster.name='Taped official Kill Bill poster';poster.position.set(studioLayout.killBillX,20.2,-14.47*studioLayout.architectureScale[2]+.13);poster.rotation.y=0;set.add(poster);
  const art=createSharedTextureLoader().load('assets/cinema/kill-bill-official.jpg');art.colorSpace=THREE.SRGBColorSpace;
  add(new THREE.PlaneGeometry(7,7*733/500),new THREE.MeshStandardMaterial({map:art,roughness:.88,side:THREE.DoubleSide,emissive:0x3d2c06,emissiveIntensity:.16}),poster,0,0,.014);
  const tapeCanvas=document.createElement('canvas');tapeCanvas.width=128;tapeCanvas.height=48;const tg=tapeCanvas.getContext('2d');tg.fillStyle='#e8e6d81f';tg.fillRect(0,0,128,48);
@@ -46,8 +46,8 @@ export function createLivedInStudio(root){
  // Low resolution alpha artwork: the mark reads as a luminous game decal on the glass.
  const logoCanvas=document.createElement('canvas');logoCanvas.width=88;logoCanvas.height=56;const lc=logoCanvas.getContext('2d');const logoMap=new THREE.CanvasTexture(logoCanvas);logoMap.magFilter=THREE.NearestFilter;logoMap.minFilter=THREE.NearestFilter;logoMap.colorSpace=THREE.SRGBColorSpace;
  const logoImage=new Image();logoImage.onload=()=>{lc.clearRect(0,0,88,56);lc.imageSmoothingEnabled=false;const scale=Math.min(88/logoImage.width,56/logoImage.height);lc.drawImage(logoImage,(88-logoImage.width*scale)/2,(56-logoImage.height*scale)/2,logoImage.width*scale,logoImage.height*scale);logoMap.needsUpdate=true};logoImage.src='assets/lotus-flow-wordmark-web.webp';
- const decal=add(new THREE.PlaneGeometry(10.4,6.62),new THREE.MeshBasicMaterial({map:logoMap,transparent:true,alphaTest:.1,side:THREE.DoubleSide,toneMapped:false,depthWrite:false}),set,-1,24.7,studioLayout.backWall+.07);decal.name='Pixel Lotus Flow glass decal';decal.castShadow=false;
+ const decal=add(new THREE.PlaneGeometry(10.4,6.62),new THREE.MeshBasicMaterial({map:logoMap,transparent:true,alphaTest:.1,side:THREE.DoubleSide,toneMapped:false,depthWrite:false}),set,-1,24.7,-14.47*studioLayout.architectureScale[2]+.13);decal.name='Pixel Lotus Flow glass decal';decal.castShadow=false;
  const haloMapCanvas=document.createElement('canvas');haloMapCanvas.width=64;haloMapCanvas.height=64;const hg=haloMapCanvas.getContext('2d'),glow=hg.createRadialGradient(32,32,0,32,32,32);glow.addColorStop(0,'#e838191c');glow.addColorStop(1,'#e8381900');hg.fillStyle=glow;hg.fillRect(0,0,64,64);
- const halo=add(new THREE.PlaneGeometry(15,10),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(haloMapCanvas),transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}),set,-1,24.7,studioLayout.backWall+.05);halo.castShadow=false;
+ const halo=add(new THREE.PlaneGeometry(15,10),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(haloMapCanvas),transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}),set,-1,24.7,-14.47*studioLayout.architectureScale[2]+.11);halo.castShadow=false;
  return set;
 }

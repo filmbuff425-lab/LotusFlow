@@ -1,10 +1,19 @@
-// Each new document unlocks its audio; same-page navigation and bfcache retain the live state.
+// Only the first successful audio entry in a tab uses the gate. Reloads and
+// archive returns restore audio in place, respecting the saved mute preference.
 // Playback starts in the real button click, before any asynchronous work.
 export function createSoundEntry({root=document.getElementById('sound-entry'),timeoutMs=5000,revealMs=4400,studioTimeoutMs=12000,waitForStudio=root?.dataset.waitForStudio==='true',preview=document.documentElement.dataset.entryPreview==='true'}={}){
  if(!root)return null;
  const button=root.querySelector('[data-enter-with-sound]'),status=root.querySelector('[data-sound-entry-status]');
  if(!button)throw new Error('Sound entry requires its enter button');
  const html=document.documentElement,body=document.body;
+ if(!preview&&html.dataset.entryReturn==='true'){
+  root.hidden=true;root.dataset.state='entered';html.dataset.soundEntry='entered';
+  const resume=()=>{if(window.lotusSfx?.enabled!==false)Promise.resolve(window.lotusSfx?.arm()).catch(()=>{})};
+  // No modal if a browser pauses audio on document navigation: the existing
+  // SOUND control and next ordinary interaction can resume it in place.
+  if(document.readyState==='complete')resume();else window.addEventListener('load',resume,{once:true});
+  return{get state(){return 'entered'}};
+ }
  let phase='waiting',cancelAttempt=()=>{},revealTimer=0,observer,pointerGesture=null;
  const previousFocus=document.activeElement,inertState=new Map(),overflow=[html.style.overflow,body.style.overflow];
  const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -34,6 +43,7 @@ export function createSoundEntry({root=document.getElementById('sound-entry'),ti
  }
  function finish(){
   if(phase!=='revealing')return;clearTimeout(revealTimer);root.hidden=true;setState('entered');unlock();
+  if(!preview)try{sessionStorage.setItem('lotus-entry-seen','true')}catch{}
   // Focus the scene without triggering the studio button's glass-preview hover.
   const destination=document.querySelector('[data-sound-entry-focus]')||document.querySelector('#studio-canvas canvas')||document.getElementById('open-studio')||previousFocus;
   if(destination&&!root.contains(destination)&&!destination.inert)destination.focus?.({preventScroll:true});

@@ -5,7 +5,7 @@ import {studioLayout} from './studio-layout.js?v=20261006-lake-surface1';
 
 // Control coordinates follow the Sequential front-panel photograph and the
 // Moog Subsequent 37 product photographs, rather than a generic knob grid.
-export function createStudioSynths({root,texture,touchables,loadTexture=path=>createSharedTextureLoader().load(path)}) {
+export function createStudioSynths({root,texture,touchables,single=false,loadTexture=path=>createSharedTextureLoader().load(path)}) {
  const rig=new THREE.Group();rig.name='Moog Subsequent 37 / Sequential Prophet-6';rig.position.set(...studioLayout.synths);rig.rotation.y=studioLayout.synthRotation;rig.scale.setScalar(.765*1.07);root.add(rig);
  const keys=[],controls=[],geometries=new Map();
  const cached=(id,make)=>{if(!geometries.has(id))geometries.set(id,make());return geometries.get(id)};
@@ -30,7 +30,7 @@ export function createStudioSynths({root,texture,touchables,loadTexture=path=>cr
   m.name=label;
   return m;
  }
- const walnut=wood('walnut',0xb68057,'Prophet-6 / oiled walnut grain'),moogWood=wood('walnut',0xe3a875,'Moog / warm satin hardwood');
+ const walnut=wood('walnut',0xb68057,'Prophet-6 / oiled walnut grain'),moogWood=single?null:wood('walnut',0xe3a875,'Moog / warm satin hardwood');
  function woodUV(geometry,axis='z',offset=.56){
   const p=geometry.attributes.position,n=geometry.attributes.normal,uv=geometry.attributes.uv;
   for(let i=0;i<p.count;i++){
@@ -51,7 +51,7 @@ export function createStudioSynths({root,texture,touchables,loadTexture=path=>cr
  const bevel=(p,w,h,d,x,y,z,m,r=.025)=>add(p,rounded(w,h,d,Math.min(r,h*.42,d*.2,w*.2)),m,x,y,z);
  const cylinder=(p,r,h,x,y,z,m,rb=r,segments=24)=>add(p,cached(`c${r}/${rb}/${h}/${segments}`,()=>new THREE.CylinderGeometry(r,rb,h,segments)),m,x,y,z);
  function rod(p,a,b,r,m=steel){const from=new THREE.Vector3(...a),to=new THREE.Vector3(...b),d=to.clone().sub(from),o=cylinder(p,r,d.length(),...from.add(to).multiplyScalar(.5).toArray(),m);o.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());return o}
- function cable(p,points,r=.031){const path=new THREE.CatmullRomCurve3(points.map(v=>new THREE.Vector3(...v)),false,'centripetal');const o=add(p,new THREE.TubeGeometry(path,64,r,8,false),rubber);o.name='Shielded audio cable / routed behind stand';return o}
+ function cable(p,points,r=.031,floor=null){const path=new THREE.CatmullRomCurve3(points.map(v=>new THREE.Vector3(...v)),false,'centripetal');if(floor!==null){const sample=path.getPoint.bind(path);path.getPoint=(t,out=new THREE.Vector3())=>{sample(t,out);out.y=Math.max(floor+r,out.y);return out}}const o=add(p,new THREE.TubeGeometry(path,64,r,8,false),rubber);o.name='Shielded audio cable / routed behind stand';return o}
  function decal(p,text,w,h,x,y,z,{top=false,color='#c9cbca',bg='',size=58}={}){const map=texture(1024,128,g=>{if(bg){g.fillStyle=bg;g.fillRect(0,0,1024,128)}g.fillStyle=color;g.font=`${size}px Arial`;g.textAlign='center';g.textBaseline='middle';g.fillText(text,512,64,1000)});const m=new THREE.MeshStandardMaterial({map,alphaTest:bg?0:.1,roughness:.62,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1});const o=add(p,new THREE.PlaneGeometry(w,h),m,x,y,z);if(top)o.rotation.x=-Math.PI/2;o.castShadow=o.receiveShadow=false;return o}
  function screw(p,x,y,z){cylinder(p,.029,.022,x,y,z,steel);box(p,.030,.009,.006,x,y+.016,z,rubber)}
  // One opaque, mipmapped silk-screen texture per panel. No floating labels or
@@ -104,6 +104,7 @@ export function createStudioSynths({root,texture,touchables,loadTexture=path=>cr
  pp.rect(X(809),Z(190),X(980),Z(221),'#cecfca');pp.text('prophet-6',X(894),Z(205),.40,'#181818','italic Georgia');
  pp.finish();decal(prophet,'SEQUENTIAL',2.14,.23,-6.88,-.32,3.71,{size:70});
 
+ if(!single){
  const moog=new THREE.Group();moog.name='Moog Subsequent 37';moog.position.set(.32,8.75,-1.96);rig.add(moog);bevel(moog,14.62,.66,8.18,0,-.34,0,black,.055);
  for(const x of[-7.46,7.46])sideProfile(moog,x,[[-4.19,-.65],[-4.19,3.68],[-3.94,3.70],[.29,.70],[4.19,.16],[4.19,-.65]],moogWood,.36);
  box(moog,14.48,.11,.14,0,.18,.23,steel);box(moog,14.45,.13,.12,0,-.08,4.12,black);
@@ -122,21 +123,22 @@ export function createStudioSynths({root,texture,touchables,loadTexture=path=>cr
  // Side-mounted I/O on the Moog, rear-panel I/O on the Prophet.
  const io=bevel(moog,.03,.68,1.77,-7.684,-.13,1.64,silver,.005);io.name='Moog left I/O plate';
  for(const z of[1.05,1.34,1.63,1.92,2.21]){const jack=cylinder(moog,.063,.045,-7.722,-.12,z,rubber);jack.rotation.z=Math.PI/2;}
+ }
  for(const x of[-6.65,-6.25,-5.85]){const jack=cylinder(prophet,.06,.045,x,-.08,-3.58,silver);jack.rotation.x=Math.PI/2;}
 
- const stand=new THREE.Group();stand.name='Two-tier black steel synthesizer stand';rig.add(stand);
- for(const x of[-6.65,6.65]){bevel(stand,.33,.23,7.5,x,.16,.10,steel,.025);for(const z of[-3.44,3.64])bevel(stand,.44,.15,.50,x,.09,z,rubber,.023);rod(stand,[x,.27,-2.85],[x,8.55,-3.24],.145);rod(stand,[x,.27,2.86],[x,5.01,-2.19],.145);box(stand,.36,.20,6.34,x,4.54,.69,steel);box(stand,.37,.17,6.69,x,7.94,-1.89,steel);for(const[y,z]of[[4.69,.70],[8.085,-1.89]])for(const dz of[-1.6,1.6])bevel(stand,.40,.09,.40,x,y,z+dz,rubber,.021);for(const y of[4.24,7.72]){const bolt=cylinder(stand,.14,.12,x+.23,y,-3.12,silver);bolt.rotation.z=Math.PI/2;}}
- rod(stand,[-6.65,3.15,-2.99],[6.65,3.15,-2.99],.10);rod(stand,[-6.65,7.42,-3.21],[6.65,7.42,-3.21],.09);
+ const stand=new THREE.Group();stand.name=single?'Single-tier black steel synthesizer stand':'Two-tier black steel synthesizer stand';rig.add(stand);
+ for(const x of[-6.65,6.65]){bevel(stand,.33,.23,7.5,x,.16,.10,steel,.025);for(const z of[-3.44,3.64])bevel(stand,.44,.15,.50,x,.09,z,rubber,.023);rod(stand,[x,.27,-2.85],[x,single?5.0:8.55,-3.24],.145);rod(stand,[x,.27,2.86],[x,5.01,-2.19],.145);box(stand,.36,.20,6.34,x,4.54,.69,steel);if(!single)box(stand,.37,.17,6.69,x,7.94,-1.89,steel);for(const[y,z]of(single?[[4.69,.70]]:[[4.69,.70],[8.085,-1.89]]))for(const dz of[-1.6,1.6])bevel(stand,.40,.09,.40,x,y,z+dz,rubber,.021);for(const y of(single?[4.24]:[4.24,7.72])){const bolt=cylinder(stand,.14,.12,x+.23,y,-3.12,silver);bolt.rotation.z=Math.PI/2;}}
+ rod(stand,[-6.65,3.15,-2.99],[6.65,3.15,-2.99],.10);if(!single)rod(stand,[-6.65,7.42,-3.21],[6.65,7.42,-3.21],.09);
  const leads=new THREE.Group();leads.name='Synth I/O plugs, strain relief and cable clips';rig.add(leads);
  function plug(p,a,axis){const o=cylinder(p,.059,.30,...a,rubber);o.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),new THREE.Vector3(...axis));const end=new THREE.Vector3(...a).addScaledVector(new THREE.Vector3(...axis),.19);const grip=cylinder(p,.066,.07,...end.toArray(),steel);grip.quaternion.copy(o.quaternion);}
- plug(leads,[-6.65,5.42,-2.89],[0,0,-1]);plug(leads,[-7.56,8.62,-.62],[-1,0,0]);
+ plug(leads,[-6.65,5.42,-2.89],[0,0,-1]);if(!single)plug(leads,[-7.56,8.62,-.62],[-1,0,0]);
  cable(leads,[[-6.65,5.42,-3.02],[-6.65,5.30,-3.40],[-6.61,4.20,-3.35],[-6.63,2.80,-3.30],[-6.52,.55,-3.40],[-5.75,.09,-3.78]]);
- cable(leads,[[-7.69,8.62,-.62],[-8.08,8.38,-.81],[-7.85,8.08,-2.69],[-6.83,7.70,-3.46],[-6.80,4.10,-3.46],[-6.69,.45,-3.53],[-5.73,.09,-3.89]]);
- for(const y of[1.4,3.1,4.5,7.4])bevel(leads,.36,.075,.17,-6.68,y,-3.42,steel,.02);
- rig.userData.models=['Moog Subsequent 37','Sequential Prophet-6'];rig.userData.keyCounts=[37,49];rig.userData.referencePanels={prophet:'Sequential Prophet6_top_2125_transparent_Tour_TY2',moog:'Moog Subsequent 37 official product photographs'};
+ if(!single)cable(leads,[[-7.69,8.62,-.62],[-8.08,8.38,-.81],[-7.85,8.08,-2.69],[-6.83,7.70,-3.46],[-6.80,4.10,-3.46],[-6.69,.45,-3.53],[-5.73,.09,-3.89]]);
+ for(const y of(single?[1.4,3.1,4.5]:[1.4,3.1,4.5,7.4]))bevel(leads,.36,.075,.17,-6.68,y,-3.42,steel,.02);
+ rig.userData.models=single?['Sequential Prophet-6']:['Moog Subsequent 37','Sequential Prophet-6'];rig.userData.keyCounts=single?[49]:[37,49];rig.userData.referencePanels={prophet:'Sequential Prophet6_top_2125_transparent_Tour_TY2',moog:'Moog Subsequent 37 official product photographs'};
  rig.updateMatrixWorld(true);
  // Extend the service leads along the room perimeter, never across the aisle.
- const from=rig.localToWorld(new THREE.Vector3(-5.75,.10,-3.83));root.worldToLocal(from);cable(root,[from.toArray(),[31.2,.11,14.2],[32.0,.11,3],[32.0,.11,-9.3],[21.4,.13,-9.3],[19.9,1.60,-9.23],[18.1,2.18,-9.10]],.035);
+ const from=rig.localToWorld(new THREE.Vector3(-5.75,.10,-3.83));root.worldToLocal(from);cable(root,[from.toArray(),[studioLayout.serviceCableX-.8,.11,14.2],[studioLayout.serviceCableX,.11,3],[studioLayout.serviceCableX,.11,-9.3],[21.4,.13,-9.3],[19.9,1.60,-9.23],[18.1,2.18,-9.10]],.035,.025);
  const bounds=new THREE.Box3(),local=new THREE.Matrix4();rig.updateMatrixWorld(true);const inverse=root.matrixWorld.clone().invert();rig.traverse(mesh=>{if(!mesh.isMesh)return;mesh.geometry.computeBoundingBox();local.multiplyMatrices(inverse,mesh.matrixWorld);bounds.union(mesh.geometry.boundingBox.clone().applyMatrix4(local))});
  return {rig,keys,controls,bounds:{min:bounds.min.toArray(),max:bounds.max.toArray()},update(now){for(const key of keys){const elapsed=now-(key.userData.pressedAt??-1000);key.position.y=key.userData.baseY-(key.userData.held?.075:elapsed>=0&&elapsed<240?Math.sin(elapsed/240*Math.PI)*.075:0)}}};
 }

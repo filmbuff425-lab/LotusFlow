@@ -5,11 +5,14 @@ import {mobileImages} from '../dist/mobile-images.js';
 globalThis.matchMedia=()=>({matches:false});
 const desktop=await import('../dist/device-profile.js?desktop-test');
 assert.equal(desktop.deviceProfile.panelWidth,4096);
+assert.equal(desktop.compactStudio,false,'Desktop retains its separate full room composition');
 assert.equal(desktop.canvasScale(1024,1024),1);
 for(const source of Object.keys(mobileImages))assert.equal(desktop.mobileAsset(source),source,'Desktop keeps its exact original asset URL');
 globalThis.matchMedia=()=>({matches:true});
 const phone=await import('../dist/device-profile.js?phone-test');
 assert.equal(phone.deviceProfile.panelWidth,1024);
+assert.equal(phone.compactStudio,true,'Phone receives the approved compact room without a preview flag');
+assert.ok(phone.deviceProfile.pixelRatio<desktop.deviceProfile.pixelRatio,'Phone has its own pixel rendering budget');
 assert.equal(phone.canvasScale(1024,1024),.5);
 assert.equal(phone.canvasScale(256,256),1);
 for(const [source,variant]of Object.entries(mobileImages)){

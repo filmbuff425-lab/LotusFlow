@@ -1,6 +1,6 @@
 import {waitForVisibleChapter} from './chapter-priority.js';
 import {createVisibleFrameLoop} from './visible-frame-loop.js?v=20261007-deploy1';
-import {deviceProfile,handheld} from './device-profile.js';
+import {deviceProfile,handheld,compactStudio} from './device-profile.js?v=mobile48';
 import * as THREE from 'three';
 import {OrbitControls} from './vendor/OrbitControls.js';
 import {studioLayout} from './studio-layout.js?v=20261006-lake-surface1';
@@ -58,11 +58,12 @@ function setupStudio() {
   const preparingAt=performance.now();
   interiorTask=(async()=>{
    const phases={},phaseStart=performance.now();
-   const {createStudioInterior}=await import('./studio-interior.js?v=20261007-mobile3');
+   const {createStudioInterior}=await import('./studio-interior.js?v=mobile48');
    phases.import=+(performance.now()-phaseStart).toFixed(1);const buildAt=performance.now();
    const parts=await createStudioInterior({scene,root,renderer,api,camera,soundcube,host,touchables,selected:()=>selected});
    phases.build=+(performance.now()-buildAt).toFixed(1);const compileAt=performance.now();
    ({desk,faders,leds,channelButtons,selectionLights,oleds,details,soundSystem,archive,synths,consoleExtension,sessionScreens,backdrop}=parts);
+   if(new URLSearchParams(location.search).has('perf')){const groups={};root.traverse(o=>{if(!o.isMesh)return;let p=o;while(p.parent&&p.parent!==root&&!p.name)p=p.parent;const key=p.name||p.type;const s=groups[key]??={meshes:0,transparent:0,triangles:0};s.meshes++;if(o.material?.transparent)s.transparent++;s.triangles+=(o.geometry.index?.count||o.geometry.attributes.position?.count||0)/3*(o.count||1)});host.dataset.meshBudget=JSON.stringify(Object.entries(groups).sort((a,b)=>b[1].meshes-a[1].meshes).slice(0,25))}
    if(new URLSearchParams(location.search).has('perf'))host.dataset.textureFootprint=JSON.stringify(studioTextureFootprint([root,scene.getObjectByName('Studio cosmos')]));
    for(const [i,c] of api.channels.entries()){updateChannelDisplay(c,i);if(i%2===1)await new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,0)))}
    sessionScreens.update(performance.now());
@@ -98,12 +99,13 @@ function setupStudio() {
   })().catch(error=>{interiorTask=null;throw error});
   return interiorTask;
  }
+ if(compactStudio)document.documentElement.dataset.compactStudio='true';
  const stage=document.getElementById('studio-stage'),studioSection=document.getElementById('studio'),entry=document.getElementById('studio-entry'),openButton=document.getElementById('open-studio'),closeButton=document.getElementById('close-studio');
  const brandHeading=stage.querySelector('.studio-brand-heading');
  let roomOpen=false,transition=null,entrance=0,openedAt=0;
  // Room presets face their subject squarely. The exterior cube keeps its own orbit.
  const views = {
-  perspective:{position:[0,15.5,handheld?116:92],target:[0,15.5,-6]},
+  perspective:compactStudio?{position:[0,46,96],target:[0,9,-5]}:{position:[0,15.5,handheld?116:92],target:[0,15.5,-6]},
   console:{position:[0,18,43],target:[0,7,-2]},
   room:{position:[0,15.5,118],target:[0,15.5,-3]},
   listening:{position:[4,19,26],target:[studioLayout.synths[0],5.9,studioLayout.synths[2]]}
@@ -177,7 +179,7 @@ function setupStudio() {
  document.querySelectorAll('[data-studio-zoom]').forEach(button=>button.addEventListener('click',()=>{if(transition)return;const offset=(cameraMove?.to||camera.position).clone().sub(controls.target);offset.setLength(THREE.MathUtils.clamp(offset.length()*(button.dataset.studioZoom==='in'?.84:1.19),controls.minDistance,controls.maxDistance));moveCamera(controls.target.clone().add(offset),controls.target.clone())}));
  document.getElementById('studio-reset-view').addEventListener('click',()=>{if(transition)return;const view=roomOpen?insideView:cubeView;moveCamera(view.position.clone(),view.target.clone());document.querySelectorAll('[data-camera]').forEach(b=>b.classList.toggle('active',b.dataset.camera==='perspective'))});
  document.getElementById('auto-rotate').addEventListener('click', e => { if(!roomOpen||transition)return; controls.autoRotate = !controls.autoRotate; e.currentTarget.setAttribute('aria-pressed', String(controls.autoRotate)); });
- function resize() { const w = host.clientWidth, h = host.clientHeight; if(!w||!h)return;renderer.setPixelRatio(Math.min(devicePixelRatio,deviceProfile.pixelRatio,2200/w));renderer.setSize(w, h); camera.aspect = w / h; camera.fov = handheld ? 62 : 37; camera.updateProjectionMatrix();host.dataset.deviceProfile=handheld?'phone':'desktop'; }
+ function resize() { const w = host.clientWidth, h = host.clientHeight; if(!w||!h)return;renderer.setPixelRatio(Math.min(devicePixelRatio,deviceProfile.pixelRatio,2200/w));renderer.setSize(w, h); camera.aspect = w / h; camera.fov = compactStudio ? THREE.MathUtils.radToDeg(2*Math.atan(Math.tan(THREE.MathUtils.degToRad(19))/(w/h))) : handheld ? 62 : 37; camera.updateProjectionMatrix();host.dataset.deviceProfile=handheld?'phone':'desktop'; }
  new ResizeObserver(resize).observe(host); resize(); let frameLoop;new IntersectionObserver(e => { visible = e[0].isIntersecting;frameLoop?.wake(); }, { rootMargin: '0px' }).observe(host);
  let contextLost=false;
  canvas.addEventListener('webglcontextlost', e => { e.preventDefault();contextLost=true;visible=false;host.dataset.graphicsState='recovering';loading.hidden=false;loading.textContent='RESTORING STUDIO…'; });

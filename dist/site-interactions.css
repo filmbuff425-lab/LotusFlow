@@ -66,7 +66,7 @@ html.record-arriving::after{opacity:1;transition:none}html:has(.record-shop)::af
 .cinema .discography-section .portal-label{top:50%}
 .cinema .discography-section .portal-beacon{width:70px;height:54px;margin:16px auto 8px}
 .cinema .discography-section .portal-action{font-size:11px;letter-spacing:.13em;color:#f1d6b4}
-@media(max-width:700px){.cinema .discography-section{padding:15px 0 25px;margin-top:25px}.cinema .discography-section .record-portal{height:350px}.cinema .discography-section .portal-action{font-size:10px}}
+@media(max-width:700px){.cinema .discography-section{padding:15px 0 25px;margin-top:25px;scroll-margin-top:132px}.cinema .discography-section .record-portal{height:350px}.cinema .discography-section .portal-action{font-size:10px}}
 .record-entry-field{background:transparent;opacity:1}
 .discography-heading{position:relative;max-width:1100px;margin:0 auto;font:11px/1.5 var(--mono);letter-spacing:.12em;color:#b6a493}
 
@@ -81,6 +81,6 @@ html:lang(zh-CN) .discography-destinations>a>span{font-family:LotusPrintedHan,"P
 .visual-entrance:hover canvas.entrance-symbol{transform:scale(1.10)}
 .archive-paths>a.visual-entrance{grid-template-columns:64px 1fr}
 .archive-paths canvas.entrance-symbol{width:64px;height:64px}
-@media(max-width:600px){.discography-destinations{width:calc(100% - 24px);column-gap:clamp(40px,12vw,72px)}.discography-destinations>a.visual-entrance{flex-direction:column;gap:8px;min-height:104px;padding:12px 0;font-size:clamp(13px,3.8vw,16px)}.discography-destinations .entrance-symbol{width:44px;height:44px}}
+@media(max-width:700px){.discography-heading{margin-inline:24px}.discography-destinations{width:calc(100% - 48px);column-gap:24px}.discography-destinations>a.visual-entrance{flex-direction:column;gap:9px;min-height:88px;padding:12px 0;font-size:clamp(11px,3vw,13px);line-height:1.22}.discography-destinations .entrance-symbol{width:34px;height:34px}.discography-destinations>a>span{font-size:inherit}}
 /* The particle bridge handles this navigation without a second browser animation. */
 @view-transition{navigation:none}

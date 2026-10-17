@@ -1,6 +1,6 @@
 import {mountRecordingContext} from './recognition.js?v=20261006-lake-surface1';
 import * as THREE from 'three';
-import {handheld} from './device-profile.js';
+import {handheld,compactStudio,mobileAsset} from './device-profile.js?v=mobile48';
 
 // A dedicated, independently playing film screen; the desk retains its listening UI.
 export function createMVWall({parent,texture,wallX}) {
@@ -25,7 +25,7 @@ export function createMVWall({parent,texture,wallX}) {
  const posters=[];function poster(i){if(posters[i])return posters[i];const f=films[i];
   const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=576;const g=canvas.getContext('2d');g.fillStyle='#080b10';g.fillRect(0,0,1024,576);
   const map=new THREE.CanvasTexture(canvas);map.colorSpace=THREE.SRGBColorSpace;
-  const image=new Image();image.onload=()=>{const scale=Math.min(1024/image.width,576/image.height),w=image.width*scale,h=image.height*scale;g.drawImage(image,(1024-w)/2,(576-h)/2,w,h);map.needsUpdate=true};image.src=f.cover;posters[i]=map;return map;
+  const image=new Image();image.onload=()=>{const scale=Math.min(1024/image.width,576/image.height),w=image.width*scale,h=image.height*scale;g.drawImage(image,(1024-w)/2,(576-h)/2,w,h);map.needsUpdate=true};image.src=mobileAsset(f.cover);posters[i]=map;return map;
  }
  // Opaque picture restores deep blacks and crisp colour without projection haze.
  const material=new THREE.MeshBasicMaterial({map:poster(firstFilm),toneMapped:false,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
@@ -35,10 +35,10 @@ export function createMVWall({parent,texture,wallX}) {
  const selector=panel.querySelector('select');films.forEach(f=>{const option=document.createElement('option');option.value=f.id;option.textContent=f.title+' / '+f.artist;selector.append(option)});
  document.querySelector('#studio-stage').after(panel);
  const recordingContext=document.createElement('div');panel.querySelector('.studio-wall-film-controls').append(recordingContext);let contextId='';
- let index=firstFilm,room=false,onScreen=false,wanted=true,request=0,ready=false;
+ let index=firstFilm,room=false,onScreen=false,wanted=!compactStudio,request=0,ready=false;
  const playButton=panel.querySelector('#studio-wall-play'),soundButton=panel.querySelector('#studio-wall-sound'),status=panel.querySelector('#studio-wall-status');
  function sync(){const film=films[index];if(contextId!==film.id){mountRecordingContext(recordingContext,film);contextId=film.id}selector.value=film.id;playButton.textContent=video.paused?'PLAY':'PAUSE';soundButton.textContent=video.muted?'SOUND OFF':'SOUND ON';soundButton.setAttribute('aria-pressed',String(!video.muted));panel.querySelector('a').href='works/'+film.id+'.html';video.dataset.currentTrack=film.id;video.dataset.playing=String(!video.paused);}
- async function play(){const token=++request;if(!room||!onScreen||document.hidden)return;if(!video.muted)window.dispatchEvent(new CustomEvent('lotus-audio-start',{detail:'studio-wall-mv'}));try{await video.play();if(token===request)status.textContent=films[index].title+' / '+films[index].kind}catch(e){if(token===request&&e.name!=='AbortError')status.textContent='Press PLAY to start the music video.'}sync()}
+ async function play(){const token=++request;if(!room||!onScreen||document.hidden)return;if(!video.getAttribute('src'))video.src=films[index].src;if(!video.muted)window.dispatchEvent(new CustomEvent('lotus-audio-start',{detail:'studio-wall-mv'}));try{await video.play();if(token===request)status.textContent=films[index].title+' / '+films[index].kind}catch(e){if(token===request&&e.name!=='AbortError')status.textContent='Press PLAY to start the music video.'}sync()}
  function pause(){request++;video.pause();sync()}
  function choose(id){const next=films.findIndex(f=>f.id===id);if(next<0)return;pause();index=next;ready=false;material.map=poster(index);material.needsUpdate=true;video.src=films[index].src;wanted=true;status.textContent=films[index].title+' / '+films[index].kind;sync();play()}
  selector.addEventListener('change',e=>choose(e.target.value));playButton.addEventListener('click',()=>{wanted=video.paused;if(wanted)play();else pause()});soundButton.addEventListener('click',()=>{video.muted=!video.muted;if(!video.muted){window.dispatchEvent(new CustomEvent('lotus-audio-start',{detail:'studio-wall-mv'}));wanted=true;play()}sync()});
@@ -47,13 +47,13 @@ export function createMVWall({parent,texture,wallX}) {
  window.addEventListener('lotus-audio-start',e=>{if(e.detail!=='studio-wall-mv'&&!video.muted){video.muted=true;sync()}});
  document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();else if(wanted)play()});
  new IntersectionObserver(([e])=>{onScreen=e.isIntersecting;if(onScreen&&wanted)play();else pause()}).observe(document.querySelector('#studio-stage'));
- video.src=films[index].src;sync();
+ if(!compactStudio)video.src=films[index].src;video.dataset.loadingProfile=compactStudio?'on-demand':'automatic';sync();
  // Average a tiny image at most twice a second. Smooth the result so cuts in the
  // MV do not flash the room, and never add another shadow or reflection pass.
  const lightCanvas=document.createElement('canvas');lightCanvas.width=8;lightCanvas.height=4;
  const lightContext=lightCanvas.getContext('2d',{willReadFrequently:true});
  const neutralLight=new THREE.Color(0xc3d5e6),lightColour=neutralLight.clone(),sampleColour=new THREE.Color();
- let lightSampleAt=0,lightUpdateAt=0,lightVideoTime=-1,lightIntensity=lightContext?0:12,canSample=Boolean(lightContext);
+ let lightSampleAt=0,lightUpdateAt=0,lightVideoTime=-1,lightIntensity=compactStudio?12:lightContext?0:12,canSample=Boolean(lightContext);
  function update(now){
   if(ready&&video.readyState>=2&&material.map!==filmTexture){material.map=filmTexture;material.needsUpdate=true;}
   const active=room&&onScreen&&!document.hidden;

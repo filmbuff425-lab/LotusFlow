@@ -20,7 +20,7 @@ for(const track of catalog.window.lotusCatalog){
  else{
   const particles=g.calls.filter(c=>c.kind==='fill'&&typeof c.colour==='string');
   assert.equal(particles.length,1900);assert.equal(new Set(particles.map(c=>c.colour)).size,3,'Each cover uses its three-tone complement');
-  assert.ok(particles.some(c=>c.alpha>.35),'The ribbon includes clearly visible particles');
+  assert.ok(particles.some(c=>c.alpha>.2),'The ribbon includes clearly visible particles');
  }
  painter.draw(live,1/60);assert.notDeepEqual(g.calls.map(c=>c.args),first,'The material keeps folding and advecting while audio plays');
  painter.draw({...live,playing:false},1/60);assert.equal(g.calls.length,0,'Stopped audio clears every signal mark');
@@ -33,14 +33,22 @@ const visible=drawing(),visiblePainter=createSignalPainter({width:450,height:432
 for(let frame=0;frame<120;frame++)visiblePainter.draw({...live,level:.04},1/60);
 const grains=visible.calls.filter(c=>c.kind==='fill'&&typeof c.colour==='string');
 const cssWidths=grains.map(c=>c.args[2]/1.5).sort((a,b)=>a-b),alphaArea=grains.reduce((sum,c)=>sum+c.args[2]*c.args[3]*c.alpha,0)/(1.5*1.5);
-assert.ok(cssWidths[Math.floor(cssWidths.length/2)]>.9,'Most grains must not disappear as subpixel dust');
-assert.ok(alphaArea>300*288*.008,'The ribbon keeps enough visible particle coverage during quiet playback');
-assert.ok(grains.reduce((sum,c)=>sum+c.alpha,0)/grains.length>.35,'Quiet particles retain cover contrast without depending on a loud peak');
+assert.ok(cssWidths[Math.floor(cssWidths.length/2)]>.5&&cssWidths[Math.floor(cssWidths.length/2)]<1.2,'Fine grains remain subtle instead of a solid coloured sheet');
+assert.ok(alphaArea>300*288*.002&&alphaArea<300*288*.018,'The ribbon keeps enough visible particle coverage during quiet playback');
+assert.ok(grains.reduce((sum,c)=>sum+c.alpha,0)/grains.length>.15&&grains.reduce((sum,c)=>sum+c.alpha,0)/grains.length<.48,'Quiet particles retain cover contrast without depending on a loud peak');
 const firstShape=grains.map(c=>c.args);
 for(let frame=0;frame<120;frame++)visiblePainter.draw({...live,level:.04},1/60);
 const nextShape=visible.calls.filter(c=>c.kind==='fill'&&typeof c.colour==='string').map(c=>c.args);
 const distance=(shape,a,b)=>Math.hypot(shape[a][0]-shape[b][0],shape[a][1]-shape[b][1]);
 assert.ok(Math.abs(distance(firstShape,100,600)-distance(nextShape,100,600))>5,'The current folds the particle material instead of merely rotating a fixed cloud');
+
+const inset=drawing(),bounded=createSignalPainter({width:300,height:288,getContext:()=>inset},'particle-ribbon');
+for(let frame=0;frame<1800;frame++){
+ bounded.draw({...live,level:1},1/30);
+ for(const c of inset.calls.filter(c=>c.kind==='fill'&&typeof c.colour==='string'&&c.alpha>.001)){
+  const [x,y,w,h]=c.args;assert.ok(x>=0&&y>=0&&x+w<=300&&y+h<=288,'Every visible grain remains on the printed cover');
+ }
+}
 
 // Hold context readiness beyond the first frame, then suspend and resume it.
 // This reproduces the blank reduced-motion canvas before the ready callback.

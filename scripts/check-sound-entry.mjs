@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 const source=fs.readFileSync('dist/sound-entry.js','utf8').replace('export function','function').replace(/if\(typeof document!==.*createSoundEntry\(\);/,'');
 function scene({saved=false,muted=false,blocked=false,reduced=false,pendingContext=false,silentHeart=false,oneSound=false,revealMs=0,waitForStudio=false,preview=false}={}){
- const timers=new Map(),intervals=new Map(),frames=new Map(),record=[],storage=new Map(saved?[['lotus-sound-entry-v1','entered']]:[]);let serial=0,enabled=!muted;
+ const timers=new Map(),intervals=new Map(),frames=new Map(),record=[],storage=new Map(saved?[['lotus-entry-seen','true']]:[]);let serial=0,enabled=!muted;
  const events=()=>({handlers:new Map(),addEventListener(type,fn){const list=this.handlers.get(type)||[];list.push(fn);this.handlers.set(type,list)},removeEventListener(type,fn){this.handlers.set(type,(this.handlers.get(type)||[]).filter(f=>f!==fn))},emit(type,event={}){for(const fn of [...this.handlers.get(type)||[]])fn({type,target:this,...event})}});
  let document;
  class Element{
@@ -18,6 +18,7 @@ function scene({saved=false,muted=false,blocked=false,reduced=false,pendingConte
   click(){this.emit('click',{isTrusted:false})}
  }
  const html=new Element('html'),body=new Element('body');html.append(body);html.style.overflow='auto';body.style.overflow='visible';
+ if(saved&&!preview)html.dataset.entryReturn='true';
  const root=new Element('section');root.id='sound-entry';body.append(root);
  const button=new Element('button');button.id='enter';button.dataset.enterWithSound='';button.textContent='ENTER';button.innerHTML='ENTER';root.append(button);
  const status=new Element('p');status.dataset.soundEntryStatus='';root.append(status);
@@ -45,10 +46,13 @@ assert.ok(fresh.record.includes('play:lotus-ambience')&&fresh.record.includes('p
 assert.equal(fresh.heart.volume,0,'Silent heartbeat priming must satisfy readiness without forcing the beat to sound during entry');
 assert.equal(fresh.root.hidden,true);assert.equal(fresh.main.inert,false);assert.equal(fresh.locked.inert,true,'Prior inert state is preserved');
 assert.equal(fresh.document.documentElement.style.overflow,'auto');assert.equal(fresh.document.body.style.overflow,'visible');
-assert.equal(fresh.document.activeElement.id,'open-studio');assert.equal(fresh.storage.size,0);
+assert.equal(fresh.document.activeElement.id,'open-studio');assert.equal(fresh.storage.get('lotus-entry-seen'),'true');
 assert.equal(fresh.timers.size,0);assert.equal(fresh.intervals.size,0);
 const muted=scene({muted:true});muted.click();assert.equal(muted.entry.state,'entered');assert.ok(muted.record.includes('explicit-enable'),'The explicit entry action overrides prior mute');
-const restored=scene({saved:true,muted:true});assert.equal(restored.entry.state,'waiting');assert.equal(restored.root.hidden,false);assert.equal(restored.main.inert,true);assert.equal(restored.window.lotusSfx.enabled,false,'Reload cannot silently override mute');assert.ok(!restored.record.includes('arm'),'A saved session is not a new user gesture');restored.click();assert.equal(restored.entry.state,'entered');
+const restored=scene({saved:true,muted:true});assert.equal(restored.entry.state,'entered');assert.equal(restored.root.hidden,true);assert.equal(restored.main.inert,false);restored.window.emit('load');assert.equal(restored.window.lotusSfx.enabled,false,'Restoring a tab never overrides mute');assert.ok(!restored.record.includes('arm'));
+const reload=scene({saved:true});assert.equal(reload.entry.state,'entered');reload.window.emit('load');assert.ok(reload.record.includes('arm'),'Reload and archive return attempt audio restore without a modal');
+const restoreBlocked=scene({saved:true,blocked:true});restoreBlocked.window.emit('load');assert.equal(restoreBlocked.root.hidden,true,'An autoplay restriction never puts the gate back over the homepage');
+
 const blocked=scene({blocked:true});blocked.click();blocked.poll();assert.equal(blocked.entry.state,'retry');assert.equal(blocked.root.hidden,false);assert.equal(blocked.main.inert,true);assert.equal(blocked.storage.size,0);assert.match(blocked.status.textContent,/browser/);
 blocked.unblock();blocked.click();assert.equal(blocked.entry.state,'entered','A failed play remains recoverable by a second real click');
 const partial=scene({oneSound:true});partial.click();assert.equal(partial.entry.state,'starting','Ambient alone cannot silently pass a two-source readiness gate');partial.expire(5000);assert.equal(partial.entry.state,'retry');assert.equal(partial.timers.size,0);assert.equal(partial.intervals.size,0);
@@ -78,3 +82,9 @@ const audioEvents=new Map(),audioContext=vm.createContext({document:studioDocume
 const surrounding=scene();surrounding.root.emit('click',{isTrusted:true,detail:1});assert.equal(surrounding.entry.state,'waiting','The black background must not bypass the light / ENTER entrance');
 const dragged=scene();dragged.root.emit('pointerdown',{clientX:20,clientY:20});dragged.root.emit('pointermove',{clientX:80,clientY:60});dragged.button.emit('click',{isTrusted:true,detail:1});assert.equal(dragged.entry.state,'waiting','Dragging the entry must not accidentally enter');dragged.root.emit('pointerdown',{clientX:80,clientY:60});dragged.button.emit('click',{isTrusted:true,detail:1});assert.equal(dragged.entry.state,'entered','A subsequent tap still enters');
 console.log('Light / ENTER hit area passed: background clicks do not enter; dragging does not accidentally enter; clicking ENTER starts the entry.');
+// The pre-paint decision must match the component on refresh and cross-page return.
+const bootstrap=fs.readFileSync('dist/index.html','utf8').match(/<script>(\(\(\)=>\{const h=document\.documentElement[\s\S]*?)<\/script>/)[1];
+for(const [search,seen,expected] of [['',true,'entered'],['?lang=zh',true,'entered'],['?entryPreview=1',true,'waiting'],['',false,'waiting']]){
+ const document={documentElement:{dataset:{}}};vm.runInNewContext(bootstrap,{document,location:{search},URLSearchParams,sessionStorage:{getItem:()=>seen?'true':null}});assert.equal(document.documentElement.dataset.soundEntry,expected);
+}
+console.log('Same-tab reload/return skips ENTER; preview always shows it; a new tab still waits for confirmed audio.');

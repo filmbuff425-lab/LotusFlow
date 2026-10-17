@@ -61,3 +61,42 @@ body.cinema .studio-desktop .mac-transport>div{color:#ebebf0}
 .mac-dock button[aria-pressed=true]::after{content:'';position:absolute;bottom:-7px;width:3px;height:3px;background:#e4e5ec;border-radius:50%}
 .mac-dock button{position:relative}
 @media(max-width:700px){.mac-window{border-radius:16px;backdrop-filter:blur(14px);background:#1c1d22a6}.mac-content aside button{justify-content:center;padding:10px}.mac-content aside button span{display:none}.studio-desktop::backdrop{backdrop-filter:none}}
+
+/* A square listening window on phones; only the library scrolls. */
+@media(max-width:700px){
+ .studio-desktop{padding:0 12px;align-content:center}
+ .studio-desktop .mac-window{width:min(100%,calc(100svh - 126px));height:auto;max-height:none;aspect-ratio:1;background:#1b1c22eb;transform:none;transition:none}
+ .studio-desktop .mac-toolbar{height:40px;min-height:40px;padding:0 10px;gap:8px;cursor:default;touch-action:auto}
+ .studio-desktop .mac-toolbar>strong{font-size:11px}
+ .studio-desktop .mac-lights{gap:0;margin-left:-5px}
+ .studio-desktop .mac-lights button{width:30px;height:36px;border-radius:0;background:radial-gradient(circle,#ff5f57 0 5px,transparent 5.5px);line-height:36px}
+ .studio-desktop .mac-lights button:nth-child(2){background:radial-gradient(circle,#febc2e 0 5px,transparent 5.5px)}
+ .studio-desktop .mac-lights button[data-full]{display:none}
+ .studio-desktop .mac-content aside{width:44px;padding:7px 2px}
+ .studio-desktop .mac-content aside button{width:38px;height:40px;margin-bottom:2px}
+ .studio-desktop .mac-content main{display:flex;flex-direction:column;overflow:hidden;padding:10px 10px 0}
+ .studio-desktop .mac-library-heading{flex-shrink:0;margin-bottom:8px}
+ .studio-desktop .mac-library-heading small{display:none}
+ body.cinema .studio-desktop .mac-library-heading h2{font-size:20px;line-height:1.2;margin:0 0 7px}
+ .studio-desktop .mac-library-heading input{height:32px;margin:0;padding:5px 9px;font-size:16px;border-radius:7px}
+ .studio-desktop .mac-tracks{min-height:0;flex:1;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-bottom:6px}
+ .studio-desktop .mac-track{gap:9px;min-height:48px;padding:6px 3px}
+ .studio-desktop .mac-track>span{min-width:0}
+ .studio-desktop .mac-track strong,.studio-desktop .mac-track small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .studio-desktop .mac-track img{width:32px;height:32px}
+ body.cinema .studio-desktop .mac-transport{grid-template-columns:minmax(0,1fr) minmax(148px,1.12fr);height:76px;min-height:76px;gap:10px;padding:7px 10px}
+ .studio-desktop .mac-transport>div{gap:7px}
+ .studio-desktop .mac-transport img{width:34px;height:34px}
+ .studio-desktop .mac-transport>div>span{min-width:0}
+ .studio-desktop .mac-transport strong,.studio-desktop .mac-transport small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .studio-desktop .mac-transport strong{font-size:11px}
+ .studio-desktop .mac-transport small{font-size:9px;margin-top:2px}
+ .studio-desktop .mac-playback{gap:3px}
+ .studio-desktop .mac-playback button{width:44px;height:38px}
+ .studio-desktop .mac-playback .mac-icon{width:18px;height:18px}
+ .studio-desktop .mac-progress{gap:6px;margin-top:0;min-height:20px}
+ body.cinema .studio-desktop .mac-film{flex-shrink:0;margin:0 0 6px}
+ body.cinema .studio-desktop .mac-film video{max-height:100px}
+ .studio-desktop .mac-dock{bottom:max(14px,env(safe-area-inset-bottom));padding:7px 11px;gap:10px}
+ .studio-desktop .mac-dock button{width:40px;height:40px}
+}
