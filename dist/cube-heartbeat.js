@@ -35,9 +35,12 @@ const canPlay=()=>!['waiting','retry'].includes(entryState())&&allowed()&&!muted
 function connectOutput(){
  if(outputGain)return true;if(routeFailed){if(outputSource)throw new Error('Heartbeat output unavailable');return false}
  const context=window.lotusSfx?.audioContext;if(!context?.createMediaElementSource||!context.createGain)return false;
- const wasMuted=heart.muted;heart.muted=true;
+ const wasMuted=heart.muted,nativeLevel=wasMuted?0:heart.volume;heart.muted=true;
  try{
-  const gain=context.createGain();gain.gain.value=0;
+  // Preserve a heartbeat that was already playing through the native media
+  // path. The first Studio tap can now fade it through Web Audio instead of
+  // pausing a live bass transient abruptly on iOS.
+  const gain=context.createGain();gain.gain.value=entryPending()?0:nativeLevel;
   outputSource=context.createMediaElementSource(heart);
   outputSource.connect(gain);gain.connect(context.destination);
   outputContext=context;outputGain=gain;heart.volume=1;heart.muted=false;toggle.dataset.heartbeatOutput='shared-gain';reportGain();return true;
@@ -98,7 +101,11 @@ async function play({entryStart=false,resetClock=false}={}){
  finally{clearTimeout(timer);removeSeek()}
 }
 export async function armHeartbeat(){
- if(!canPlay()||arming||armed)return arming;
+ if(!canPlay()||arming)return arming;
+ // A restored session may have started the heartbeat before a trusted tap
+ // created the effects context. Attach it on that tap so room entry always
+ // has a real gain envelope and cannot produce a pause click.
+ if(armed){if(!outputGain)connectOutput();return true}
  // Unlock the real recording in the trusted gesture. A gated entrance keeps
  // that recording at zero volume until the entire visual reveal has finished.
  epoch=performance.now()-160;cycle=0;arming=play();

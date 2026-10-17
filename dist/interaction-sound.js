@@ -69,7 +69,15 @@ async function arm(){if(!enabled||entryWaiting())return;
  // The explicit entrance installs the heartbeat's zero-gain route before its
  // media starts. Passive visits retain the independent native-audio path.
  if(['starting','preparing','revealing'].includes(document.documentElement?.dataset?.soundEntry))try{init()}catch{}
- window.dispatchEvent(new CustomEvent('lotus-sound-unlock'));const starting=startBed({gesture:true});try{if(!init()){await starting;return}if(context.state!=='running')await context.resume();unlocked=context.state==='running';button.dataset.audioState=context.state;if(unlocked){try{sessionStorage.setItem('lotus-audio-unlocked','true')}catch{}}await starting;label()}catch{await starting;label()}}
+ window.dispatchEvent(new CustomEvent('lotus-sound-unlock'));const starting=startBed({gesture:true});
+ try{
+  if(!init()){await starting;return}
+  // A heartbeat restored before this gesture can only attach after init().
+  // Re-notify it while the tap is still trusted, before room entry fades it.
+  window.dispatchEvent(new CustomEvent('lotus-sound-unlock'));
+  if(context.state!=='running')await context.resume();unlocked=context.state==='running';button.dataset.audioState=context.state;if(unlocked){try{sessionStorage.setItem('lotus-audio-unlocked','true')}catch{}}await starting;label()
+ }catch{await starting;label()}
+}
 function busy(){
  if(window.lotusSession?.audioState?.playing||window.lotusIdentityAudio?.playing)return true;
  const audible=doc=>[...doc.querySelectorAll('audio:not([data-ambient]):not([data-heartbeat]),video')].some(el=>!el.paused&&!el.muted&&el.volume>.01);
@@ -175,7 +183,7 @@ document.addEventListener('pointerdown',e=>{if(!e.target.closest('#noise-title')
 document.addEventListener('pointermove',e=>{if(!canvasDrag||canvasDrag.id!==e.pointerId||!e.buttons||Math.hypot(e.clientX-canvasDrag.x,e.clientY-canvasDrag.y)<12)return;const now=performance.now();if(now-lastDrag>330){play('drag',{x:(e.clientX-innerWidth/2)/innerWidth});lastDrag=now;canvasDrag.x=e.clientX;canvasDrag.y=e.clientY}},{capture:true,passive:true});
 for(const type of ['pointerup','pointercancel'])document.addEventListener(type,()=>canvasDrag=null,{capture:true,passive:true});
 document.addEventListener('keydown',e=>{if(!e.target.matches('canvas'))return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','-','='].includes(e.key)){if(!e.repeat)play('move')}else if(/^[1-8ms]$/i.test(e.key))play('tap')});
-window.addEventListener('lotus-room-change',e=>{roomInside=Boolean(e.detail);if(roomInside)silenceBed('foreground-paused',.48);else blendBed();if(e.detail){airVoices.get('seam-air')?.stop();play('studio-wind')}else{airVoices.get('studio-wind')?.stop();play('move')}});
+window.addEventListener('lotus-room-change',e=>{roomInside=Boolean(e.detail);if(roomInside)silenceBed('foreground-paused',.48);else blendBed();const phone=document.documentElement?.dataset?.studioRenderer==='prerendered';if(e.detail){airVoices.get('seam-air')?.stop();if(phone){airVoices.get('studio-wind')?.stop();button.dataset.roomCue='clean-phone-entry'}else play('studio-wind')}else{airVoices.get('studio-wind')?.stop();play('move')}});
 const dialogs=new MutationObserver(records=>{for(const r of records){const el=r.target;if(el.id==='film-prologue')continue;if(r.attributeName==='open'&&el.open)play(el.id==='studio-desktop'?'glass':'case-open');else if(r.attributeName==='class'&&el.classList.contains('is-closing'))play('case-close')}});
 for(const dialog of document.querySelectorAll('dialog'))dialogs.observe(dialog,{attributes:true,attributeFilter:['open','class']});
 new MutationObserver(records=>{for(const r of records)for(const n of r.addedNodes)if(n.nodeType===1){if(n.matches('dialog'))dialogs.observe(n,{attributes:true,attributeFilter:['open','class']});n.querySelectorAll('dialog').forEach(d=>dialogs.observe(d,{attributes:true,attributeFilter:['open','class']}))}}).observe(document.body,{childList:true,subtree:true});

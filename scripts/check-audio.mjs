@@ -69,6 +69,9 @@ h.document.hidden=false;await h.document.emit('visibilitychange');await step(20.
 const retry=environment({failPlay:1});retry.load('cube-heartbeat.js');retry.visible(true);await flush();assert.equal(retry.nodes.find(e=>e.dataset.heartbeat).paused,true);await retry.call('armHeartbeat()');retry.call('updateHeartbeat(.17,1)');await flush();assert.equal(retry.nodes.find(e=>e.className?.includes('cube-sound-toggle')).dataset.heartbeatPlays,'1','Failed heartbeat unlock must recover on the next gesture');
 
 await h.window.emit('lotus-effects-change',{detail:false});finishFade();await step(22.37);assert.equal(count(),6,'Global sound off must also silence heartbeat');
+const routed=environment();routed.load('cube-heartbeat.js');routed.visible(true);await flush();routed.load('interaction-sound.js');await flush();
+await routed.document.emit('pointerdown',{target:routed.document.body});await flush();
+assert.equal(routed.nodes.find(e=>e.className?.includes('cube-sound-toggle')).dataset.heartbeatOutput,'shared-gain','The first trusted tap routes an already-playing heartbeat through a click-free gain envelope');
 const a=environment({failPlay:1});a.load('interaction-sound.js');await flush();
 const sound=a.nodes.find(e=>e.className==='interaction-sound-toggle'),ambient=a.nodes.find(e=>e.dataset.ambient);
 assert.equal(sound.textContent,'SOUND / ENABLE','No false ON before audio is unlocked');
@@ -76,7 +79,7 @@ await a.document.emit('pointerdown',{target:sound});assert.equal(a.contexts.leng
 assert.equal(sound.dataset.ambienceState,'needs-gesture');assert.equal(sound.textContent,'SOUND / ENABLE','Blocked arrival play must not report ON');
 await sound.emit('click');assert.equal(ambient.paused,false);assert.equal(sound.textContent,'SOUND / ON');
 assert.ok(a.order.indexOf('media.play')>=0&&a.order.indexOf('media.play')<a.order.indexOf('context.resumed'),'Both unlock operations begin in the gesture');
-const subtleBed=()=>assert.ok(ambient.volume>.10&&ambient.volume<.13,'Ambient level stays quiet after its fade');
+const subtleBed=()=>assert.ok(Number(sound.dataset.ambienceVolume)>.10&&Number(sound.dataset.ambienceVolume)<.13,'Ambient level stays quiet after its fade');
 for(let i=0;i<160;i++)a.intervals[0]();subtleBed();ambient.currentTime=2.5;a.intervals[0]();assert.equal(sound.dataset.ambienceProgress,'2.500');
 const companion=a.document.createElement('audio');companion.dataset.heartbeat='true';companion.paused=false;for(let i=0;i<160;i++)a.intervals[0]();subtleBed();
 const foreground=a.document.createElement('video');foreground.paused=false;
@@ -96,6 +99,11 @@ assert.equal(a.window.lotusSfx.play('archive-invite'),false,'Discography honors 
 const mutedSources=a.sources.length;assert.equal(a.window.lotusSfx.play('seam-air',{performanceAction:true}),false);assert.equal(a.sources.length,mutedSources,'The opening hint cannot bypass the visitor’s mute preference');
 await sound.emit('click');assert.equal(ambient.paused,true,'Enabling sound inside the room must not start a second soundtrack');assert.equal(sound.textContent,'SOUND / ON');
 await a.window.emit('lotus-room-change',{detail:false});await flush();assert.equal(ambient.paused,false,'Returning to the closed cube restores ambient playback');
+
+const phoneEntry=environment();phoneEntry.document.documentElement={dataset:{studioRenderer:'prerendered'}};phoneEntry.load('interaction-sound.js');await flush();
+const phoneSources=phoneEntry.sources.length;phoneEntry.window.dispatchEvent(new phoneEntry.context.CustomEvent('lotus-room-change',{detail:true}));
+assert.equal(phoneEntry.nodes.find(e=>e.className==='interaction-sound-toggle').dataset.roomCue,'clean-phone-entry');
+assert.equal(phoneEntry.sources.length,phoneSources,'Phone Studio entry omits the synthetic wind layer that reads as decoder noise');
 a.document.hidden=true;await a.document.emit('visibilitychange');assert.equal(ambient.paused,true);assert.equal(a.contexts[0].state,'suspended');
 a.document.hidden=false;await a.document.emit('visibilitychange');await flush();assert.equal(ambient.paused,false);assert.equal(a.contexts[0].state,'running');
 const embedded=environment();let parentUnlocks=0,parentCues=0;

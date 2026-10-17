@@ -6,7 +6,7 @@ html[data-studio-renderer="prerendered"] #studio-stage::before{background:radial
 html[data-studio-renderer="prerendered"] #studio-stage::after{background:radial-gradient(ellipse 115% 58% at 65% 26%,#243e5c99,transparent 78%),linear-gradient(#03060c,#172024 68%,#030506);opacity:var(--phone-room-mix,0)}
 html[data-studio-renderer="prerendered"] body.sound-entry-open #studio-stage::before{opacity:var(--phone-entry-glow,0)}
 html[data-studio-renderer="prerendered"] #studio-canvas{overflow:hidden;touch-action:pan-y;z-index:1}
-.phone-studio-surface{position:absolute;left:50%;top:50%;width:min(100%,600px);height:auto;aspect-ratio:4/5;transform:translate(-50%,-50%);overflow:hidden;outline:none;background:transparent;mask-image:linear-gradient(transparent,#000 18%,#000 82%,transparent);-webkit-mask-image:linear-gradient(transparent,#000 18%,#000 82%,transparent)}
+.phone-studio-surface{position:absolute;left:50%;top:50%;width:min(100%,600px);height:auto;aspect-ratio:4/5;transform:translate(-50%,-60%);overflow:hidden;outline:none;background:transparent;mask-image:linear-gradient(transparent,#000 18%,#000 82%,transparent);-webkit-mask-image:linear-gradient(transparent,#000 18%,#000 82%,transparent)}
 .phone-studio-image,.phone-studio-transition{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;pointer-events:none}
 .phone-studio-image{opacity:1;transform:scale(1);transition:opacity .65s ease,transform 1.1s cubic-bezier(.2,.7,.2,1)}
 .phone-studio-transition{opacity:0;z-index:2;transition:none}
