@@ -104,6 +104,9 @@ const phoneEntry=environment();phoneEntry.document.documentElement={dataset:{stu
 const phoneSources=phoneEntry.sources.length;phoneEntry.window.dispatchEvent(new phoneEntry.context.CustomEvent('lotus-room-change',{detail:true}));
 assert.equal(phoneEntry.nodes.find(e=>e.className==='interaction-sound-toggle').dataset.roomCue,'clean-phone-entry');
 assert.equal(phoneEntry.sources.length,phoneSources,'Phone Studio entry omits the synthetic wind layer that reads as decoder noise');
+const entryControl={disabled:false,matches:s=>s==='a,button,summary',closest:s=>s.includes('#open-studio')||s.includes('a,button')?entryControl:null,contains:()=>false,getBoundingClientRect:()=>({left:400,width:100})};
+await phoneEntry.document.emit('pointerover',{target:entryControl,relatedTarget:null});await phoneEntry.document.emit('focusin',{target:entryControl});
+assert.equal(phoneEntry.sources.length,phoneSources,'Pointer and focus events on the Studio transition control stay silent');
 a.document.hidden=true;await a.document.emit('visibilitychange');assert.equal(ambient.paused,true);assert.equal(a.contexts[0].state,'suspended');
 a.document.hidden=false;await a.document.emit('visibilitychange');await flush();assert.equal(ambient.paused,false);assert.equal(a.contexts[0].state,'running');
 const embedded=environment();let parentUnlocks=0,parentCues=0;

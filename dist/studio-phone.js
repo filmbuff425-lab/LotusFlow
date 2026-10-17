@@ -112,9 +112,10 @@ function preloadView(){if(reduced||phase!=='open'||changingView)return;clip.src=
 function travelView(destination){
  return new Promise(resolve=>{
   finishViewClip=resolve;
-  cancelViewClip=playPhoneTransition(clip,{src:asset(`${view}-${destination}.mp4`),onStart:()=>clip.classList.add('is-playing'),onEnd:()=>{finishViewClip=null;resolve(true)},onFallback:()=>{clip.classList.remove('is-playing');finishViewClip=null;resolve(false)}});
+  cancelViewClip=playPhoneTransition(clip,{src:asset(`${view}-${destination}.mp4`),holdLastFrame:true,onStart:()=>clip.classList.add('is-playing'),onEnd:()=>{finishViewClip=null;resolve(true)},onFallback:()=>{clip.classList.remove('is-playing');finishViewClip=null;resolve(false)}});
  });
 }
+const painted=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
 async function blendView(image,destination){
  const from=objectBounds(phoneObjects[view].computer),to=objectBounds(phoneObjects[destination].computer),ratio=to.width/from.width,w=surface.clientWidth,h=surface.clientHeight;
  const x=(to.x+to.width/2-.5-(from.x+from.width/2-.5)*ratio)*w,y=(to.y+to.height/2-.5-(from.y+from.height/2-.5)*ratio)*h;
@@ -139,6 +140,9 @@ async function changeView(next){
   const travelled=!reduced&&await travelView(destination);if(token!==operation)return;
   if(!travelled)await blendView(image,destination);if(token!==operation)return;
   still.src=image.src;await decode(still);if(token!==operation)return;
+  // The video stays on its last frame while the browser uploads and paints the
+  // destination still. This makes the handoff atomic even on a busy phone GPU.
+  if(travelled)await painted();if(token!==operation)return;
   view=destination;surface.dataset.view=view;cancelViewClip();cancelViewClip=()=>{};clip.classList.remove('is-playing');
   for(const animation of viewAnimations)animation.cancel();viewAnimations=[];viewLayer?.remove();viewLayer=null;
  }

@@ -18,11 +18,12 @@ export function createPhoneRecordShelf(trigger){
  function reset(){serial++;clearTimeout(flight);flight=null;active?.classList.remove('is-taken');active?.setAttribute('aria-pressed','false');active=null;captionFor(null)}
  function dismiss(){if(closing||!dialog.open)return;closing=true;reset();motion.depart(()=>{dialog.close();closing=false;trigger.focus({preventScroll:true})})}
  async function take(button,track){
-  if(active||!dialog.open||performance.now()<suppress)return;
+  if(!dialog.open||performance.now()<suppress||active===button)return;
+  if(active){serial++;clearTimeout(flight);flight=null;active.classList.remove('is-taken');active.setAttribute('aria-pressed','false')}
   active=button;const token=++serial;button.classList.add('is-taken');button.setAttribute('aria-pressed','true');captionFor(track);
   // Scroll the jewel case into a generous pocket before turning its cover.
   button.scrollIntoView({behavior:reduced?'instant':'smooth',block:'nearest',inline:'center'});
-  flight=setTimeout(()=>{if(token!==serial||!dialog.open)return;flight=null;window.lotusPortfolio?.openTrack(track.id,button)},reduced?0:850);
+  flight=setTimeout(()=>{if(token!==serial||!dialog.open)return;flight=null;window.lotusPortfolio?.openTrack(track.id,button)},reduced?0:620);
  }
  for(const [index,track]of tracks.entries()){
   const b=document.createElement('button');b.type='button';b.className='phone-record-case';b.setAttribute('aria-label',`Take ${track.title}`);b.setAttribute('aria-pressed','false');

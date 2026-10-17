@@ -8,7 +8,7 @@ export function decodeImage(image,timeoutMs=4000){
  });
 }
 
-export function playPhoneTransition(video,{src,onStart=()=>{},onProgress=()=>{},onEnd,onFallback,clock=globalThis}={}){
+export function playPhoneTransition(video,{src,onStart=()=>{},onProgress=()=>{},onEnd,onFallback,holdLastFrame=false,clock=globalThis}={}){
  let active=true,started=false,lastTime=0,stalledAt=clock.performance.now(),frame=0;
  let timer=0,poll=0;
  const stop=()=>{
@@ -17,7 +17,10 @@ export function playPhoneTransition(video,{src,onStart=()=>{},onProgress=()=>{},
   video.removeEventListener('playing',show);video.removeEventListener('error',fail);video.removeEventListener('ended',end);video.pause();
  };
  const fail=()=>{if(!active)return;stop();onFallback()};
- const end=()=>{if(!active)return;stop();onEnd()};
+ // Camera journeys keep their final decoded frame visible until the matching
+ // still has painted underneath it. Pausing first can expose a blank decoder
+ // surface for one frame on iOS, which reads as a flash and a layout jump.
+ const end=()=>{if(!active)return;if(holdLastFrame){clock.clearTimeout(timer);clock.clearInterval(poll);video.removeEventListener('playing',show);video.removeEventListener('error',fail);video.removeEventListener('ended',end);onEnd();return}stop();onEnd()};
  const show=()=>{if(!active)return;started=true;clock.clearTimeout(timer);stalledAt=clock.performance.now();onStart()};
  const ready=video.getAttribute('src')===src&&video.readyState>=2;
  video.addEventListener('error',fail);video.addEventListener('ended',end);
