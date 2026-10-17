@@ -2,13 +2,14 @@
 export function createPortraitMemory(host, source, reduced) {
  const layer=document.createElement('div');layer.className='portrait-memory';layer.setAttribute('aria-hidden','true');host.before(layer);
  Array.from({length:3},(_,i)=>{const frame=document.createElement('i');frame.className='portrait-depth';frame.style.setProperty('--depth',i+1);layer.append(frame);return frame});
- const ghosts=Array.from({length:7},()=>{const canvas=document.createElement('canvas');canvas.className='portrait-echo';layer.append(canvas);return {canvas,ctx:canvas.getContext('2d'),animation:null}});
+ const ghosts=Array.from({length:7},()=>{const canvas=document.createElement('canvas');canvas.className='portrait-echo';canvas.width=canvas.height=1;layer.append(canvas);return {canvas,ctx:canvas.getContext('2d'),animation:null}});
  let width=0,height=0,index=0,lastX=0,lastY=0,lastStamp=-Infinity;
- new ResizeObserver(()=>{width=host.clientWidth;height=host.clientHeight;layer.style.height=`${height}px`;for(const {canvas} of ghosts){canvas.width=Math.round(width*.65);canvas.height=Math.round(height*.65)}}).observe(host);
+ new ResizeObserver(()=>{width=host.clientWidth;height=host.clientHeight;layer.style.height=`${height}px`}).observe(host);
  function remember(x,y){
   if(reduced||!width||Math.hypot(x-lastX,y-lastY)<9)return;
   const now=performance.now();if(now-lastStamp<68)return;lastStamp=now;
   const ghost=ghosts[index++%ghosts.length],{canvas,ctx}=ghost;ghost.animation?.cancel();
+  const pixels=Math.round(width*.65),rows=Math.round(height*.65);if(canvas.width!==pixels||canvas.height!==rows){canvas.width=pixels;canvas.height=rows}
   const scale=canvas.width/width;ctx.setTransform(scale,0,0,scale,0,0);ctx.clearRect(0,0,width,height);
   ctx.fillStyle='#250b07';ctx.fillRect(0,0,width,height);ctx.fillStyle='#e2431d';ctx.fillRect(0,0,width,34);
   ctx.fillStyle='#f3caa3';ctx.font='10px monospace';ctx.fillText('PORTRAIT / IDENTITY',13,21);

@@ -15,6 +15,8 @@ export const omitted=new Set([...duplicateAudio.map(([original])=>original),'ass
  'assets/juliet.jpg','assets/recognition/awards/ridewind-2024-award-clip.jpg','assets/recognition/awards/freshmusic-19-malaysia-nominees.webp',
  // Generator/test data is not fetched by the live typography or music players.
  'assets/fonts/lotus-planar-glyphs.json','assets/fonts/lotus-glass-glyphs.json','assets/music/previews/preview-manifest.json','site-i18n-terms.json',
+ // Original pixel masters stay editable locally; only the current compact atlases ship.
+ 'assets/pixel/yellow-sprites-v2.png','assets/pixel/black-sprites-v2.png','assets/pixel/frames.json','assets/mobile/yellow-sprites-v2-1385a4c2c9a5a64f.webp','assets/mobile/black-sprites-v2-925da115f8454bbe.webp',
  'logo-motion.js','logo-scene.js','logo-volume.js']);
 export const studies=['_bar-study.html','logo-motion.html','design-review/','entry-study/','entry-visual/','home-demos/','tests/','test/','scripts/','outputs/'];
 

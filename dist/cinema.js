@@ -9,13 +9,13 @@ initReleasePlayer(window.lotusPortfolio);document.documentElement.dataset.cinema
 initStudioPlayer(window.lotusPortfolio);document.documentElement.dataset.cinemaPhase='studio-ready';
 import './type-interactions.js?v=20261007-performance1';
 let artistTask;
-function prepareArtist(){return artistTask??=initArtist().catch(error=>{console.warn('Character unavailable',error);document.querySelector('#portrait-wrap').innerHTML='<img src="assets/lotus-flow-portrait.jpg" alt="Lotus Flow">'})}
-// Portrait artwork is hidden in this edition; no invisible sprite downloads.
-const portraitHost=document.querySelector('#portrait-wrap');
-const artistObserver=new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting)&&portraitHost.getClientRects().length){prepareArtist();artistObserver.disconnect()}},{rootMargin:'100px'});artistObserver.observe(portraitHost);
-document.querySelector('.artist-gate').addEventListener('click',()=>{if(portraitHost.getClientRects().length)prepareArtist()},{once:true});
-
-
+function prepareArtist(){return artistTask??=initArtist().catch(error=>{artistTask=null;console.warn('Character unavailable',error)})}
+// Start the first pose while the chapter is still approaching the viewport.
+// The covered portrait itself is not a reliable intersection target.
+const artistObserver=new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting)){prepareArtist().then(()=>artistObserver.disconnect())}},{rootMargin:'700px 0px'});artistObserver.observe(document.querySelector('#about'));
+for(const event of ['pointerenter','pointerdown','focus'])document.querySelector('a[href="#about"]')?.addEventListener(event,prepareArtist,{passive:true});
+document.querySelector('.artist-gate').addEventListener('pointerdown',prepareArtist,{passive:true});
+document.querySelector('.artist-gate').addEventListener('click',prepareArtist);
 
 import './scroll-scenes.js?v=20261006-lake-surface1';
 

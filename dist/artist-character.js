@@ -1,12 +1,19 @@
+import {frames} from './artist-sprite-data.js';
+import {createArtistImages} from './artist-images.js';
+import {createVisibleFrameLoop} from './visible-frame-loop.js';
 import {createPortraitMemory} from './artist-echoes.js?v=20261006-lake-surface1';
 export async function initArtist(){
  const host=document.querySelector('#portrait-wrap');host.className='artist-stage';host.innerHTML='<div class="artist-window-bar mono"><span class="artist-window-handle" tabindex="0" role="button" aria-label="Move portrait window. Arrow keys move, Home resets.">PORTRAIT / IDENTITY</span><button id="artist-reset-position" title="Reset window position" aria-label="Reset portrait window position">↺</button></div><div class="artist-view-switch" role="group" aria-label="Portrait view"><button data-portrait-view="body" aria-pressed="true">FULL BODY</button><button data-portrait-view="head" aria-pressed="false">HEAD</button></div><canvas id="artist-sprite" tabindex="0" aria-label="Lotus Flow pixel character. Left and right arrows to walk, Space to smile."></canvas><div class="artist-wardrobe" role="group" aria-label="Character outfit"><button data-outfit="yellow" aria-pressed="true">01 / YELLOW</button><button data-outfit="black" aria-pressed="false">02 / BLACK</button><a id="artist-smile" href="https://www.instagram.com/lotusflow__/" target="_blank" rel="noopener noreferrer">SAY HI <span aria-hidden="true">↗</span></a></div>';
- const canvas=host.querySelector('canvas'),ctx=canvas.getContext('2d'),frames=await(await fetch('assets/pixel/frames.json')).json(),images={};
- await Promise.all(['yellow','black'].map(k=>new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>{images[k]=image;resolve()};image.onerror=reject;image.src=`assets/pixel/${k}-sprites-v2.png`})));
- const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;let portraitView='body',headMix=0;let outfit='yellow',x=.5,target=.5,face=1,smile=0,blink=0,nextBlink=3,visible=false,last=0,time=0,key=0;
- const resize=()=>{canvas.width=Math.round(host.clientWidth/3);canvas.height=Math.round((host.clientHeight-140)/3);ctx.imageSmoothingEnabled=false};new ResizeObserver(resize).observe(host);resize();
- new IntersectionObserver(([entry])=>visible=entry.isIntersecting,{rootMargin:'50px'}).observe(host);
- host.querySelectorAll('[data-outfit]').forEach(b=>b.addEventListener('click',()=>{outfit=b.dataset.outfit;host.querySelectorAll('[data-outfit]').forEach(n=>n.setAttribute('aria-pressed',String(n===b)));smile=time+1.8}));
+ const canvas=host.querySelector('canvas'),ctx=canvas.getContext('2d'),assets=createArtistImages();
+ const idle=await assets.load('idle').catch(()=>assets.load('yellow'));
+ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;let portraitView='body',headMix=0;let outfit='yellow',x=.5,target=.5,face=1,smile=0,blink=0,nextBlink=3,visible=false,last=0,time=0,key=0,loop=null,outfitRequest=0;
+ const section=host.closest('#about'),phone=matchMedia('(max-width:700px)').matches;
+ const resize=()=>{const width=Math.max(1,Math.round(host.clientWidth/3)),height=Math.max(1,Math.round((host.clientHeight-140)/3));if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;ctx.imageSmoothingEnabled=false;render(performance.now(),true)}};new ResizeObserver(resize).observe(host);resize();
+ new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;loop?.wake()}).observe(host);
+ host.querySelectorAll('[data-outfit]').forEach(b=>{
+  const prepare=()=>assets.load(b.dataset.outfit).catch(()=>{});b.addEventListener('pointerenter',prepare);b.addEventListener('pointerdown',prepare,{passive:true});
+  b.addEventListener('click',async()=>{const token=++outfitRequest,next=b.dataset.outfit;b.setAttribute('aria-busy','true');try{await assets.load(next);if(token!==outfitRequest)return;outfit=next;host.querySelectorAll('[data-outfit]').forEach(n=>n.setAttribute('aria-pressed',String(n===b)));smile=time+1.8;render(performance.now(),true);loop.wake()}catch{/* Keep the current character visible; a later tap retries. */}finally{b.removeAttribute('aria-busy')}});
+ });
  host.addEventListener('lotus-artist-smile',()=>smile=time+2.4);
  canvas.addEventListener('pointermove',e=>{const box=canvas.getBoundingClientRect();target=Math.max(.25,Math.min(.75,(e.clientX-box.left)/box.width));if(Math.abs(target-x)<.12)smile=time+.7});canvas.addEventListener('pointerleave',()=>target=.5);
  canvas.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight',' '].includes(e.key)){e.preventDefault();if(e.key===' ')smile=time+2;else key=e.key==='ArrowLeft'?-1:1}});canvas.addEventListener('keyup',()=>key=0);canvas.addEventListener('blur',()=>key=0);
@@ -38,16 +45,24 @@ export async function initArtist(){
  const practice=document.querySelector('.practice-list');practice.innerHTML='<button data-instinct="production">01 / MUSIC PRODUCTION <span>↗</span></button><button data-instinct="writing">02 / SONGWRITING <span>↗</span></button><button data-instinct="arrangement">03 / ARRANGEMENT <span>↗</span></button><p class="instinct-caption" aria-live="polite">Sound as architecture. Production as storytelling.</p>';
  const lines={production:'Electronic music, pop and experimental sound.',writing:'Composition and lyrics across languages and genres.',arrangement:'Classical composition meets electronic experimentation.'};
  practice.querySelectorAll('button').forEach((b,i)=>{const react=()=>{practice.querySelector('.instinct-caption').textContent=lines[b.dataset.instinct];target=.32+i*.18;smile=time+1.6;practice.querySelectorAll('button').forEach(n=>n.classList.toggle('active',n===b))};b.addEventListener('pointerenter',react);b.addEventListener('focus',react);b.addEventListener('click',react)});
- function render(now){requestAnimationFrame(render);const dt=Math.min(.05,(now-last)/1000||0);last=now;if(!visible||document.hidden||document.body.classList.contains('prologue-open'))return;time+=dt;if(time>nextBlink){blink=time+.14;nextBlink=time+3+Math.random()*2.8}if(key)target=Math.max(.22,Math.min(.78,target+key*dt*.2));const moving=Math.abs(target-x)>.012;if(moving&&!reduced){face=Math.sign(target-x);x+=face*Math.min(Math.abs(target-x),dt*.16)}
+ function render(now,force=false){if(phone&&!force&&now-last<1000/30-1)return;const dt=last?Math.min(.05,(now-last)/1000):0;last=now;time+=dt;if(time>nextBlink){blink=time+.14;nextBlink=time+3+Math.random()*2.8}if(key)target=Math.max(.22,Math.min(.78,target+key*dt*.2));const moving=Math.abs(target-x)>.012;if(moving&&!reduced){face=Math.sign(target-x);x+=face*Math.min(Math.abs(target-x),dt*.16)}
   headMix+=((portraitView==='head'?1:0)-headMix)*(reduced?1:1-Math.exp(-dt*10));
-  const f=moving&&!reduced&&portraitView==='body'?4+Math.floor(time*8)%4:time<blink&&!reduced?1:time<smile?3:0;const [sx,sy,sw,sh]=frames[outfit][f],scale=(canvas.height-23)/498,dw=Math.round(sw*scale),dh=Math.round(sh*scale),bob=moving?Math.round(Math.sin(time*16)):!reduced?Math.round(Math.sin(time*2)*.7):0;
+  const atlas=assets.get(outfit),image=atlas||idle;
+  const f=atlas?(moving&&!reduced&&portraitView==='body'?4+Math.floor(time*8)%4:time<blink&&!reduced?1:time<smile?3:0):0;const [fx,fy,sw,sh]=frames[outfit][f],sx=atlas?fx:0,sy=atlas?fy:0,scale=(canvas.height-23)/498,dw=Math.round(sw*scale),dh=Math.round(sh*scale),bob=moving?Math.round(Math.sin(time*16)):!reduced?Math.round(Math.sin(time*2)*.7):0;
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  if(headMix<.999){ctx.globalAlpha=1-headMix;ctx.fillStyle='#07020466';ctx.beginPath();ctx.ellipse(Math.round(canvas.width*x),canvas.height-9,25,3,0,0,Math.PI*2);ctx.fill();ctx.save();ctx.translate(Math.round(canvas.width*x),canvas.height-11+bob);ctx.scale(face,1);ctx.drawImage(images[outfit],sx,sy,sw,sh,-Math.round(frames.anchors[outfit][f]*scale),-dh,dw,dh);ctx.restore()}
+  if(headMix<.999){ctx.globalAlpha=1-headMix;ctx.fillStyle='#07020466';ctx.beginPath();ctx.ellipse(Math.round(canvas.width*x),canvas.height-9,25,3,0,0,Math.PI*2);ctx.fill();ctx.save();ctx.translate(Math.round(canvas.width*x),canvas.height-11+bob);ctx.scale(face,1);ctx.drawImage(image,sx,sy,sw,sh,-Math.round(frames.anchors[outfit][f]*scale),-dh,dw,dh);ctx.restore()}
   if(headMix>.001){
-   const headFrame=time<blink&&!reduced?1:time<smile?3:0,[hx,hy]=frames[outfit][headFrame],anchor=frames.anchors[outfit][headFrame],size=Math.min(canvas.width*.70/168,canvas.height*.78/130);
+   const headFrame=atlas?(time<blink&&!reduced?1:time<smile?3:0):0,[hx,hy]=atlas?frames[outfit][headFrame]:[0,0],anchor=frames.anchors[outfit][headFrame],size=Math.min(canvas.width*.70/168,canvas.height*.78/130);
    ctx.globalAlpha=headMix;ctx.save();ctx.translate(Math.round(canvas.width*(.5+(target-.5)*.14)),Math.round(canvas.height*.49+(reduced?0:Math.sin(time*1.6)*1.2)));ctx.rotate(reduced?0:(target-.5)*.10);
-   ctx.drawImage(images[outfit],hx+anchor-84,hy,168,130,-Math.round(84*size),-Math.round(65*size),Math.round(168*size),Math.round(130*size));ctx.restore();
+   ctx.drawImage(image,hx+anchor-84,hy,168,130,-Math.round(84*size),-Math.round(65*size),Math.round(168*size),Math.round(130*size));ctx.restore();
   }
-  ctx.globalAlpha=1;canvas.dataset.pose=f<4?['idle','blink','soft-smile','smile'][f]:'walk';canvas.dataset.outfit=outfit;
- }requestAnimationFrame(render);
+  ctx.globalAlpha=1;host.dataset.artistReady=atlas?'animated':'first-frame';canvas.dataset.pose=f<4?['idle','blink','soft-smile','smile'][f]:'walk';canvas.dataset.outfit=outfit;
+ }
+ loop=createVisibleFrameLoop({update:render,active:()=>visible&&!document.hidden&&section.dataset.artistLocked==='false'&&!document.body.classList.contains('prologue-open'),onPause:()=>{last=0},watchBodyClasses:true});
+ // Paint a real pose behind the cover before the blade exposes the window.
+ render(performance.now(),true);loop.wake();
+ window.addEventListener('lotus-cut-prepare',()=>resize());
+ window.addEventListener('lotus-prologue-end',()=>{resize();loop.wake()});
+ assets.load('yellow').then(()=>{render(performance.now(),true);loop.wake()}).catch(()=>{});
+
 }
