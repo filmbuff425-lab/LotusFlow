@@ -38,3 +38,5 @@ assert.match(home, /data-view="gallery" class="active" aria-pressed="true"/);
 assert.ok(!home.includes('class="work section vinyl-mode"')&&!home.includes('id="track-list" hidden'));
 assert.ok(home.includes('id="vinyl-room" hidden')&&home.includes('id="vinyl-caption" hidden'));
 console.log('Records starts in Grid on both screen sizes; Vinyl remains an explicit choice.');
+
+for(const id of ['news','rendezvous','right-here']){const html=fs.readFileSync('dist/works/'+id+'.html','utf8');const contribution=html.match(/<section class="contribution"[\s\S]*?<\/section>/)?.[0];assert.ok(contribution?.includes('<h3>RECORDING</h3>'),id+' detail must use Recording');assert.ok(!contribution?.includes('AUDIO'),id+' detail must not retain the obsolete Audio heading');}
