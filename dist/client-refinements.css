@@ -98,3 +98,8 @@ html:lang(zh-CN) body{font-family:'Lotus Sarasa Mono SC','Lotus Space Grotesk',s
 
 /* Review-only portrait composition. It is not enabled by the production URL. */
 @media(max-width:700px){html[data-compact-studio="true"] #studio.room-is-open #studio-stage{height:clamp(540px,70svh,650px)!important;min-height:0!important}}
+
+/* The archive footer returns to the studio cover on every screen size. */
+footer .archive-home-link{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:8px 14px;border:1px solid #70413a;transition:color .2s,border-color .2s,background-color .2s}
+footer .archive-home-link:is(:hover,:focus-visible){color:#fff0df;border-color:#d33b29;background:#a3291c26}
+footer .archive-home-link:active{background:#a3291c40}

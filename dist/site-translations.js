@@ -852,6 +852,10 @@ window.LotusTranslations={
     "en": "WITH LOTUS",
     "zh": "合作内容"
   },
+  "BACK TO HOME": {
+    "en": "BACK TO HOME",
+    "zh": "回首页"
+  },
   "ALL RELEASES": {
     "en": "ALL RELEASES",
     "zh": "全部作品"
