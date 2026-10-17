@@ -6,7 +6,7 @@ html[data-studio-renderer="prerendered"] #studio-stage::before{background:radial
 html[data-studio-renderer="prerendered"] #studio-stage::after{background:radial-gradient(ellipse 115% 58% at 65% 26%,#243e5c99,transparent 78%),linear-gradient(#03060c,#172024 68%,#030506);opacity:var(--phone-room-mix,0)}
 html[data-studio-renderer="prerendered"] body.sound-entry-open #studio-stage::before{opacity:var(--phone-entry-glow,0)}
 html[data-studio-renderer="prerendered"] #studio-canvas{overflow:hidden;touch-action:pan-y;z-index:1}
-.phone-studio-surface{position:absolute;left:50%;top:50%;width:min(100%,600px);height:auto;aspect-ratio:4/5;transform:translate(-50%,-50%);overflow:hidden;outline:none;background:transparent;mask-image:linear-gradient(transparent,#000 18%,#000 82%,transparent);-webkit-mask-image:linear-gradient(transparent,#000 18%,#000 82%,transparent)}
+.phone-studio-surface{position:absolute;left:50%;top:50%;width:min(100%,600px);height:auto;aspect-ratio:4/5;transform:translate(-50%,-50%) scale(calc(.92 + .08*var(--phone-shell-form,0)),calc(.82 + .18*var(--phone-shell-form,0)));overflow:hidden;outline:none;background:transparent;mask-image:linear-gradient(transparent,#000 18%,#000 82%,transparent);-webkit-mask-image:linear-gradient(transparent,#000 18%,#000 82%,transparent)}
 .phone-studio-image,.phone-studio-transition{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;pointer-events:none}
 .phone-studio-image{opacity:1;transform:scale(1);transition:opacity .65s ease,transform 1.1s cubic-bezier(.2,.7,.2,1)}
 .phone-studio-transition{opacity:0;z-index:2;transition:opacity .24s ease}
@@ -14,6 +14,15 @@ html[data-studio-renderer="prerendered"] #studio-canvas{overflow:hidden;touch-ac
 .phone-studio-surface[data-phase="closed"] .phone-studio-image{transform:scale(var(--phone-cube-scale,1));transform-origin:49% 51%;transition:opacity .65s ease;will-change:transform}
 .phone-studio-contour{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;opacity:0}
 .phone-studio-contour path{fill:none;stroke:#ffc2ad;stroke-width:.8;stroke-linecap:round;filter:drop-shadow(0 0 2px #ff3b24)}
+/* Narrow moving light belongs to the shell, with no continuous mobile 3D render. */
+.phone-shell-light{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0;transform:scale(var(--phone-cube-scale,1));transform-origin:49% 51%;transition:opacity .6s ease;filter:drop-shadow(0 0 2px #f43c25)}
+html[data-sound-entry="entered"] .phone-studio-surface[data-phase="closed"] .phone-shell-light{opacity:1}
+.phone-shell-light path{fill:none;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.phone-shell-edge{stroke:#f56e53;stroke-width:.6;opacity:.3}
+.phone-shell-glint{stroke:#ffdcc4;stroke-width:1;stroke-dasharray:.038 .962;animation:phone-shell-trace 9.4s linear infinite;animation-delay:var(--shell-delay);animation-play-state:paused;opacity:.78}
+html[data-sound-entry="entered"] .phone-stage-awake .phone-studio-surface[data-phase="closed"] .phone-shell-glint{animation-play-state:running}
+@keyframes phone-shell-trace{from{stroke-dashoffset:0}to{stroke-dashoffset:-1}}
+@media(prefers-reduced-motion:reduce){.phone-shell-glint{animation:none;opacity:.35}.phone-shell-light{transition:none}}
 .phone-studio-hotspots{position:absolute;inset:0;z-index:3;pointer-events:none;opacity:0;transition:opacity .55s ease}
 .phone-studio-hotspots.is-visible{opacity:1}
 .phone-studio-object{position:absolute;display:block;border:0!important;border-radius:0;padding:0!important;background:transparent!important;pointer-events:auto;color:#fff;cursor:pointer;touch-action:pan-y;-webkit-tap-highlight-color:transparent}

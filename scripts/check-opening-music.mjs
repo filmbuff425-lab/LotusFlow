@@ -45,12 +45,13 @@ await bufferedOpening.start();assert.equal(bufferedOpening.elapsed,0);wallTime=1
 // Exercise the real cube update: the cue must follow the first visible blue
 // frame, including reduced motion and re-entry, rather than a late progress cutoff.
 const THREE=await import('../dist/vendor/three.module.js');
+const {createEntryContourData}=await import('../dist/entry-reveal.js');
 for(const reduced of [false,true])for(const compactStudio of [false,true]){
  let cues=0,entryGain=1;
  const cubeRoot=new THREE.Group(),cubeScene=new THREE.Scene();
- const cubeContext=vm.createContext({THREE,compactStudio,document:{documentElement:{dataset:{}}},innerWidth:compactStudio?390:1200,innerHeight:900,matchMedia:()=>({matches:reduced}),updateHeartbeat(){},heartbeatTime:()=>.2,heartbeatEntryGain:()=>entryGain,createEntrancePrint(){return{update(){}}},createCubeBrand(){return null},studioLayout:{shell:[40,35,40],center:[0,17.5,0]},createCosmos({scene}){const group=new THREE.Group();group.visible=false;scene.add(group);return{group,setReveal(v){group.visible=v>.001},update(){}}}});
+ const cubeContext=vm.createContext({THREE,createEntryContourData,compactStudio,document:{documentElement:{dataset:{}}},innerWidth:compactStudio?390:1200,innerHeight:900,matchMedia:()=>({matches:reduced}),updateHeartbeat(){},heartbeatTime:()=>.2,heartbeatEntryGain:()=>entryGain,createEntrancePrint(){return{update(){}}},createCubeBrand(){return null},studioLayout:{shell:[40,35,40],center:[0,17.5,0]},createCosmos({scene}){const group=new THREE.Group();group.visible=false;scene.add(group);return{group,setReveal(v){group.visible=v>.001},update(){}}}});
  vm.runInContext(fs.readFileSync('dist/soundcube.js','utf8').replace(/^import .*$/gm,'').replace('export function','function'),cubeContext);
- const cube=vm.runInContext('createSoundcube',cubeContext)({scene:cubeScene,root:cubeRoot,camera:new THREE.PerspectiveCamera(),renderer:{domElement:{clientHeight:800}},onBlueReveal:()=>cues++});
+ const cube=vm.runInContext('createSoundcube',cubeContext)({scene:cubeScene,root:cubeRoot,camera:new THREE.PerspectiveCamera(),renderer:{domElement:{clientHeight:800},getDrawingBufferSize:v=>v.set(1200,800),getPixelRatio:()=>1},onBlueReveal:()=>cues++});
  cube.attachRoom({update(){}});cube.setInteriorReady();cube.setProgress(.22);cube.update(1000);assert.equal(cues,0,'No downbeat before the blue sky is visible');
  cube.setProgress(.24);cube.update(1017);assert.equal(cues,1,'The first blue frame cues the drums while the planet is still emerging');
  cube.setProgress(1);cube.update(1034);assert.equal(cues,1,'Completing the reveal cannot restart the drums');

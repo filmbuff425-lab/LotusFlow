@@ -12,7 +12,6 @@ export function createSoundcube({scene,root,texture,camera,renderer,onBlueReveal
  let entryLight={outline:entryPending?0:1,red:entryPending?0:1,copy:entryPending?0:1};
  function setEntryLight(value){
   entryLight=value;
-  if(value.copy===1&&entryContour){glassGroup.remove(entryContour);entryContour.geometry.dispose();entryContour.material.dispose();entryContour=null}
  }
  scene.background=new THREE.Color(entryPending?0x000000:0x16070b);scene.fog=null;
  const pointer=new THREE.Vector2(4,4),pointerTarget=new THREE.Vector2(4,4);
@@ -32,7 +31,7 @@ export function createSoundcube({scene,root,texture,camera,renderer,onBlueReveal
  const pulseUniforms={beat:{value:0},alpha:{value:1}};
  const pulseGlow=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.ShaderMaterial({uniforms:pulseUniforms,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false,vertexShader:'varying vec2 v;void main(){v=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',fragmentShader:'varying vec2 v;uniform float beat,alpha;void main(){vec2 p=(v-.5)*2.;float r=length(p);float glow=exp(-r*r*4.6)*(1.-smoothstep(.58,1.,r));gl_FragColor=vec4(vec3(1.,.035,.065),glow*(.28+beat*.60)*alpha);}'}));
  pulseGlow.renderOrder=-5;scene.add(pulseGlow);const away=new THREE.Vector3();
- const frost=new THREE.ShaderMaterial({transparent:true,depthWrite:true,side:THREE.DoubleSide,uniforms,vertexShader:`varying vec2 vUv;varying vec3 vNormal,vView;void main(){vUv=uv;vec4 world=modelMatrix*vec4(position,1.);vNormal=normalize(mat3(modelMatrix)*normal);vView=normalize(cameraPosition-world.xyz);gl_Position=projectionMatrix*viewMatrix*world;}`,fragmentShader:`varying vec2 vUv;varying vec3 vNormal,vView;uniform float time,opacity,hover,beat,entryRed;void main(){vec2 uv=vUv;float fresnel=pow(1.-abs(dot(normalize(vNormal),normalize(vView))),3.);float edge=1.-smoothstep(.001,.012,min(min(uv.x,1.-uv.x),min(uv.y,1.-uv.y)));float formation=1.-smoothstep(hover-.10,hover+.10,uv.y);float sweep=exp(-pow((uv.x+uv.y*.30-.70)*19.,2.));float reflection=exp(-pow((uv.x-.22)*4.,2.))*pow(uv.y,2.);float glint=.10+beat*.86;vec3 black=vec3(.001,.001,.002)+vec3(.13,.002,.007)*beat*(.18+fresnel);vec3 glass=vec3(.025,.019,.024)+fresnel*vec3(.18,.19,.22)+reflection*vec3(.05,.075,.09)+sweep*vec3(.13,.12,.12);vec3 c=mix(black,glass,formation*hover);c+=edge*(hover*.46+glint)*mix(vec3(1.,.04,.08),vec3(.75,.64,.61),hover);float transmission=formation*hover;float glassAlpha=.16+fresnel*.28+edge*.12;gl_FragColor=vec4(c*entryRed,opacity*mix(1.,glassAlpha,transmission));}`});
+ const frost=new THREE.ShaderMaterial({transparent:true,depthWrite:true,side:THREE.DoubleSide,uniforms,vertexShader:`varying vec2 vUv;varying vec3 vNormal,vView;void main(){vUv=uv;vec4 world=modelMatrix*vec4(position,1.);vNormal=normalize(mat3(modelMatrix)*normal);vView=normalize(cameraPosition-world.xyz);gl_Position=projectionMatrix*viewMatrix*world;}`,fragmentShader:`varying vec2 vUv;varying vec3 vNormal,vView;uniform float time,opacity,hover,beat,entryRed;void main(){vec2 uv=vUv;float fresnel=pow(1.-abs(dot(normalize(vNormal),normalize(vView))),3.);float edge=1.-smoothstep(.001,.012,min(min(uv.x,1.-uv.x),min(uv.y,1.-uv.y)));float formation=1.-smoothstep(hover-.10,hover+.10,uv.y);float sweep=exp(-pow((uv.x+uv.y*.30-.70)*19.,2.));float reflection=exp(-pow((uv.x-.22)*4.,2.))*pow(uv.y,2.);float glint=.13+beat*.86;float seam=fract(uv.x*.55+uv.y*.45-time*.075);float optical=exp(-pow((seam-.5)*22.,2.));vec3 black=vec3(.001,.001,.002)+vec3(.13,.002,.007)*beat*(.18+fresnel);vec3 glass=vec3(.025,.019,.024)+fresnel*vec3(.18,.19,.22)+reflection*vec3(.05,.075,.09)+sweep*vec3(.13,.12,.12);vec3 c=mix(black,glass,formation*hover);c+=edge*(hover*.46+glint)*mix(vec3(1.,.04,.08),vec3(.75,.64,.61),hover);c+=edge*optical*vec3(.78,.37,.24)*(1.-hover*.7);float transmission=formation*hover;float glassAlpha=.16+fresnel*.28+edge*.12;gl_FragColor=vec4(c*entryRed,opacity*mix(1.,glassAlpha,transmission));}`});
  const entryEdgeColor=new THREE.Color();
  const edgeMaterial=new THREE.LineBasicMaterial({color:0xf0c7b7,transparent:true,opacity:.45,depthWrite:false});
  const surfaces=[];
@@ -41,7 +40,7 @@ export function createSoundcube({scene,root,texture,camera,renderer,onBlueReveal
  for(const [position,rotation,size] of faceData){const panel=new THREE.Group();panel.position.set(...position);panel.rotation.set(...rotation);glassGroup.add(panel);const surface=new THREE.Mesh(new THREE.PlaneGeometry(size[0]+.02,size[1]+.02),frost);panel.add(surface);surfaces.push(surface);const edge=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(...size)),edgeMaterial);edge.position.z=.012;panel.add(edge)}
  // Draw a narrow light along the real shell, rather than fading in a complete wireframe.
  let entryContour=null;
- if(entryPending&&!reduced){
+ {
   const data=createEntryContourData([dims.x+.06,dims.y+.06,dims.z+.06]);
   const positions=[],others=[],traces=[],sides=[],across=[];
   // Screen-facing ribbons retain a hairline core and a narrow optical halo.
@@ -55,9 +54,9 @@ export function createSoundcube({scene,root,texture,camera,renderer,onBlueReveal
   const geometry=new THREE.BufferGeometry();
   for(const [name,values,size] of [['position',positions,3],['other',others,3],['trace',traces,1],['side',sides,1],['across',across,1]])geometry.setAttribute(name,new THREE.Float32BufferAttribute(values,size));
   const material=new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:true,toneMapped:false,blending:THREE.AdditiveBlending,
-   uniforms:{drawTo:{value:0},alpha:{value:0},resolution:{value:new THREE.Vector2(1,1)},spread:{value:7}},
+   uniforms:{drawTo:{value:0},alpha:{value:0},idle:{value:0},time:{value:0},beat:{value:0},resolution:{value:new THREE.Vector2(1,1)},spread:{value:7}},
    vertexShader:'attribute vec3 other;attribute float trace,side,across;varying float vTrace,vAcross;uniform vec2 resolution;uniform float spread;void main(){vTrace=trace;vAcross=across;vec4 here=projectionMatrix*modelViewMatrix*vec4(position,1.);vec4 there=projectionMatrix*modelViewMatrix*vec4(other,1.);vec2 direction=normalize((there.xy/there.w-here.xy/here.w)*resolution);vec2 normal=vec2(-direction.y,direction.x);here.xy+=normal*side*spread*2./resolution*here.w;gl_Position=here;}',
-   fragmentShader:'varying float vTrace,vAcross;uniform float drawTo,alpha;void main(){float tip=1.-smoothstep(drawTo-.008,drawTo,vTrace);if(tip<=0.)discard;float head=exp(-pow((drawTo-vTrace)*55.,2.));float core=exp(-vAcross*vAcross*380.);float halo=exp(-vAcross*vAcross*9.);vec3 light=mix(vec3(1.,.16,.09),vec3(1.,.83,.72),core);float glow=core*.5+halo*.10+head*(core*.42+halo*.28);gl_FragColor=vec4(light,alpha*glow*tip);}'
+   fragmentShader:'varying float vTrace,vAcross;uniform float drawTo,alpha,idle,time,beat;void main(){float tip=1.-smoothstep(drawTo-.008,drawTo,vTrace);float head=exp(-pow((drawTo-vTrace)*55.,2.));float core=exp(-vAcross*vAcross*mix(380.,180.,idle));float halo=exp(-vAcross*vAcross*9.);float d=abs(vTrace-fract(time*.08+.18));d=min(d,1.-d);float glint=exp(-d*d*1100.);float drift=.65+.35*sin(time*.73);vec3 light=mix(vec3(1.,.16,.09),vec3(1.,.83,.72),core*mix(1.,glint,idle));float arrival=(core*.5+halo*.10+head*(core*.42+halo*.28))*tip;float resting=core*(.12+beat*.22+glint*1.08)+halo*(.016+glint*.20*drift);gl_FragColor=vec4(light,alpha*mix(arrival,resting,idle));}'
   });
   entryContour=new THREE.Mesh(geometry,material);entryContour.renderOrder=2;entryContour.frustumCulled=false;glassGroup.add(entryContour);
 
@@ -86,12 +85,12 @@ export function createSoundcube({scene,root,texture,camera,renderer,onBlueReveal
   // Preserve the requested screen-space reduction when the heading no longer
   // consumes its own block above the taller stage. The open room stays 1:1.
   const oldHeight=Math.max(innerWidth<=700?460:540,innerHeight-(innerWidth<=700?255:290));
-  const closedScale=.34*.93*(compactStudio?1.08:1)*Math.min(1,oldHeight/(renderer.domElement.clientHeight||oldHeight));
+  const closedScale=.34*.93*.92*(compactStudio?1.08:1)*Math.min(1,oldHeight/(renderer.domElement.clientHeight||oldHeight));
   const scale=(closedScale+(1-closedScale)*p)*(1+.034*beat*closed*(1-hoverSmooth*.75));
   pointer.lerp(pointerTarget,ease);hoverSmooth+=((interiorReady?hover:0)-hoverSmooth)*ease;
   const yaw=Math.sin(t*.18)*.20,tilt=Math.sin(t*.15+1)*.055,roll=Math.sin(t*.13)*.018;
-  root.scale.setScalar(scale);root.rotation.set(closed*tilt,closed*yaw,closed*roll);root.position.set(closed*Math.sin(t*.21)*.28,closed*(1.05+Math.sin(t*.42)*.68)+p*Math.sin(t*.32)*.16,closed*Math.sin(t*.19)*.20);root.visible=interiorReady&&(p>0||hoverSmooth>.12);
-  glassGroup.rotation.copy(root.rotation);glassGroup.scale.copy(root.scale);glassGroup.position.copy(center).multiplyScalar(scale).applyEuler(root.rotation).add(root.position);glassGroup.visible=p<1;
+  root.scale.set(scale,scale*(.82+.18*p),scale);root.rotation.set(closed*tilt,closed*yaw,closed*roll);root.position.set(closed*Math.sin(t*.21)*.28,closed*(1.05+Math.sin(t*.42)*.68)+p*Math.sin(t*.32)*.16,closed*Math.sin(t*.19)*.20);root.visible=interiorReady&&(p>0||hoverSmooth>.12);
+  glassGroup.rotation.copy(root.rotation);glassGroup.scale.copy(root.scale);glassGroup.position.copy(center).multiply(root.scale).applyEuler(root.rotation).add(root.position);glassGroup.visible=p<1;
   entrancePrint.update(p,t,entryLight.copy);
   const reveal=THREE.MathUtils.smoothstep(p,.48,.98);cosmos?.setReveal(THREE.MathUtils.smoothstep(p,.22,.82));grainUniforms.open.value=THREE.MathUtils.smoothstep(p,0,.8);grainUniforms.entryRed.value=entryLight.red;uniforms.entryRed.value=entryLight.red;
   if(shellLogo)shellLogo.material.opacity=entryLight.copy*(1-THREE.MathUtils.smoothstep(p,0,.20))*(1-hoverSmooth*.38);
@@ -100,7 +99,7 @@ export function createSoundcube({scene,root,texture,camera,renderer,onBlueReveal
   if(nextBlueVisible&&!blueVisible)onBlueReveal();
   blueVisible=nextBlueVisible;
   const contourMix=entryContour?1-THREE.MathUtils.smoothstep(entryLight.red,0,.22):0;
-  if(entryContour){entryContour.material.uniforms.drawTo.value=(entryLight.trace??1)*1.006;entryContour.material.uniforms.alpha.value=entryLight.outline*contourMix;renderer.getDrawingBufferSize(entryContour.material.uniforms.resolution.value);entryContour.material.uniforms.spread.value=7*renderer.getPixelRatio()}
+  if(entryContour){entryContour.material.uniforms.drawTo.value=(entryLight.trace??1)*1.006;entryContour.material.uniforms.alpha.value=entryLight.outline*(1-reveal)*(1-hoverSmooth*.65);entryContour.material.uniforms.idle.value=1-contourMix;entryContour.material.uniforms.time.value=t;entryContour.material.uniforms.beat.value=beat;renderer.getDrawingBufferSize(entryContour.material.uniforms.resolution.value);entryContour.material.uniforms.spread.value=7*renderer.getPixelRatio()}
   uniforms.beat.value=beat;uniforms.time.value=t;uniforms.hover.value=Math.max(hoverSmooth,THREE.MathUtils.smoothstep(p,0,.2));uniforms.opacity.value=1-reveal;frost.depthWrite=p<.49&&hoverSmooth<.025;edgeMaterial.opacity=(1-contourMix)*entryLight.outline*(.24*(1-entryLight.red)+(.13+beat*.65+hoverSmooth*.26)*entryLight.red)*(1-reveal);edgeMaterial.color.set(0xaaa6a1).lerp(entryEdgeColor.set(hoverSmooth>.5?0xf0c7b7:0xff3845),entryLight.red);
   pulseGlow.position.copy(glassGroup.position).addScaledVector(camera.getWorldDirection(away),10*scale);pulseGlow.quaternion.copy(camera.quaternion);pulseGlow.scale.set(135*scale,112*scale,1);pulseUniforms.beat.value=beat;pulseUniforms.alpha.value=entryLight.red*(1-reveal)*(1-hoverSmooth*.65);pulseGlow.visible=p<.98;
   updateDrops(dt,reveal);

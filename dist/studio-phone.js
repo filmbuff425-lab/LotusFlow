@@ -26,7 +26,13 @@ const hotspots=document.createElement('div');hotspots.className='phone-studio-ho
 const computer=document.createElement('button'),records=document.createElement('button'),film=document.createElement('button');
 const objects={computer,records,film};
 for(const [name,b] of Object.entries(objects)){b.type='button';b.className='phone-studio-object';b.dataset.object=name;const light=document.createElement('span');light.className='phone-object-light';light.setAttribute('aria-hidden','true');const dot=document.createElement('span');dot.className='phone-object-dot';dot.setAttribute('aria-hidden','true');b.append(light,dot);hotspots.append(b)}
-surface.append(still,clip,contour,hotspots);host.append(surface);
+// A few optical highlights follow the original projected shell; no new scene or decoder.
+const shellLight=document.createElementNS(contour.namespaceURI,'svg');shellLight.classList.add('phone-shell-light');shellLight.setAttribute('viewBox','0 0 720 900');shellLight.setAttribute('aria-hidden','true');
+for(const [i,indices]of [[2,3,7,6,2],[6,4,5,1,3],[7,5]].entries()){
+ const d=indices.map((n,j)=>`${j?'L':'M'}${phoneStudio.corners[n][0]*720},${phoneStudio.corners[n][1]*900}`).join(' ');
+ for(const glint of [false,true]){const path=document.createElementNS(contour.namespaceURI,'path');path.setAttribute('d',d);path.setAttribute('pathLength','1');path.setAttribute('class',glint?'phone-shell-glint':'phone-shell-edge');path.style.setProperty('--shell-delay',`${-i*2.1}s`);shellLight.append(path)}
+}
+surface.append(still,clip,contour,shellLight,hotspots);host.append(surface);
 const wallFilm=mountPhoneFilmScreen(surface);
 const header=document.querySelector('.header');
 if(header)new ResizeObserver(()=>section.style.setProperty('--phone-header-height',`${header.getBoundingClientRect().height}px`)).observe(header);
@@ -62,7 +68,7 @@ function ambient(){const awake=visible&&!document.hidden&&!document.querySelecto
 window.addEventListener('lotus-phone-film-close',ambient);
 new MutationObserver(ambient).observe(document.body,{subtree:true,attributes:true,attributeFilter:['open']});
 
-function setPhase(value){phase=value;if(value==='open'||value==='closed')stage.style.setProperty('--phone-room-mix',value==='open'?'1':'0');surface.style.setProperty('--phone-cube-scale','1');surface.dataset.phase=value;host.dataset.roomState=value;const busy=value==='opening'||value==='closing';openButton.disabled=busy;closeButton.disabled=busy;toolbar.inert=busy;placeHotspots();labels()}
+function setPhase(value){phase=value;if(value==='open'||value==='closed')surface.style.setProperty('--phone-shell-form',value==='open'?'1':'0');if(value==='open'||value==='closed')stage.style.setProperty('--phone-room-mix',value==='open'?'1':'0');surface.style.setProperty('--phone-cube-scale','1');surface.dataset.phase=value;host.dataset.roomState=value;const busy=value==='opening'||value==='closing';openButton.disabled=busy;closeButton.disabled=busy;toolbar.inert=busy;placeHotspots();labels()}
 function stopClip(){cancelClip();cancelClip=()=>{};clip.pause();clip.classList.remove('is-playing');}
 function settled(open){stopClip();stopViewMotion(false);surface.querySelectorAll('.phone-studio-blend').forEach(layer=>layer.remove());buttons.forEach((b,name)=>b.setAttribute('aria-pressed',String(name===view)));still.style.opacity='1';still.style.transform='';still.src=asset((open?view:'closed')+'.webp');setPhase(open?'open':'closed');stage.classList.toggle('is-room-open',open);stage.classList.remove('is-opening-room');section.classList.toggle('room-is-open',open);entry.hidden=open;closeButton.hidden=!open;toolbar.hidden=!open;if(open){revealContent(toolbar);decode(photo('desk'));decode(photo('records'))}if(heading)heading.style.opacity=open?'0':'1';window.dispatchEvent(new Event('lotus-room-settled'));pulse();}
 function frame(){const height=header?.getBoundingClientRect().height||112,top=stage.getBoundingClientRect().top;if(top<height-80||top>height+80)scrollToPosition(top+scrollY-height)}
@@ -75,7 +81,7 @@ async function fallback(open,token){
  const duration=reduced?0:780,options={duration,easing:'cubic-bezier(.22,.61,.36,1)',fill:'forwards'};
  const arrive=layer.animate([{opacity:0,transform:'scale(1.035)'},{opacity:1,transform:'scale(1)'}],options),depart=still.animate([{opacity:1},{opacity:0}],options);
  const start=performance.now(),from=Number(stage.style.getPropertyValue('--phone-room-mix'))||0,target=open?1:0;
- let fadeFrame=0;const blend=now=>{if(token!==operation)return;const p=duration?Math.min(1,(now-start)/duration):1,ease=1-Math.pow(1-p,3);stage.style.setProperty('--phone-room-mix',String(from+(target-from)*ease));if(p<1)fadeFrame=requestAnimationFrame(blend)};fadeFrame=requestAnimationFrame(blend);
+ let fadeFrame=0;const blend=now=>{if(token!==operation)return;const p=duration?Math.min(1,(now-start)/duration):1,ease=1-Math.pow(1-p,3);surface.style.setProperty('--phone-shell-form',String(from+(target-from)*ease));stage.style.setProperty('--phone-room-mix',String(from+(target-from)*ease));if(p<1)fadeFrame=requestAnimationFrame(blend)};fadeFrame=requestAnimationFrame(blend);
  await arrive.finished.catch(()=>{});cancelAnimationFrame(fadeFrame);if(token===operation)settled(open);arrive.cancel();depart.cancel();layer.remove();
 }
 function playTransition(open,token){
@@ -87,6 +93,7 @@ function playTransition(open,token){
   onFallback:()=>{if(token===operation)fallback(open,token).then(()=>{if(open&&phase==='open'&&token===operation)window.dispatchEvent(new Event('lotus-studio-reveal'))})},
   onProgress:t=>{
    if(token!==operation)return;
+   const form=Math.max(0,Math.min(1,open?t/1.8:(5.8-t)/1.8));surface.style.setProperty('--phone-shell-form',String(form*form*(3-2*form)));
    const mix=Math.max(0,Math.min(1,(t-1.7)/1.8));stage.style.setProperty('--phone-room-mix',String(open?mix:1-mix));
    if(open&&t>=1.148&&!warm){warm=true;window.lotusStudioMedia?.warmupEntrance()}
    if(open&&t>=2.015&&!blue){blue=true;window.dispatchEvent(new Event('lotus-studio-reveal'))}
