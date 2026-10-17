@@ -4,15 +4,16 @@ import path from 'node:path';
 import vm from 'node:vm';
 
 function site(search='',saved=null){
- const context={window:{addEventListener(){}},document:{documentElement:{dataset:{}},readyState:'loading',addEventListener(){}},location:{search},localStorage:{getItem:()=>saved,setItem(){}},URLSearchParams};
+ const context={window:{addEventListener(){}},document:{documentElement:{dataset:{}},readyState:'loading',addEventListener(){}},location:{search},sessionStorage:{getItem:()=>saved,setItem(){}},URLSearchParams};
  vm.createContext(context);
  for(const file of ['site-translations.js','site-i18n.js','release-media.js','catalog-data.js'])vm.runInContext(fs.readFileSync(path.join('dist',file),'utf8'),context);
  return context;
 }
-const chinese=site('?lang=zh','en'),english=site('?lang=en','zh');
+const chinese=site('?lang=zh','zh'),english=site('?lang=en');
 assert.equal(chinese.document.documentElement.lang,'zh-CN');
 assert.equal(english.document.documentElement.lang,'en');
-assert.equal(site('','zh').window.lotusI18n.language,'zh');
+assert.equal(site('','zh').window.lotusI18n.language,'zh','A deliberate Chinese selection survives navigation in this visit');
+assert.equal(site('?lang=zh').window.lotusI18n.language,'en','Even an old Chinese shared URL opens a new visit in English');
 assert.equal(site('?lang=invalid','invalid').window.lotusI18n.language,'en');
 const zh=chinese.window.lotusI18n.translate,en=english.window.lotusI18n.translate;
 for(const track of chinese.window.lotusCatalog){

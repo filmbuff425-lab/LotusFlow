@@ -20,23 +20,57 @@ export function objectBounds(points){
  return{x,y,width,height,clip:`polygon(${points.map(([px,py])=>`${(px-x)/width*100}% ${(py-y)/height*100}%`).join(',')})`};
 }
 export function swipeDirection(dx,dy){return Math.abs(dx)>44&&Math.abs(dx)>Math.abs(dy)*1.5?(dx<0?1:-1):0}
+export function phoneHeartbeatScale(time,gain=1){
+ const t=time%1.85;
+ const pair=Math.exp(-Math.pow((t-.20)/.105,2))+.68*Math.exp(-Math.pow((t-.49)/.14,2));
+ return 1+.038*pair*gain;
+}
 
-// A single decoder, created only by a deliberate tap. Releasing the source
-// cancels its download and decoder when the viewer is dismissed.
-export function createPhoneFilmPlayback(video,{announce=()=>{},onState=()=>{}}={}){
- let request=0,active=false;
- const state=value=>onState(value);
- function release(){request++;active=false;video.pause();video.removeAttribute('src');video.load();state('idle')}
- function play(src){
-  const token=++request;active=true;video.pause();video.src=src;video.preload='none';
-  announce();state('loading');
-  try{Promise.resolve(video.play()).catch(error=>{if(active&&token===request)state(error.name==='NotAllowedError'?'gesture':'error')})}
-  catch{if(active&&token===request)state('error')}
+// Project the native video onto the approved screen plane without rendering a
+// 3D scene. Unit-square homography, expressed as a CSS matrix for a 640×360 video.
+export const phoneFilmQuad=[[924/1080,322/1350],[1118/1080,426/1350],[1039/1080,794/1350],[889/1080,608/1350]];
+export function screenTransform(width,height){
+ const [[x0,y0],[x1,y1],[x2,y2],[x3,y3]]=phoneFilmQuad.map(([x,y])=>[x*width,y*height]);
+ const dx1=x1-x2,dx2=x3-x2,dx3=x0-x1+x2-x3,dy1=y1-y2,dy2=y3-y2,dy3=y0-y1+y2-y3;
+ const determinant=dx1*dy2-dx2*dy1;
+ if(!determinant)return 'none';
+ const g=(dx3*dy2-dx2*dy3)/determinant,h=(dx1*dy3-dx3*dy1)/determinant;
+ return `matrix3d(${[(x1-x0+g*x1)/640,(y1-y0+g*y1)/640,0,g/640,(x3-x0+h*x3)/360,(y3-y0+h*y3)/360,0,h/360,0,0,1,0,x0,y0,0,1].join(',')})`;
+}
+
+// Releasing the sole native video cancels its download and decoder whenever
+// both the room screen and enlarged viewer are out of view.
+export function createPhoneFilmPlayback(video,{announce=()=>{},onState=()=>{},clock=globalThis}={}){
+ let request=0,active=false,poll=0,lastTime=0,progressAt=0,currentState='idle';
+ const state=value=>{if(value!==currentState){currentState=value;onState(value)}};
+ const stopWatch=()=>{clock.clearInterval(poll);poll=0};
+ function watch(){
+  stopWatch();lastTime=video.currentTime||0;progressAt=clock.performance.now();
+  poll=clock.setInterval(()=>{
+   if(!active)return stopWatch();
+   const now=clock.performance.now();
+   if(Math.abs(video.currentTime-lastTime)>.02){lastTime=video.currentTime;progressAt=now;state('playing')}
+   else if(now-progressAt>=9000){video.pause();stopWatch();state('stalled')}
+  },350);
  }
- video.addEventListener('play',()=>{if(active)announce()});
- video.addEventListener('playing',()=>{if(active)state('playing')});
+ function release(){request++;active=false;stopWatch();video.pause();video.removeAttribute('src');video.load();state('idle')}
+ function play(src){
+  const token=++request;active=true;stopWatch();video.pause();video.preload='auto';video.src=src;
+  // Load and play in the same tap. Do not cross an awaited fade or animation.
+  video.load();announce();state('loading');watch();
+  const failed=error=>{if(active&&token===request){stopWatch();state(error.name==='NotAllowedError'?'gesture':'error')}};
+  try{Promise.resolve(video.play()).catch(failed)}catch(error){failed(error)}
+ }
+ video.addEventListener('play',()=>{if(active){announce();watch()}});
+ video.addEventListener('playing',()=>{if(active){progressAt=clock.performance.now();state('playing')}});
  video.addEventListener('waiting',()=>{if(active)state('loading')});
- video.addEventListener('ended',()=>{if(active)state('ended')});
- video.addEventListener('error',()=>{if(active)state('error')});
- return{play,release,pause:()=>video.pause()};
+ video.addEventListener('pause',()=>{stopWatch();if(active&&!['stalled','error','gesture'].includes(currentState))state('paused')});
+ video.addEventListener('ended',()=>{stopWatch();if(active)state('ended')});
+ video.addEventListener('error',()=>{stopWatch();if(active)state('error')});
+ function resume(){
+  if(!active||!video.getAttribute('src'))return;
+  const token=++request;announce();state('loading');watch();
+  Promise.resolve(video.play()).catch(error=>{if(active&&token===request){stopWatch();state(error.name==='NotAllowedError'?'gesture':'error')}});
+ }
+ return{play,resume,release,pause:()=>video.pause()};
 }

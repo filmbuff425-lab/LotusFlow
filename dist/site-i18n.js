@@ -1,11 +1,12 @@
 /* Local, reversible localization. No network request is needed to switch languages. */
 (() => {
- const dictionary=window.LotusTranslations||{},key='lotus-language';
+ const dictionary=window.LotusTranslations||{},key='lotus-language-visit';
  const normalize=value=>String(value).replace(/\s+/g,' ').trim();
  const valid=value=>value==='zh'||value==='en';
- let saved;try{saved=localStorage.getItem(key)}catch{}
- const query=new URLSearchParams(location.search).get('lang');
- let locale=valid(query)?query:valid(saved)?saved:'en';
+ // Every new visit opens in English, even through an old shared ?lang=zh URL.
+ // A deliberate language switch is retained for navigation within this visit.
+ let saved;try{saved=sessionStorage.getItem(key)}catch{}
+ let locale=valid(saved)?saved:'en';
  const sourceText=new WeakMap(),sourceAttributes=new WeakMap(),symbolSources=new WeakMap();
  const skip='script,style,svg,[translate="no"],.site-language-switch,.studio-heading,#about-title,.mac-side-note';
  const attributes=['aria-label','placeholder','title','label','alt','content'];
@@ -117,7 +118,8 @@
  }
  function setLocale(next,persist=false){
   if(!valid(next))return;locale=next;
-  if(persist){try{localStorage.setItem(key,next)}catch{}const u=new URL(location.href);u.searchParams.set('lang',next);history.replaceState(null,'',u)}
+  if(persist)try{sessionStorage.setItem(key,next)}catch{}
+  const u=new URL(location.href);if(u.searchParams.get('lang')!==next){u.searchParams.set('lang',next);history.replaceState(null,'',u)}
   document.documentElement.lang=next==='zh'?'zh-CN':'en';document.documentElement.dataset.language=next;
   observer?.disconnect();translateTree(document);document.querySelectorAll('[data-site-lang]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.siteLang===next)));observe();
   document.querySelectorAll('iframe').forEach(frame=>{try{if(new URL(frame.src,location.href).origin===location.origin)frame.contentWindow.postMessage({type:'lotus-language',locale:next},location.origin)}catch{}});
@@ -125,7 +127,7 @@
  }
  window.lotusI18n={get language(){return locale},translate:phrase,setLanguage:next=>setLocale(next,true)};
  document.documentElement.lang=locale==='zh'?'zh-CN':'en';document.documentElement.dataset.language=locale;
- if(valid(query))try{localStorage.setItem(key,locale)}catch{}
+ try{sessionStorage.setItem(key,locale)}catch{}
  function init(){controls();observer=new MutationObserver(records=>{for(const record of records){if(record.type==='childList')record.addedNodes.forEach(node=>dirty.add(node));else dirty.add(record.target)}if(dirty.size&&!pending){pending=true;queueMicrotask(flush)}});setLocale(locale);document.addEventListener('load',event=>{if(event.target.tagName==='IFRAME')try{if(new URL(event.target.src,location.href).origin===location.origin)event.target.contentWindow.postMessage({type:'lotus-language',locale},location.origin)}catch{}},true)}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
  window.addEventListener('storage',event=>{if(event.key===key&&valid(event.newValue)&&event.newValue!==locale)setLocale(event.newValue)});
